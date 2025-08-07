@@ -59,11 +59,7 @@ local common = {
     processor_with_tags = prefix .. "-processor_with_tags",
     iopoint_name = prefix .. "-iopoint",
     tag_prefix = '__' .. prefix,
-    directions = {
-        cardinal = {
-            defines.direction.north, defines.direction.east, defines.direction.south, defines.direction.west
-        }
-    },
+    wire_types = { defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green },
     ---@enum cardinal_direction
     cardinal_direction = {
         north = 0, --[[@as cardinal_direction.north]]

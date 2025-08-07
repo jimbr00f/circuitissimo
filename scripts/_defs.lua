@@ -7,79 +7,12 @@
 
 
 ---@class ProcInfo
----@field id integer
----@field processor LuaEntity           @ Processor object
----@field surface LuaSurface            @ Editor surface of the processor
----@field iopoints LuaEntity[]          @ List of external IO points object
----@field is_packed boolean             @ Circuit is packed
----@field blueprint string              @ Content blueprint as string
----@field model  string                 @ Model name
----@field tick integer
----@field circuits Circuit[]
----@field iopoint_infos IOPointInfo[]   @ Internal IO points
----@field sprite1 string
----@field sprite2 string
----@field references string[]
----@field origin_surface_name string
----@field origin_surface_position MapPosition
----@field origin_controller_type defines.controllers
----@field physical_surface_index integer
----@field physical_position MapPosition
----@field physical_controller_type defines.controllers
----@field in_pole LuaEntity?            @ Energy pole
----@field generator LuaEntity?          @ Electrical generator
----@field sprite_ids LuaRenderObject[]
----@field accu LuaEntity
----@field name string
----@field value_id integer
----@field label string?
----@field input_values table<string, any> 
----@field draw_version integer
----@field energ_pole LuaEntity?
----@field wires WireDefinition[]
+---@field entity LuaEntity           @ Processor object
+---@field iopoints IOPoint[]          @ List of connected IOPoint entities
+---@field tags Tags
 
----@class WireDefinition
----@field iopoint_index integer
----@field src_connector defines.wire_connector_id
----@field dst_connector  defines.wire_connector_id
----@field dst_name string
----@field dst_pos MapPosition
-
----@class Circuit
----@field name string
----@field ext_name string
----@field ext_position MapPosition
----@field index integer         @ Index for ip point
----@field sprite_type string
----@field sprite_name string
----@field position MapPosition
----@field direction number
----@field graphics_variation integer
----@field parameters any
----@field enabled boolean?
----@field circuit_condition CircuitConditionDefinition?
----@field use_colors boolean
----@field connections CircuitConnection[]
-
----@class CircuitConnection
----@field target_entity integer
----@field wire integer
----@field source_circuit_id integer
----@field target_circuit_id integer
-
----@class IOPointInfo
----@field index integer
+---@class IOPoint
 ---@field entity LuaEntity
----@field id integer
----@field label string
----@field input boolean
----@field output boolean
----@field red_display integer
----@field green_display integer
----@field text_id LuaRenderObject
----@field iopoint_text_color Color
----@field red_wired boolean
----@field green_wired boolean
 
 ---@class IOPointLayout
 ---@field positions table<defines.direction, MapPosition[]>
