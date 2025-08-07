@@ -1,4 +1,4 @@
-local commons = require('scripts.commons')
+local common = require('scripts.common')
 
 ---@param x1 number
 ---@param y1 number
@@ -59,24 +59,6 @@ function init_procinfo(procinfo)
     ---@type LuaEntity[]
     local iopoints = {}
 
-    -- create device for consumption
-    local entries = surface.find_entities_filtered {
-        name = commons.device_name,
-        position = processor.position,
-        radius = 0.2
-    }
-    local entry
-    if #entries == 1 then
-        entry = entries[1]
-    else
-        entry = processor.surface.create_entity {
-            name = commons.device_name,
-            position = processor.position,
-            force = processor.force
-        }
-        entry.destructible = false
-    end
-
     local find_count = 0
 
     local iop_position_list = create_iopoint_positions(0.8, 0.8, 4)
@@ -88,12 +70,12 @@ function init_procinfo(procinfo)
         local area = { { x1 - 0.05, y1 - 0.05 }, { x1 + 0.05, y1 + 0.05 } }
         local point
         local points = surface.find_entities_filtered {
-            name = commons.iopoint_name,
+            name = common.iopoint_name,
             area = area
         }
         if #points == 0 then
             point = surface.create_entity {
-                name = commons.iopoint_name,
+                name = common.iopoint_name,
                 position = { x1, y1 },
                 force = processor.force
             }

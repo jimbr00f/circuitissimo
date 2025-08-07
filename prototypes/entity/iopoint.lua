@@ -1,8 +1,8 @@
-local commons = require("scripts.commons")
+local common = require("scripts.common")
 
 local iopoint_sprite = {
     count = 1,
-    filename = commons.png("invisible"),
+    filename = common.png("invisible"),
     width = 1,
     height = 1,
     direction_count = 1
@@ -10,7 +10,7 @@ local iopoint_sprite = {
 
 local iopoint = {
     type = "lamp",
-    name = commons.prefix .. "-iopoint",
+    name = common.prefix .. "-iopoint",
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
     selection_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
@@ -19,7 +19,7 @@ local iopoint = {
     maximum_wire_distance = 9,
     max_health = 10,
     icon_size = 16,
-    icon = commons.png('entity/iopoint'),
+    icon = common.png('entity/iopoint'),
     flags = { "placeable-off-grid", "placeable-neutral", "player-creation" },
     circuit_wire_max_distance = 9,
 

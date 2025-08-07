@@ -1,24 +1,24 @@
-local commons = require("scripts.commons")
+local common = require("scripts.common")
 
 local items = {
     {
       type = 'item',
-      name = commons.processor_name,
+      name = common.processor_name,
       icon_size = 64,
-      icon = commons.png('item/processor'),
+      icon = common.png('item/processor'),
       subgroup = 'circuit-network',
       order = 'p[rocessor]',
-      place_result = commons.processor_name,
+      place_result = common.processor_name,
       stack_size = 50,
       weight = 200000
   }, {
       type = "item-with-tags",
-      name = commons.processor_with_tags,
+      name = common.processor_with_tags,
       icon_size = 64,
-      icon = commons.png('item/processor'),
+      icon = common.png('item/processor'),
       subgroup = 'circuit-network',
       order = 'p[rocessor]',
-      place_result = commons.processor_name,
+      place_result = common.processor_name,
       stack_size = 1,
       flags = { "not-stackable" }
   }
