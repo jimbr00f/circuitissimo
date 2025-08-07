@@ -1,5 +1,7 @@
 local common = require("scripts.common")
 
+local iopoint_layout = common.iopoint_layout
+
 local iopoint_sprite = {
     count = 1,
     filename = common.png("invisible"),
@@ -10,10 +12,10 @@ local iopoint_sprite = {
 
 local iopoint = {
     type = "lamp",
-    name = common.prefix .. "-iopoint",
+    name = common.iopoint_name,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
-    selection_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
+    selection_box = { { -iopoint_layout.rx, -iopoint_layout.ry }, { iopoint_layout.rx, iopoint_layout.ry } },
     selection_priority = 70,
     minable = nil,
     maximum_wire_distance = 9,

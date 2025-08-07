@@ -80,3 +80,11 @@
 ---@field iopoint_text_color Color
 ---@field red_wired boolean
 ---@field green_wired boolean
+
+---@class IOPointLayout
+---@field positions table<defines.direction, MapPosition[]>
+---@field count integer
+---@field dx float
+---@field dy float
+---@field rx float
+---@field ry float
