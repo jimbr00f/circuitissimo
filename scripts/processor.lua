@@ -21,13 +21,11 @@ local function transfer_connections(source, target)
     end
 end
 
-
 ---@param entity LuaEntity
 ---@return IOPoint
 local function create_iopoint(entity)
     return { entity = entity }
 end
-
 
 ---@param info ProcInfo
 ---@return IOPoint[]
@@ -37,12 +35,19 @@ local function build_iopoints(info)
     ---@type IOPoint[]
     local iopoints = {}
     for _, iop in pairs(positions) do
-        local x1 = entity.position.x + iop.x
-        local y1 = entity.position.y + iop.y
+        local pos = { x = entity.position.x, y = entity.position.y }
+        local offset = { x = iop.x, y = iop.y }
+        if entity.mirroring then
+            if entity.direction == defines.direction.north or entity.direction == defines.direction.south then
+                offset.x = -offset.x
+            else
+                offset.y = -offset.y
+            end
+        end
 
         local iopoint_entity = entity.surface.create_entity {
             name = common.iopoint_name,
-            position = { x1, y1 },
+            position = { pos.x + offset.x, pos.y + offset.y },
             force = entity.force
         }
         if iopoint_entity then
@@ -58,17 +63,27 @@ end
 
 ---@param info ProcInfo
 function processor.destroy_processor(info)
+    game.print('processor destroyed')
+    for _, iopoint in ipairs(info.iopoints) do
+        iopoint.entity.destroy()
+    end
 end
 
 
 ---@param info ProcInfo
 function processor.build_processor(info)
+    game.print('processor built')
     info.iopoints = build_iopoints(info)
     update_connections(info)
 end
 
 ---@param info ProcInfo
-function processor.rotate_processor(info)
+function processor.reorient_processor(info)
+    game.print('processor reoriented')
+    game.print('direction: ')
+    game.print(info.entity.direction)
+    game.print('mirroring: ')
+    game.print(info.entity.mirroring)
     local new_iopoints = build_iopoints(info)
     for i, old_iopoint in ipairs(info.iopoints) do
         if old_iopoint.entity and old_iopoint.entity.valid then
@@ -78,6 +93,12 @@ function processor.rotate_processor(info)
         end
     end
     info.iopoints = new_iopoints
+end
+
+---@param source ProcInfo
+---@param destination ProcInfo
+function processor.clone_processor(source, destination)
+    game.print('processor cloned')
 end
 
 return processor

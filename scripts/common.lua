@@ -50,6 +50,33 @@ local function create_iopoint_layout(x1, y1, count)
   return layout
 end
 
+---@param entity LuaEntity
+---@param horizontal boolean
+local function unrotate_and_mirror(entity, horizontal)
+    if horizontal then
+        if entity.direction == defines.direction.east then
+            entity.direction = defines.direction.west
+        elseif entity.direction == defines.direction.west then
+            entity.direction = defines.direction.east
+        end
+    else
+        if entity.direction == defines.direction.north then
+            entity.direction = defines.direction.south
+        elseif entity.direction == defines.direction.south then
+            entity.direction = defines.direction.north
+        end
+    end
+    game.print('entity mirroring start:')
+    game.print(entity.mirroring)
+    if entity.mirroring then
+        entity.mirroring = false
+    else
+        entity.mirroring = true
+    end
+    game.print('entity mirroring end:')
+    game.print(entity.mirroring)
+end
+
 local common = {
     prefix = prefix,
     prefix_pattern = prefix_pattern,
@@ -67,7 +94,8 @@ local common = {
         south = 4, --[[@as cardinal_direction.south]]
         west  = 6, --[[@as cardinal_direction.west]]
     },
-    iopoint_layout = create_iopoint_layout(0.8, 0.8, 4)
+    iopoint_layout = create_iopoint_layout(0.8, 0.8, 4),
+    unrotate_and_mirror = unrotate_and_mirror
 }
 
 

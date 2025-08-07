@@ -1,13 +1,6 @@
 local common = require('scripts.common')
 local processor = require('scripts.processor')
 
-local build_events = {
-    defines.events.on_built_entity,
-    defines.events.on_robot_built_entity,
-    defines.events.script_raised_built,
-    defines.events.script_raised_revive
-}
-
 ---@param e EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive | EventData.on_built_entity | EventData.on_space_platform_built_entity
 ---@return Tags?
 local function get_processor_tags(e)
@@ -39,26 +32,70 @@ local function load_stored_processor_info(entity, create)
     return info
 end
 
-local function on_processor_built(event)
-    local entity = event.created_entity or event.entity
-    if not entity or not entity.valid then return end
-    if entity.name ~= common.processor_name then return end
-    local info = load_stored_processor_info(entity, true)
-    processor.build_processor(info)
+local processor_handlers = {
+    ---@param event EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive
+    on_built = function(event)
+        local entity = event.entity
+        if not entity or not entity.valid then return end
+        if entity.name ~= common.processor_name then return end
+        game.print('processor:on_built')
+        local info = load_stored_processor_info(entity, true)
+        processor.build_processor(info)
+    end,
+    ---@param event EventData.script_raised_destroy | EventData.on_robot_mined_entity | EventData.on_player_mined_entity | EventData.on_entity_died
+    on_destroyed = function(event)
+        local entity = event.entity
+        if not entity or not entity.valid then return end
+        if entity.name ~= common.processor_name then return end
+        game.print('processor:on_destroyed')
+        local info = load_stored_processor_info(event.entity)
+        processor.destroy_processor(info)
+    end,
+    ---@param event EventData.on_entity_settings_pasted | EventData.on_entity_cloned
+    on_cloned = function(event)
+        local entities = { event.source, event.destination }
+        local infos = {}
+        for _, entity in ipairs(entities) do
+            if not entity or not entity.valid then return end
+            if entity.name ~= common.processor_name then return end
+            local info = load_stored_processor_info(entity, true)
+            table.insert(infos, info)
+        end
+        game.print('processor:on_cloned')
+        processor.clone_processor(infos[1], infos[2])
+    end,
+    ---@param event EventData.on_player_rotated_entity | EventData.on_player_flipped_entity
+    on_reoriented = function(event)
+        local entity = event.entity
+        if not entity or not entity.valid then return end
+        if entity.name ~= common.processor_name then return end
+        if event.name == defines.events.on_player_flipped_entity then
+            common.unrotate_and_mirror(entity, event.horizontal)
+        end
+        game.print('processor:on_transformed: ' .. event.name)
+        local info = load_stored_processor_info(entity, false)
+        processor.reorient_processor(info)
+    end,
+}
+
+local processor_events = {
+    [defines.events.on_built_entity] = processor_handlers.on_built,
+    [defines.events.on_robot_built_entity] = processor_handlers.on_built,
+    [defines.events.script_raised_built] = processor_handlers.on_built,
+    [defines.events.script_raised_revive] = processor_handlers.on_built,
+
+    [defines.events.on_player_mined_entity] = processor_handlers.on_destroyed,
+    [defines.events.on_robot_mined_entity] = processor_handlers.on_destroyed,
+    [defines.events.script_raised_destroy] = processor_handlers.on_destroyed,
+    [defines.events.on_entity_died] = processor_handlers.on_destroyed,
+
+    [defines.events.on_entity_cloned] = processor_handlers.on_cloned,
+    [defines.events.on_entity_settings_pasted] = processor_handlers.on_cloned,
+
+    [defines.events.on_player_rotated_entity] = processor_handlers.on_reoriented,
+    [defines.events.on_player_flipped_entity] = processor_handlers.on_reoriented,
+}
+
+for event_type, event_handler in pairs(processor_events) do
+    script.on_event(event_type, event_handler)
 end
-
-for _, event in pairs(build_events) do
-    script.on_event(event, on_processor_built)
-end
-
----@param event EventData.on_player_rotated_entity
-local function on_processor_rotated(event)
-    local entity = event.entity
-    if not entity or not entity.valid then return end
-    if entity.name ~= common.processor_name then return end
-
-    local info = load_stored_processor_info(entity, false)
-    processor.rotate_processor(info)
-end
-
-script.on_event(defines.events.on_player_rotated_entity, on_processor_rotated)
