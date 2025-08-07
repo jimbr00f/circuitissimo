@@ -1,0 +1,12 @@
+{
+  "name": "Circuitissimo",
+  "version": "0.1.0",
+  "factorio_version": "2.0",
+  "title": "Circuitissimo",
+  "author": "jimbroof",
+  "description": "Implements the combinator-focused Processor entity from the Compact Circuits mod using the recursive surface infrastructure from the Factorissimo 3 mod.",
+  "dependencies": [
+    "base >= 2.0.0",
+    "? factorissimo-2-notnotmelon >= 2.5.3"
+  ]
+}
