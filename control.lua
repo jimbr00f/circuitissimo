@@ -70,7 +70,11 @@ local processor_handlers = {
         if not entity or not entity.valid then return end
         if entity.name ~= common.processor_name then return end
         if event.name == defines.events.on_player_flipped_entity then
-            common.unrotate_and_mirror(entity, event.horizontal)
+            if entity.mirroring then
+                game.print('entity mirroring is on')
+            else
+                game.print('entity mirroring is off')
+            end
         end
         game.print('processor:on_transformed: ' .. event.name)
         local info = load_stored_processor_info(entity, false)

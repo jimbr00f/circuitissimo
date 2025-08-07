@@ -69,8 +69,10 @@ local function unrotate_and_mirror(entity, horizontal)
     game.print('entity mirroring start:')
     game.print(entity.mirroring)
     if entity.mirroring then
+        game.print('entity mirroring is on')
         entity.mirroring = false
     else
+        game.print('entity mirroring is off')
         entity.mirroring = true
     end
     game.print('entity mirroring end:')
