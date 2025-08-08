@@ -1,6 +1,6 @@
-local utility = {}
+local exports = {}
 
-function utility.coalesce_tables(tables)
+function exports.coalesce_tables(tables)
     local coalesced = {}
 	for _, t in pairs(tables) do
 		for name, value in pairs(t) do
@@ -10,4 +10,7 @@ function utility.coalesce_tables(tables)
 	return coalesced
 end
 
-return utility
+function exports.log(message)
+end
+
+return exports

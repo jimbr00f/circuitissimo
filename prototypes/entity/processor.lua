@@ -10,7 +10,7 @@ function get_processor_pictures()
             width = 128,
             height = 128,
             scale = 0.5,
-            x = i/2 * 128
+            x = i/4 * 128
         }
     end
     return pictures

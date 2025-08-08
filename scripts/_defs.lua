@@ -9,6 +9,7 @@
 ---@class ProcInfo
 ---@field entity LuaEntity           @ Processor object
 ---@field iopoints IOPoint[]          @ List of connected IOPoint entities
+---@field mirroring boolean
 ---@field tags Tags
 
 ---@class IOPoint
