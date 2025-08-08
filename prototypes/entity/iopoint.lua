@@ -1,7 +1,7 @@
 local common = require("scripts.common")
-local utility = require("scripts.utility")
+local tables = require("lib.tables")
+local layout = require("scripts.layout")
 
-local iopoint_layout = common.iopoint_layout
 
 local iopoint_sprite = {
     count = 1,
@@ -17,13 +17,17 @@ local connection_points = {
     shadow = { red = { 0, 0 }, green = { 0, 0 }, copper = {0, 0} } 
 }
 
-local iopoint = utility.coalesce_tables({ electric_pole,  {
+---@type OrientableLayoutInstance
+local iopoint_layout = layout.iopoint
+local radius = iopoint_layout.item_shape.radius
+
+local iopoint = tables.coalesce_tables({ electric_pole,  {
     name = common.iopoint_name,
     icon = common.png('entity/iopoint'),
     icon_size = 16,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
-    selection_box = { { -iopoint_layout.rx, -iopoint_layout.ry }, { iopoint_layout.rx, iopoint_layout.ry } },
+    selection_box = { { -radius.x, -radius.y }, { radius.x, radius.y } },
     selection_priority = 70,
     minable = nil,
     flags = { "player-creation", "placeable-off-grid", "placeable-neutral", "hide-alt-info", "not-deconstructable", "not-upgradable", "not-on-map" },

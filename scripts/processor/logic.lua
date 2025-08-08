@@ -1,6 +1,10 @@
 local common = require('scripts.common')
 local utility = require('scripts.utility')
+local layout = require('scripts.layout')
 local exports = {}
+
+---@type OrientableLayoutInstance
+local iopoint_layout = layout.iopoint
 
 ---@param procinfo ProcInfo
 local function update_connections(procinfo)
@@ -52,7 +56,7 @@ local function build_iopoints(info)
         -- rotating by 180 degrees and then performing a horizontal flip.
         target_direction = common.flipped_direction[target_direction]
     end
-    local positions = common.iopoint_layout.positions[target_direction]
+    local positions = iopoint_layout.path[target_direction]
     ---@type IOPoint[]
     local iopoints = {}
     for _, iop in pairs(positions) do
