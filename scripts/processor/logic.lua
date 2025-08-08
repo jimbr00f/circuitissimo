@@ -7,6 +7,21 @@ local function update_connections(procinfo)
     -- TODO: invoke Factorissimo connection builders
 end
 
+
+---@param e EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive | EventData.on_built_entity | EventData.on_space_platform_built_entity
+---@return Tags?
+local function get_processor_tags(e)
+    local event_tags = e.tags
+    local processor_tags = event_tags
+    if event_tags and event_tags[common.tag_prefix] then 
+        processor_tags = event_tags[common.tag_prefix]  --[[@as ProcInfo]]
+    end
+    if not processor_tags then
+        processor_tags = (e.stack and e.stack.is_item_with_tags and e.stack.tags) --[[@as ProcInfo]]
+    end
+    return processor_tags
+end
+
 ---@param source IOPoint
 ---@param target IOPoint
 local function transfer_connections(source, target)
