@@ -1,14 +1,16 @@
-local formation = require("lib.formation")
+local formation = require "lib.formation"
 
 local prefix = "circuitissimo"
 local prefix_pattern = "circuitissimo"
+local tag_prefix = '__' .. prefix
+local mod_prefix = '__' .. prefix .. '__'
 
 local common = {
     prefix = prefix,
     prefix_pattern = prefix_pattern,
-    mod_prefix = '__' .. prefix .. '__',
-    tag_prefix = '__' .. prefix,
-    png = function(name) return ('__circuitissimo__/graphics/%s.png'):format(name) end,
+    mod_prefix = mod_prefix,
+    tag_prefix = tag_prefix,
+    png = function(name) return ('%s/graphics/%s.png'):format(mod_prefix, name) end,
     processor_name = prefix .. "-processor",
     processor_pattern = "^" .. prefix_pattern .. "%-processor",
     processor_with_tags = prefix .. "-processor_with_tags",
@@ -48,17 +50,11 @@ common.orthogonal_directions = {
     [defines.direction.west] = { defines.direction.south, defines.direction.north},
 }
 
----@enum orientation
-common.orientation = {
-    vertical=1 --[[@as orientation.vertical ]],
-    horizontal=2 --[[@as orientation.horizontal ]],
-}
-
 common.direction_orientation = {
-    [defines.direction.north] = common.orientation.vertical,
-    [defines.direction.south] = common.orientation.vertical,
-    [defines.direction.east] = common.orientation.horizontal,
-    [defines.direction.west] = common.orientation.horizontal,
+    [defines.direction.north] = orientation.vertical,
+    [defines.direction.south] = orientation.vertical,
+    [defines.direction.east] = orientation.horizontal,
+    [defines.direction.west] = orientation.horizontal,
 }
 
 

@@ -1,20 +1,3 @@
----@class Picture
----@field filename string
----@field width int
----@field height int
----@field scale float
----@field x int
-
-
----@class ProcInfo
----@field entity LuaEntity           @ Processor object
----@field iopoints IOPoint[]          @ List of connected IOPoint entities
----@field mirroring boolean
----@field tags Tags
-
----@class IOPoint
----@field entity LuaEntity
-
 ---@alias Point MapPosition.0
 ---@alias Delta MapPosition.0
 ---@alias RadialSize MapPosition.0
@@ -49,6 +32,8 @@
 ---@alias OrientablePath table<defines.direction, Point[]>
 ---@alias OrientableOrigin table<defines.direction, OriginPoint>
 
----@class EventListener
----@field handlers table<string, fun(EventData)>
----@field subscriptions table<defines.events, fun(EventData)>
+---@enum orientation
+orientation = {
+    vertical = 1 --[[@as orientation.vertical ]],
+    horizontal = 2 --[[@as orientation.horizontal ]],
+}

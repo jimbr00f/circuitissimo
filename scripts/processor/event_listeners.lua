@@ -1,6 +1,5 @@
-local common = require('scripts.common')
-local utility = require('scripts.utility')
-local logic = require('scripts.processor.logic')
+local common = require "scripts.common"
+local logic = require "scripts.processor.logic"
 
 local handlers = {
     ---@param event EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive
@@ -8,7 +7,6 @@ local handlers = {
         local entity = event.entity
         if not entity or not entity.valid then return end
         if entity.name ~= common.processor_name then return end
-        utility.log('processor:on_built')
         local info = logic.load_stored_info(entity, true)
         logic.build_processor(info)
     end,
@@ -17,7 +15,6 @@ local handlers = {
         local entity = event.entity
         if not entity or not entity.valid then return end
         if entity.name ~= common.processor_name then return end
-        utility.log('processor:on_destroyed')
         local info = logic.load_stored_info(event.entity)
         logic.destroy_processor(info)
     end,
@@ -31,7 +28,6 @@ local handlers = {
             local info = logic.load_stored_info(entity, true)
             table.insert(infos, info)
         end
-        utility.log('processor:on_cloned')
         logic.clone_processor(infos[1], infos[2])
     end,
     ---@param event EventData.on_player_rotated_entity | EventData.on_player_flipped_entity
@@ -43,12 +39,11 @@ local handlers = {
         local mirroring = nil
         if event.name == defines.events.on_player_flipped_entity then
             if event.horizontal then 
-                mirroring = common.orientation.horizontal
+                mirroring = orientation.horizontal
             else
-                mirroring = common.orientation.vertical
+                mirroring = orientation.vertical
             end
         end
-        utility.log('processor:on_transformed: ' .. event.name)
         local info = logic.load_stored_info(entity, false)
         logic.reorient_processor(info, mirroring)
     end,

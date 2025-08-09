@@ -1,4 +1,4 @@
-local common = require("scripts.common")
+local common = require "scripts.common"
 
 local iopoint_sprite = {
     count = 1,

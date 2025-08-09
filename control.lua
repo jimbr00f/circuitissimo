@@ -1,5 +1,5 @@
 require "lib.lib"
-local processor = require('scripts.processor.processor')
+local processor = require "scripts.processor.processor"
 
 ---@type EventListener[]
 local listeners = { processor.event_listeners }

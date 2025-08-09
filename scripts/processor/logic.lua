@@ -1,5 +1,4 @@
-local common = require('scripts.common')
-local utility = require('scripts.utility')
+local common = require "scripts.common"
 local exports = {}
 
 ---@param procinfo ProcInfo
@@ -7,8 +6,8 @@ local function update_connections(procinfo)
     -- TODO: invoke Factorissimo connection builders
 end
 
----@param source IOPoint
----@param target IOPoint
+---@param source IoPointInfo
+---@param target IoPointInfo
 local function transfer_connections(source, target)
     for _, wire_type in ipairs(common.wire_types) do
         local src_conn = source.entity.get_wire_connector(wire_type, true)
@@ -22,23 +21,23 @@ local function transfer_connections(source, target)
 end
 
 ---@param entity LuaEntity
----@return IOPoint
+---@return IoPointInfo
 local function create_iopoint(entity)
     return { entity = entity }
 end
 
 ---@param info ProcInfo
----@return IOPoint[]
+---@return IoPointInfo[]
 local function build_iopoints(info)
     local entity = info.entity
     local target_direction = entity.direction
-    if info.mirroring and common.direction_orientation[entity.direction] == common.orientation.horizontal then
+    if info.mirroring and common.direction_orientation[entity.direction] == orientation.horizontal then
         -- In this case we perform the equivalent of a vertical flip on the iopoints by
         -- rotating by 180 degrees and then performing a horizontal flip.
         target_direction = common.flipped_direction[target_direction]
     end
     local positions = common.iopoint_formation.path[target_direction]
-    ---@type IOPoint[]
+    ---@type IoPointInfo[]
     local iopoints = {}
     for _, iop in pairs(positions) do
         local pos = { x = entity.position.x, y = entity.position.y }
@@ -65,7 +64,6 @@ end
 
 ---@param info ProcInfo
 function exports.destroy_processor(info)
-    utility.log('processor:destroy_processor')
     for _, iopoint in ipairs(info.iopoints) do
         iopoint.entity.destroy()
     end
@@ -74,7 +72,6 @@ end
 
 ---@param info ProcInfo
 function exports.build_processor(info)
-    utility.log('processor:build_processor')
     info.iopoints = build_iopoints(info)
     update_connections(info)
 end
@@ -82,11 +79,8 @@ end
 ---@param info ProcInfo
 ---@param mirroring orientation?
 function exports.reorient_processor(info, mirroring)
-    utility.log('processor:reorient_processor')
     if mirroring then
-        utility.log('invoked reorient_processor; initial direction: '..common.direction_name[info.entity.direction])
         info.mirroring = not info.mirroring
-        utility.log('updated info.mirroring: ' .. tostring(not info.mirroring) .. ' => ' .. tostring(info.mirroring))
     end
     local new_iopoints = build_iopoints(info)
     for i, old_iopoint in ipairs(info.iopoints) do
@@ -102,7 +96,6 @@ end
 ---@param source ProcInfo
 ---@param destination ProcInfo
 function exports.clone_processor(source, destination)
-    utility.log('processor:clone_processor')
 end
 
 
