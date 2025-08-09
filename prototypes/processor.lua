@@ -3,7 +3,7 @@ local processor = require "scripts.processor.processor"
 
 local iopoint_sprite = {
     count = 1,
-    filename = processor.png("invisible"),
+    filename = processor.png("entity/invisible"),
     width = 1,
     height = 1,
     direction_count = 4
