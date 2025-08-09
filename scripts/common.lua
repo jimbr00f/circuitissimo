@@ -1,3 +1,5 @@
+local formation = require("lib.formation")
+
 local prefix = "circuitissimo"
 local prefix_pattern = "circuitissimo"
 
@@ -10,8 +12,12 @@ local common = {
     processor_name = prefix .. "-processor",
     processor_pattern = "^" .. prefix_pattern .. "%-processor",
     processor_with_tags = prefix .. "-processor_with_tags",
-    iopoint_name = prefix .. "-iopoint",
-    wire_types = { defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green },
+    iopoint_name = prefix .. "-iopoint"
+}
+
+common.wire_types = { 
+    defines.wire_connector_id.circuit_red, 
+    defines.wire_connector_id.circuit_green 
 }
 
 common.cardinal_direction = {
@@ -55,5 +61,7 @@ common.direction_orientation = {
     [defines.direction.west] = common.orientation.horizontal,
 }
 
+
+common.iopoint_formation = formation.build_oriented_formation({ x = 0.8, y = 0.8}, 4, common.orthogonal_directions)
 
 return common

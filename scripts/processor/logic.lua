@@ -1,29 +1,10 @@
 local common = require('scripts.common')
 local utility = require('scripts.utility')
-local layout = require('scripts.layout')
 local exports = {}
-
----@type OrientableLayoutInstance
-local iopoint_layout = layout.iopoint
 
 ---@param procinfo ProcInfo
 local function update_connections(procinfo)
     -- TODO: invoke Factorissimo connection builders
-end
-
-
----@param e EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive | EventData.on_built_entity | EventData.on_space_platform_built_entity
----@return Tags?
-local function get_processor_tags(e)
-    local event_tags = e.tags
-    local processor_tags = event_tags
-    if event_tags and event_tags[common.tag_prefix] then 
-        processor_tags = event_tags[common.tag_prefix]  --[[@as ProcInfo]]
-    end
-    if not processor_tags then
-        processor_tags = (e.stack and e.stack.is_item_with_tags and e.stack.tags) --[[@as ProcInfo]]
-    end
-    return processor_tags
 end
 
 ---@param source IOPoint
@@ -56,7 +37,7 @@ local function build_iopoints(info)
         -- rotating by 180 degrees and then performing a horizontal flip.
         target_direction = common.flipped_direction[target_direction]
     end
-    local positions = iopoint_layout.path[target_direction]
+    local positions = common.iopoint_formation.path[target_direction]
     ---@type IOPoint[]
     local iopoints = {}
     for _, iop in pairs(positions) do

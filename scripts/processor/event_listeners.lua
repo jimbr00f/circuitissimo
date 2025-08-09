@@ -1,6 +1,6 @@
 local common = require('scripts.common')
-local logic = require('logic')
 local utility = require('scripts.utility')
+local logic = require('scripts.processor.logic')
 
 local handlers = {
     ---@param event EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive

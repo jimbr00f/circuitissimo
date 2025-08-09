@@ -28,10 +28,8 @@
 ---@field item_shape SimpleShape
 ---@field item_count integer
 
----@class OrientableLayout : PartitionShape
+---@class OrientableEntityFormation : PartitionShape
 ---@field origin OrientableOrigin
-
----@class OrientableLayoutInstance : OrientableLayout
 ---@field path OrientablePath
 
 ---@alias DirectionMapping table<defines.direction, defines.direction[]>
@@ -39,6 +37,7 @@
 ---@class SimpleShape
 ---@field left_top MapPosition.0
 ---@field right_bottom MapPosition.0
+---@field box BoundingBox.0
 ---@field size Size
 ---@field radius RadialSize
 

@@ -1,34 +1,36 @@
-local tables = require('lib.tables')
 local exports = {}
 
 ---@param radial_size RadialSize
 ---@return SimpleShape
-local function convert_radial_to_rect(radial_size)
+local function convert_size_to_shape(radial_size)
     radial_size = { x = math.abs(radial_size.x), y = math.abs(radial_size.y) }
+    local left_top = { x = -radial_size.x, y = -radial_size.y }
+    local right_bottom = { x = radial_size.x, y = radial_size.y }
     ---@type SimpleShape
-    local bounds = { 
-        left_top = { x = -radial_size.x, y = -radial_size.y },
-        right_bottom = { x = radial_size.x, y = radial_size.y },
+    local shape = { 
+        left_top = left_top,
+        right_bottom = right_bottom,
+        box = { left_top = left_top, right_bottom = right_bottom }, 
         size = {
             width = 2 * radial_size.x, 
             height = 2 * radial_size.y
         },
         radius = radial_size
     }
-    return bounds
+    return shape
 end
 
 ---@param boundary_size RadialSize
 ---@param item_count integer
 ---@return PartitionShape
 local function get_partition_shape(boundary_size, item_count)
-    local container_shape = convert_radial_to_rect(boundary_size)
+    local container_shape = convert_size_to_shape(boundary_size)
     ---@type RadialSize
     local item_boundary_size = { 
         x = boundary_size.x / (item_count - 1), 
         y = boundary_size.y / (item_count - 1) 
     }
-    local item_shape = convert_radial_to_rect(item_boundary_size)
+    local item_shape = convert_size_to_shape(item_boundary_size)
     return {
         shape = container_shape,
         item_shape = item_shape,
@@ -75,9 +77,9 @@ end
 
 ---@param size RadialSize
 ---@param count integer
----@returns OrientableLayoutInstance
-function exports.build_orientable_layout(size, count)
-    local instance = get_partition_shape(size, count) --[[@as OrientableLayoutInstance]]
+---@returns OrientableEntityFormation
+local function build_orientable_formation(size, count)
+    local instance = get_partition_shape(size, count) --[[@as OrientableEntityFormation]]
     instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
     instance.path = build_orientable_path(instance.origin, count)
     return instance
@@ -86,7 +88,7 @@ end
 ---@param path OrientablePath
 ---@param map DirectionMapping
 ---@returns OrientablePath
-function exports.reorient_path(path, map)
+local function reorient_path(path, map)
     ---@type OrientablePath
     local reoriented = {}
     for dir, path_keys in pairs(map) do
@@ -96,9 +98,21 @@ function exports.reorient_path(path, map)
             local subpath = path[path_key]
             table.insert(subpaths, subpath)
         end
-        reoriented[dir] = tables.concat_arrays(subpaths)
+        reoriented[dir] = table.array_combine(table.unpack(subpaths))
     end
     return reoriented
+end
+
+---@param size RadialSize
+---@param count integer
+---@param map DirectionMapping
+---@returns OrientableEntityFormation
+function exports.build_oriented_formation(size, count, map)
+    local instance = get_partition_shape(size, count) --[[@as OrientableEntityFormation]]
+    instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
+    local path = build_orientable_path(instance.origin, count)
+    instance.path = reorient_path(path, map)
+    return instance
 end
 
 return exports
