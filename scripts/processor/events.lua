@@ -1,4 +1,4 @@
-local common = require "scripts.common"
+local processor = require "scripts.processor.processor"
 local logic = require "scripts.processor.logic"
 
 local handlers = {
@@ -6,7 +6,7 @@ local handlers = {
     on_built = function(event)
         local entity = event.entity
         if not entity or not entity.valid then return end
-        if entity.name ~= common.processor_name then return end
+        if entity.name ~= processor.processor_name then return end
         local info = logic.load_stored_info(entity, true)
         logic.build_processor(info)
     end,
@@ -14,7 +14,7 @@ local handlers = {
     on_destroyed = function(event)
         local entity = event.entity
         if not entity or not entity.valid then return end
-        if entity.name ~= common.processor_name then return end
+        if entity.name ~= processor.processor_name then return end
         local info = logic.load_stored_info(event.entity)
         logic.destroy_processor(info)
     end,
@@ -24,7 +24,7 @@ local handlers = {
         local infos = {}
         for _, entity in ipairs(entities) do
             if not entity or not entity.valid then return end
-            if entity.name ~= common.processor_name then return end
+            if entity.name ~= processor.processor_name then return end
             local info = logic.load_stored_info(entity, true)
             table.insert(infos, info)
         end
@@ -34,7 +34,7 @@ local handlers = {
     on_reoriented = function(event)
         local entity = event.entity
         if not entity or not entity.valid then return end
-        if entity.name ~= common.processor_name then return end
+        if entity.name ~= processor.processor_name then return end
         ---@type orientation?
         local mirroring = nil
         if event.name == defines.events.on_player_flipped_entity then

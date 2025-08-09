@@ -115,4 +115,39 @@ function exports.build_oriented_formation(size, count, map)
     return instance
 end
 
+exports.cardinal_direction = {
+    north = defines.direction.north,
+    east  = defines.direction.east,
+    south = defines.direction.south,
+    west  = defines.direction.west,
+}
+
+exports.direction_name = {
+    [defines.direction.north] = "north",
+    [defines.direction.east] = "east",
+    [defines.direction.south] = "south",
+    [defines.direction.west] = "west",
+}
+
+exports.flipped_direction = {
+    [defines.direction.north] = defines.direction.south,
+    [defines.direction.south] = defines.direction.north,
+    [defines.direction.east] = defines.direction.west,
+    [defines.direction.west] = defines.direction.east,
+}
+
+exports.orthogonal_directions = {
+    [defines.direction.north] = { defines.direction.west, defines.direction.east},
+    [defines.direction.south] = { defines.direction.east, defines.direction.west},
+    [defines.direction.east] = { defines.direction.north, defines.direction.south},
+    [defines.direction.west] = { defines.direction.south, defines.direction.north},
+}
+
+exports.direction_orientation = {
+    [defines.direction.north] = orientation.vertical,
+    [defines.direction.south] = orientation.vertical,
+    [defines.direction.east] = orientation.horizontal,
+    [defines.direction.west] = orientation.horizontal,
+}
+
 return exports

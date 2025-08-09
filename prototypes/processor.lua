@@ -1,8 +1,9 @@
-local common = require "scripts.common"
+local formation = require "lib.formation"
+local processor = require "scripts.processor.processor"
 
 local iopoint_sprite = {
     count = 1,
-    filename = common.png("invisible"),
+    filename = processor.png("invisible"),
     width = 1,
     height = 1,
     direction_count = 4
@@ -15,12 +16,12 @@ local connection_points = {
 }
 
 local iopoint_entity = table.merge(electric_pole,  {
-    name = common.iopoint_name,
-    icon = common.png('entity/iopoint'),
+    name = processor.iopoint_name,
+    icon = processor.png('entity/iopoint'),
     icon_size = 16,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
-    selection_box = common.iopoint_formation.item_shape.box,
+    selection_box = processor.iopoint_formation.item_shape.box,
     selection_priority = 70,
     minable = nil,
     flags = { "player-creation", "placeable-off-grid", "placeable-neutral", "hide-alt-info", "not-deconstructable", "not-upgradable", "not-on-map" },
@@ -39,10 +40,10 @@ local iopoint_entity = table.merge(electric_pole,  {
 ---@return Picture[]
 function get_cardinal_pictures(path)
     local pictures = {}
-    for name, i in pairs(common.cardinal_direction) do
+    for name, i in pairs(formation.cardinal_direction) do
         ---@type Picture
         pictures[name] = {
-            filename = common.png(path),
+            filename = processor.png(path),
             width = 128,
             height = 128,
             scale = 0.5,
@@ -54,11 +55,11 @@ end
 
 local processor_entity = {
     type = "simple-entity-with-owner",
-    name = common.processor_name,
+    name = processor.processor_name,
     picture = get_cardinal_pictures("entity/processor"),
-    minable = { mining_time = 1, result = common.processor_name },
+    minable = { mining_time = 1, result = processor.processor_name },
     max_health = 250,
-    icons = { { icon_size = 64, icon = common.png('item/processor'), icon_mipmaps = 4 } },
+    icons = { { icon_size = 64, icon = processor.png('item/processor'), icon_mipmaps = 4 } },
     collision_box = { { -0.95, -0.95 }, { 0.95, 0.95 } },
     selection_box = { { -1.2, -1.2 }, { 1.2, 1.2 } },
     selection_priority = 60,
@@ -71,22 +72,22 @@ data:extend{iopoint_entity}
 local processor_items = { 
     {
         type = 'item',
-        name = common.processor_name,
+        name = processor.processor_name,
         icon_size = 64,
-        icon = common.png('item/processor'),
+        icon = processor.png('item/processor'),
         subgroup = 'circuit-network',
         order = 'p[rocessor]',
-        place_result = common.processor_name,
+        place_result = processor.processor_name,
         stack_size = 50,
         weight = 200000
     }, {
         type = "item-with-tags",
-        name = common.processor_with_tags,
+        name = processor.processor_with_tags,
         icon_size = 64,
-        icon = common.png('item/processor'),
+        icon = processor.png('item/processor'),
         subgroup = 'circuit-network',
         order = 'p[rocessor]',
-        place_result = common.processor_name,
+        place_result = processor.processor_name,
         stack_size = 1,
         flags = { "not-stackable" }
     }

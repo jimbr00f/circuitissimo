@@ -1,5 +1,11 @@
-local common = require "scripts.common"
+local formation = require "lib.formation"
+local processor = require "scripts.processor.processor"
 local exports = {}
+
+local wire_types = { 
+    defines.wire_connector_id.circuit_red, 
+    defines.wire_connector_id.circuit_green 
+}
 
 ---@param procinfo ProcInfo
 local function update_connections(procinfo)
@@ -9,7 +15,7 @@ end
 ---@param source IoPointInfo
 ---@param target IoPointInfo
 local function transfer_connections(source, target)
-    for _, wire_type in ipairs(common.wire_types) do
+    for _, wire_type in ipairs(wire_types) do
         local src_conn = source.entity.get_wire_connector(wire_type, true)
         local tgt_conn = target.entity.get_wire_connector(wire_type, true)
         if src_conn and tgt_conn then
@@ -31,12 +37,12 @@ end
 local function build_iopoints(info)
     local entity = info.entity
     local target_direction = entity.direction
-    if info.mirroring and common.direction_orientation[entity.direction] == orientation.horizontal then
+    if info.mirroring and formation.direction_orientation[entity.direction] == orientation.horizontal then
         -- In this case we perform the equivalent of a vertical flip on the iopoints by
         -- rotating by 180 degrees and then performing a horizontal flip.
-        target_direction = common.flipped_direction[target_direction]
+        target_direction = formation.flipped_direction[target_direction]
     end
-    local positions = common.iopoint_formation.path[target_direction]
+    local positions = processor.iopoint_formation.path[target_direction]
     ---@type IoPointInfo[]
     local iopoints = {}
     for _, iop in pairs(positions) do
@@ -47,7 +53,7 @@ local function build_iopoints(info)
         end
 
         local iopoint_entity = entity.surface.create_entity {
-            name = common.iopoint_name,
+            name = processor.iopoint_name,
             position = { pos.x + offset.x, pos.y + offset.y },
             force = entity.force
         }
