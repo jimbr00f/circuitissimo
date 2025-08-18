@@ -1,0 +1,6 @@
+// data.lua (sketch)
+-- Processor
+-- type depends on what you need; examples: "container", "assembling-machine", etc.
+-- must be placeable and have a collision box so we can find it.
+-- Connector
+-- make it placeable-by an item; normal flags; small collision/selection boxes

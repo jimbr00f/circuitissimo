@@ -1,0 +1,11 @@
+---@class EntityConnectionAnchor
+---@field pos MapPosition
+---@field dir defines.direction
+---@field entity LuaEntity
+---@field anchor_index integer
+
+---@class PreviewData
+---@field cursor_has_connector boolean
+---@field nearest_anchor EntityConnectionAnchor?
+---@field player_index integer
+---@field render_ids integer[]
