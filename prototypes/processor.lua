@@ -24,7 +24,7 @@ local iopoint_entity = table.merge(electric_pole,  {
     selection_box = processor.iopoint_formation.item_shape.box,
     selection_priority = 70,
     minable = nil,
-    flags = { "player-creation", "placeable-off-grid", "placeable-neutral", "hide-alt-info", "not-deconstructable", "not-upgradable", "not-on-map" },
+    flags = { "player-creation", "placeable-off-grid", "placeable-neutral", "hide-alt-info", "not-on-map" },
     circuit_wire_max_distance = 64,
     maximum_wire_distance = 9,
     supply_area_distance = 0,
@@ -36,6 +36,31 @@ local iopoint_entity = table.merge(electric_pole,  {
     pictures = { layers = { iopoint_sprite, iopoint_sprite }},
   }
 )
+
+local iopoint_items = {
+    {
+        type = 'item',
+        name = processor.iopoint_name,
+        icon_size = 16,
+        icon = processor.png('item/iopoint'),
+        subgroup = 'circuit-network',
+        order = 'p[rocessor]',
+        place_result = processor.iopoint_name,
+        stack_size = 50,
+        weight = 200000
+    }, 
+    {
+        type = "item-with-tags",
+        name = processor.iopoint_with_tags,
+        icon_size = 16,
+        icon = processor.png('item/processor'),
+        subgroup = 'circuit-network',
+        order = 'p[rocessor]',
+        place_result = processor.iopoint_name,
+        stack_size = 1,
+        flags = { "not-stackable" }
+    }
+}
 
 ---@return Picture[]
 function get_cardinal_pictures(path)
@@ -67,7 +92,6 @@ local processor_entity = {
     flags = { "placeable-neutral", "player-creation" }
 }
 
-data:extend{iopoint_entity}
 
 local processor_items = { 
     {
@@ -95,3 +119,4 @@ local processor_items = {
 
 data:extend{iopoint_entity, processor_entity}
 data:extend(processor_items)
+data:extend(iopoint_items)
