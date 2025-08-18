@@ -1,4 +1,4 @@
-// data.lua (sketch)
+-- data.lua (sketch)
 -- Processor
 -- type depends on what you need; examples: "container", "assembling-machine", etc.
 -- must be placeable and have a collision box so we can find it.
