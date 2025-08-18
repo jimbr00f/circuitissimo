@@ -235,20 +235,11 @@ end
 ---@return ProcInfo?
 local function read_event_tags(event)
     if not event or not event.tick then return nil end
-    game.print('reading event tags')
     ---@type ProcInfo?
     local processor_tags = extract_processor_tags(event.tags)
-    game.print('done read some tags but should i try the stacky ones?' .. tostring(not processor_tags))
     if not processor_tags then
-        game.print('yes i should, is item with tags? ' .. tostring(event.stack and event.stack.is_item_with_tags))
         local stack_tags = event.stack and event.stack.is_item_with_tags and event.stack.tags --[[@as Tags]]
-        game.print('stack got tags? ' .. tostring(event.stack and event.stack.is_item_with_tags and event.stack.tags))
         processor_tags = extract_processor_tags(stack_tags)
-    end
-    if processor_tags then
-        game.print('event tags read successfully')
-    else
-        game.print('no event tags found')
     end
     return processor_tags
 end
@@ -257,14 +248,8 @@ end
 ---@return ProcInfo?
 local function read_entity_tags(entity)
     if not entity or not entity.unit_number then return nil end
-    game.print('reading entity tags')
     ---@type ProcInfo?
     local processor_tags = extract_processor_tags(entity.tags)
-    if processor_tags then
-        game.print('entity tags read successfully')
-    else
-        game.print('no entity tags found')
-    end
     return processor_tags
 end
 
@@ -284,8 +269,17 @@ end
 ---@return ProcInfo?
 local function read_processor_tags(entity, event)
     ---@diagnostic disable-next-line
-    local processor_tags = read_event_tags(event) or read_entity_tags(entity)
-    return processor_tags
+    local processor_tags = read_event_tags(event)
+    if processor_tags then
+        game.print('got processor info from event tags')
+        return processor_tags
+    end
+    processor_tags = read_entity_tags(entity)
+    if processor_tags then
+        game.print('got processor tags from entity')
+        return processor_tags
+    end
+    return nil
 end
 
 ---@param entity LuaEntity
@@ -307,25 +301,20 @@ function exports.load_stored_info(entity, create, event)
     if not storage.processors then storage.processors = {} end
     local info = storage.processors[entity.unit_number]
     if info and not info.locked then
+        game.print('refreshing entity info')
         refresh_processor_info(info)
     elseif create then
-        game.print('creating new entity info for load')
+        game.print('creating new entity info')
         info = create_processor(entity)
         storage.processors[entity.unit_number] = info
     end
     if event then
         local tag_info = read_processor_tags(entity, event)
-        game.print('is entity ok')
         if tag_info then 
-            game.print(tag_info.entity)
-            game.print('loaded some tag info for this proc')
             info.mirroring = tag_info.mirroring
             info.iopoints = tag_info.iopoints
         end
     end
-    game.print('loaded mirroring: ' .. tostring(info.mirroring))
-    game.print('loaded iops ok ' .. tostring(info.iopoints ~= nil))
-    game.print('loaded iop count' .. tostring(#info.iopoints))
     return info
 end
 
