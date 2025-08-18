@@ -9,11 +9,65 @@ local iopoint_sprite = {
     direction_count = 4
 }
 
-local electric_pole = table.deepcopy(data.raw["electric-pole"]["medium-electric-pole"])
+local electric_pole = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 local connection_points = {
     wire = { red = { 0, 0 }, green = { 0, 0 }, copper = { 0, 0} }, 
     shadow = { red = { 0, 0 }, green = { 0, 0 }, copper = {0, 0} } 
 }
+
+---@class WireConnectionPointPrototype
+---@field red MapPosition
+---@field green MapPosition
+
+---@class EntityWireConnectionPointPrototype
+---@field wire WireConnectionPointPrototype
+---@field shadow WireConnectionPointPrototype
+
+---@return EntityWireConnectionPointPrototype
+local function create_wire_connection_points()
+    ---@type MapPosition
+    local entity_center = { x = 0, y = -8 }
+    ---@type MapPosition
+    local shadow_center = { x = 8, y = -1 }
+    ---@type MapPosition[]
+    local entity_offsets = {
+        { x = 2, y = -2 },
+        { x = -2, y = -2 },
+        { x = -6, y = 6 },
+        { x = 6, y = -6 },
+    }
+    ---@type MapPosition[]
+    local shadow_offsets = {
+        { x = -2, y = -6 },
+        { x = -7, y = -6 },
+        { x = -6, y = 5 },
+        { x = 6, y = 5 },
+    }
+
+
+    ---@type EntityWireConnectionPointPrototype[]
+    local wire_connection_points = {}
+
+    for i = 1, 4 do
+        local eo = entity_offsets[i]
+        ---@type WireConnectionPointPrototype
+        local wire_point = {
+            red = util.by_pixel(entity_center.x + eo.x, entity_center.y + eo.y),
+            green = util.by_pixel(entity_center.x - eo.x, entity_center.y - eo.y)
+        }
+        local so = shadow_offsets[i]
+        ---@type WireConnectionPointPrototype
+        local shadow_point = {
+            red = util.by_pixel(shadow_center.x + so.x, shadow_center.y + so.y),
+            green = util.by_pixel(shadow_center.x - so.x, shadow_center.y - so.y)
+        }
+        ---@type EntityWireConnectionPointPrototype
+        local connection_points = { wire = wire_point, shadow = shadow_point }
+        table.insert(wire_connection_points, connection_points)
+    end
+    return wire_connection_points
+end
+
 
 local iopoint_entity = table.merge(electric_pole,  {
     name = processor.iopoint_name,
@@ -21,10 +75,10 @@ local iopoint_entity = table.merge(electric_pole,  {
     icon_size = 16,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
-    selection_box = processor.iopoint_formation.item_shape.box,
+    selection_box = { { -0.25, -0.25 }, { 0.25, 0.25 } },
     selection_priority = 70,
     minable = nil,
-    flags = { "player-creation", "placeable-off-grid", "placeable-neutral", "hide-alt-info", "not-on-map" },
+    flags = { "player-creation", "placeable-off-grid", "placeable-neutral" },
     circuit_wire_max_distance = 64,
     maximum_wire_distance = 9,
     supply_area_distance = 0,
@@ -32,7 +86,7 @@ local iopoint_entity = table.merge(electric_pole,  {
     auto_connect_up_to_n_wires = 0,
     draw_copper_wires = false,
     draw_circuit_wires = true,
-    connection_points = { connection_points, connection_points, connection_points, connection_points },
+    connection_points = create_wire_connection_points(),
     pictures = { layers = { iopoint_sprite, iopoint_sprite }},
   }
 )
