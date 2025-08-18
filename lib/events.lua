@@ -3,6 +3,7 @@ local events = {}
 ---Drop-in replacement for script.on_event however it supports multiple handlers per event. You can also use 'on_built' 'on_destroyed' and 'on_init' as shortcuts for multiple events.
 ---@param event defines.events|defines.events[]|string
 ---@param f function
+---@diagnostic disable-next-line
 factorissimo.on_event = function(event, f)
     for _, event in pairs(type(event) == "table" and event or {event}) do
         event = tostring(event)
@@ -44,6 +45,7 @@ factorissimo.finalize_events = function()
             script.on_init(f)
             script.on_configuration_changed(f)
         else
+            ---@diagnostic disable-next-line
             script.on_event(tonumber(event) or event, f)
         end
         i = i + 1

@@ -21,9 +21,9 @@ factorissimo.draw_error_sprite = function(entity, sprite, time_to_live)
 end
 
 ---Randomizes a position by a factor.
----@param position Position
+---@param position MapPosition
 ---@param factor number?
----@return Position
+---@return MapPosition
 factorissimo.randomize_position = function(position, factor)
     local x = position.x or position[1]
     local y = position.y or position[2]
@@ -48,25 +48,27 @@ factorissimo.cancel_creation = function(entity, player_index, message, color)
 
     if player_index then
         local player = game.get_player(player_index)
-        if player.mine_entity(entity, false) then
-            inserted = 1
+        if player then
+            if player.mine_entity(entity, false) then
+                inserted = 1
 
-            -- remove from undo stack
-            local undo_stack = player.undo_redo_stack
-            local top
-            for i = 1, undo_stack.get_undo_item_count() do
-                top = undo_stack.get_undo_item(i)
-                for j, action in pairs(top) do
-                    local target = action.target
-                    if target and target.name == name and serpent.line(target.position) == serpent.line(position) then
-                        undo_stack.remove_undo_action(i, j)
-                        break
+                -- remove from undo stack
+                local undo_stack = player.undo_redo_stack
+                local top
+                for i = 1, undo_stack.get_undo_item_count() do
+                    top = undo_stack.get_undo_item(i)
+                    for j, action in pairs(top) do
+                        local target = action.target
+                        if target and target.name == name and serpent.line(target.position) == serpent.line(position) then
+                            undo_stack.remove_undo_action(i, j)
+                            break
+                        end
                     end
                 end
+            elseif item_to_place then
+                item_to_place.quality = quality
+                inserted = player.insert(item_to_place)
             end
-        elseif item_to_place then
-            item_to_place.quality = quality
-            inserted = player.insert(item_to_place)
         end
     end
 
@@ -153,8 +155,8 @@ factorissimo.distance = function(x, y)
 end
 
 ---Returns the squared distance between two points.
----@param first Position
----@param second Position
+---@param first MapPosition
+---@param second MapPosition
 ---@return number
 factorissimo.distance_squared = function(first, second)
     local x = first.x - second.x
