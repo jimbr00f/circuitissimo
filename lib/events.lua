@@ -112,7 +112,8 @@ factorissimo.on_event(defines.events.on_object_destroyed, function(event)
     if not data then return end
     storage._delayed_functions[registration_number] = nil
 
-    local f = delayed_functions[data[1]]
+    local function_key = data[1]
+    local f = delayed_functions[function_key]
     if not f then error("No function found for key: " .. function_key) end
     f(table.unpack(data[2]))
 end)
