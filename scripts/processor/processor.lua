@@ -1,23 +1,41 @@
-local formation = require "lib.formation"
+local Formation = require "lib.formation"
+local Geometry = require "lib.geometry"
 
 local prefix = "circuitissimo"
 local prefix_pattern = "circuitissimo"
 local tag_prefix = '__' .. prefix
 local mod_prefix = '__' .. prefix .. '__'
 
-local exports = {
+---@class ProcessorConfig
+---@field prefix string
+---@field prefix_pattern string
+---@field mod_prefix string
+---@field tag_prefix string
+---@field processor_name string
+---@field processor_pattern string
+---@field processor_name_tagged string
+---@field iopoint_name string
+---@field iopoint_pattern string
+---@field iopoint_name_tagged string
+---@field iopoint_formation Formation
+local ProcessorConfig = {
     prefix = prefix,
     prefix_pattern = prefix_pattern,
     mod_prefix = mod_prefix,
     tag_prefix = tag_prefix,
-    png = function(name) return ('%s/graphics/processor/%s.png'):format(mod_prefix, name) end,
     processor_name = prefix .. "-processor",
     processor_pattern = "^" .. prefix_pattern .. "%-processor",
     processor_name_tagged = prefix .. "-processor-tagged",
     iopoint_name = prefix .. "-iopoint",
     iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
-    iopoint_formation = formation.build_oriented_formation({ x = 0.8, y = 0.8}, 4, formation.orthogonal_directions),
+    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Geometry.orientable_directions),
 }
 
-return exports
+---@param subpath string
+---@return string
+function ProcessorConfig.png_path(subpath)
+    return ('%s/graphics/processor/%s.png'):format(ProcessorConfig.mod_prefix, subpath)
+end
+
+return ProcessorConfig

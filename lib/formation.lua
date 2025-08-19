@@ -1,5 +1,3 @@
-local exports = {}
-
 ---@param radial_size RadialSize
 ---@return SimpleShape
 local function convert_size_to_shape(radial_size)
@@ -75,16 +73,6 @@ local function build_orientable_path(origin, count)
     return path
 end
 
----@param size RadialSize
----@param count integer
----@returns OrientableEntityFormation
-local function build_orientable_formation(size, count)
-    local instance = get_partition_shape(size, count) --[[@as OrientableEntityFormation]]
-    instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
-    instance.path = build_orientable_path(instance.origin, count)
-    return instance
-end
-
 ---@param path OrientablePath
 ---@param map DirectionMapping
 ---@returns OrientablePath
@@ -103,51 +91,40 @@ local function reorient_path(path, map)
     return reoriented
 end
 
+---@class Formation : PartitionShape
+---@field origin OrientableOrigin
+---@field path OrientablePath
+---@field lookup_radius number
+local Formation = {}
+
+---@param position MapPosition
+---@param orientation defines.direction
+---@return integer?
+function Formation:get_position_index(position, orientation)
+    local opath = self.path[orientation]
+    for i, p in ipairs(opath) do
+        if math.abs(p.x - position.x) <= self.lookup_radius and math.abs(p.y - position.y) <= self.lookup_radius then
+            return i
+        end
+    end
+    return nil
+end
+
 ---@param size RadialSize
 ---@param count integer
 ---@param map DirectionMapping
----@returns OrientableEntityFormation
-function exports.build_oriented_formation(size, count, map)
-    local instance = get_partition_shape(size, count) --[[@as OrientableEntityFormation]]
+---@returns Formation
+function Formation:new(size, count, map)
+    local instance = get_partition_shape(size, count) --[[@as Formation]]
     instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
     local path = build_orientable_path(instance.origin, count)
     instance.path = reorient_path(path, map)
+    instance.lookup_radius = 1
+    setmetatable(instance, self)
+    self.__index = self
     return instance
 end
 
-exports.cardinal_direction = {
-    north = defines.direction.north,
-    east  = defines.direction.east,
-    south = defines.direction.south,
-    west  = defines.direction.west,
-}
 
-exports.direction_name = {
-    [defines.direction.north] = "north",
-    [defines.direction.east] = "east",
-    [defines.direction.south] = "south",
-    [defines.direction.west] = "west",
-}
 
-exports.flipped_direction = {
-    [defines.direction.north] = defines.direction.south,
-    [defines.direction.south] = defines.direction.north,
-    [defines.direction.east] = defines.direction.west,
-    [defines.direction.west] = defines.direction.east,
-}
-
-exports.orthogonal_directions = {
-    [defines.direction.north] = { defines.direction.west, defines.direction.east},
-    [defines.direction.south] = { defines.direction.east, defines.direction.west},
-    [defines.direction.east] = { defines.direction.north, defines.direction.south},
-    [defines.direction.west] = { defines.direction.south, defines.direction.north},
-}
-
-exports.direction_orientation = {
-    [defines.direction.north] = orientation.vertical,
-    [defines.direction.south] = orientation.vertical,
-    [defines.direction.east] = orientation.horizontal,
-    [defines.direction.west] = orientation.horizontal,
-}
-
-return exports
+return Formation

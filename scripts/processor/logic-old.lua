@@ -1,14 +1,11 @@
-local Geometry = require 'lib.geometry'
-local ProcessorConfig = require "scripts.processor.processor"
+local Formation = require "lib.formation"
+local processor = require "scripts.processor.processor"
 local exports = {}
 
 local wire_types = { 
     defines.wire_connector_id.circuit_red, 
     defines.wire_connector_id.circuit_green 
 }
-
----@class Processor
-local Processor = {}
 
 ---@param procinfo ProcInfo
 local function update_connections(procinfo)
@@ -29,11 +26,9 @@ local function get_iopoint_connections(info)
                 dest_name = connection.target.owner.ghost_name
             end
             local conn = {
-                source_unit_number = info.unit_number,
                 source_connector_id = source_id,
                 target_connector_id = connection.target.wire_connector_id,
                 target_unit_number = connection.target.owner.unit_number,
-                wire_type = source_connector.wire_type
             } --[[@as IoPointWireConnection]]
             store_entity(connection.target.owner)
             game.print('iopoint#' .. tostring(info.index) .. ': creating conn #' .. tostring(i) .. ': ' .. tostring(conn.source_connector_id) .. ' => ' .. tostring(conn.target_connector_id) .. ' with owner: ' .. tostring(connection.target.owner.unit_number))
@@ -62,16 +57,6 @@ local function refresh_processor_info(info)
     load_processor_connections(info)
 end
 
-
----@param info IoPointInfo
-local function load_iopoint_connections(info)
-end
-
----@param info IoPointInfo
-local function refresh_iopoint_info(info)
-    load_iopoint_connections(info)
-end
-
 ---@param source IoPointInfo
 ---@param destination IoPointInfo
 ---@param transfer_type connection_transfer_type
@@ -91,95 +76,23 @@ end
 ---@param entity LuaEntity
 ---@return IoPointInfo
 local function create_iopoint(entity, index)
-    local info = { 
+    return { 
         entity = entity,
         index = index,
         connections = {}
     }
-    storage.iopoints[entity.unit_number] = info
-    return info
 end
 
 ---@param entity LuaEntity
 ---@return ProcInfo
 local function create_processor(entity)
-    local info = { 
+    return { 
         entity = entity,
         iopoints = {},
         mirroring = false,
-        direction = defines.direction.north,
         unit_number = entity.unit_number,
         locked = false
     }
-    storage.processors[entity.unit_number] = info
-    return info
-end
-
----@param info ProcInfo
----@return IoPointInfo[]
-local function find_iopoints(info)
-    local filter = {
-        name = ProcessorConfig.iopoint_name,
-        area = Geometry.get_search_area(info.entity, 1)
-    }
-    local entities = info.entity.surface.find_entities_filtered(filter)
-    local formation = ProcessorConfig.iopoint_formation
-    --[[
-        todo: ultimate goal is to associate each iopoint with a formation point. then we set the index to match
-            ie iopoint exists and has an index that doesnt match then we're SOL
-
-    ]]
-    local iopoints = {}
-    for _, entity in ipairs(entities) do
-        local matched_index = formation:get_position_index(entity.position, info.direction)
-        local iopoint = load_stored_iopoint(entity, true, matched_index)
-    end
-    local expected_positions = ProcessorConfig.iopoint_formation.path[info.direction]
-    local iopoints = {}
-    for i, entity in ipairs(entities) do
-        local horizontal_index = 0
-        if entity.position.x > info.entity.position.x then
-            horizontal_index = 1
-        end
-        table.insert(iopoints, create_iopoint(entity, i))
-    end
-    return iopoints
-end
-
----@param info ProcInfo
----@return IoPointInfo[]
-local function update_processor(info)
-    local entity = info.entity
-    local target_direction = entity.direction
-    if info.mirroring and Geometry.direction_orientation[entity.direction] == orientation.horizontal then
-        -- In this case we perform the equivalent of a vertical flip on the iopoints by
-        -- rotating 180 degrees and then performing a horizontal flip.
-        target_direction = Geometry.flipped_direction[target_direction]
-    end
-    local positions = ProcessorConfig.iopoint_formation.path[target_direction]
-    ---@type IoPointInfo[]
-    local iopoints = {}
-    for i, iopoint in ipairs(info.iopoints) do
-        local pos = { x = entity.position.x, y = entity.position.y }
-        local offset = { x = pos.x, y = pos.y }
-        if info.mirroring then
-            offset.x = -offset.x
-        end
-
-        local iopoint_entity = entity.surface.create_entity {
-            name = ProcessorConfig.iopoint_name,
-            position = { pos.x + offset.x, pos.y + offset.y },
-            force = entity.force
-        }
-        if iopoint_entity then
-            iopoint_entity.destructible = false
-            iopoint_entity.minable = false
-            
-            local iopoint = create_iopoint(iopoint_entity, i)
-            table.insert(iopoints, iopoint)
-        end
-    end
-    return iopoints
 end
 
 ---@param info ProcInfo
@@ -192,7 +105,7 @@ local function build_iopoints(info)
         -- rotating by 180 degrees and then performing a horizontal flip.
         target_direction = Geometry.flipped_direction[target_direction]
     end
-    local positions = ProcessorConfig.iopoint_formation.path[target_direction]
+    local positions = processor.iopoint_formation.path[target_direction]
     ---@type IoPointInfo[]
     local iopoints = {}
     for i, iop in ipairs(positions) do
@@ -203,7 +116,7 @@ local function build_iopoints(info)
         end
 
         local iopoint_entity = entity.surface.create_entity {
-            name = ProcessorConfig.iopoint_name,
+            name = processor.iopoint_name,
             position = { pos.x + offset.x, pos.y + offset.y },
             force = entity.force
         }
@@ -233,13 +146,14 @@ local function update_processor_connections(info, clone_source, transfer_type)
             end
         end
         source_iopoints = clone_source.iopoints
+        
     else
         source_iopoints = info.iopoints
-        transfer_type = connection_transfer_type.update
+        transfer_type = connection_transfer_type.replace
     end
 
-    if transfer_type == connection_transfer_type.update then
-        game.print('updating processor connections; updating iopoints')
+    if transfer_type == connection_transfer_type.replace then
+        game.print('updating processor connections; replacing iopoints')
     elseif transfer_type == connection_transfer_type.rebuild then
         game.print('updating processor connections; rebuilding iopoints')
     else
@@ -286,51 +200,127 @@ function exports.reorient_processor(info, mirroring)
     update_processor_connections(info)
 end
 
+---@param source ProcInfo
+---@param destination ProcInfo
+---@param duplicative boolean?
+function exports.clone_processor(source, destination, duplicative)
+    game.print('cloning processor, duplicative = ' .. tostring(duplicative))
+    local transfer_type = nil --[[@as connection_transfer_type]]
+    if duplicative then
+        transfer_type = connection_transfer_type.reapply
+    end
+    update_processor_connections(destination, source, transfer_type)
+end
+
+---@param tags Tags
+---@return ProcInfo?
+local function extract_processor_tags(tags)
+    local processor_tags = nil
+    if tags and tags[processor.tag_prefix] then 
+        processor_tags = tags[processor.tag_prefix]  --[[@as ProcInfo]]
+        game.print('extracted tags[' .. processor.tag_prefix .. ']')
+    end
+    if processor_tags and not processor_tags.valid then
+        game.print('invalid processor tags extracted')
+    end
+    return processor_tags
+end
+
+---@param event? EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive | EventData.on_built_entity | EventData.on_space_platform_built_entity
+---         | EventData.on_entity_settings_pasted
+---         | EventData.on_entity_cloned
+---         | EventData.on_robot_pre_mined
+---         | EventData.on_pre_player_mined_item
+---         | EventData.on_space_platform_mined_entity
+---@return ProcInfo?
+local function read_event_tags(event)
+    if not event or not event.tick then return nil end
+    ---@type ProcInfo?
+    local processor_tags = extract_processor_tags(event.tags)
+    if not processor_tags then
+        local stack_tags = event.stack and event.stack.is_item_with_tags and event.stack.tags --[[@as Tags]]
+        processor_tags = extract_processor_tags(stack_tags)
+    end
+    return processor_tags
+end
+
+---@param entity? LuaEntity
+---@return ProcInfo?
+local function read_entity_tags(entity)
+    if not entity or not entity.unit_number then return nil end
+    ---@type ProcInfo?
+    local processor_tags = extract_processor_tags(entity.tags)
+    return processor_tags
+end
+
+
+---@param entity? LuaEntity
+---@param event? EventData
+---         | EventData.on_robot_built_entity 
+---         | EventData.script_raised_built
+---         | EventData.script_raised_revive 
+---         | EventData.on_built_entity 
+---         | EventData.on_space_platform_built_entity
+---         | EventData.on_entity_settings_pasted
+---         | EventData.on_entity_cloned
+---         | EventData.on_robot_pre_mined
+---         | EventData.on_pre_player_mined_item
+---         | EventData.on_space_platform_mined_entity
+---@return ProcInfo?
+local function read_processor_tags(entity, event)
+    ---@diagnostic disable-next-line
+    local processor_tags = read_event_tags(event)
+    if processor_tags then
+        game.print('got processor info from event tags')
+        return processor_tags
+    end
+    processor_tags = read_entity_tags(entity)
+    if processor_tags then
+        game.print('got processor tags from entity')
+        return processor_tags
+    end
+    return nil
+end
+
 ---@param entity LuaEntity
 ---@param create boolean?
+---@param event? EventData
+---         | EventData.on_robot_built_entity 
+---         | EventData.script_raised_built
+---         | EventData.script_raised_revive 
+---         | EventData.on_built_entity 
+---         | EventData.on_space_platform_built_entity
+---         | EventData.on_entity_settings_pasted
+---         | EventData.on_entity_cloned
+---         | EventData.on_robot_pre_mined
+---         | EventData.on_pre_player_mined_item
+---         | EventData.on_space_platform_mined_entity
 ---@return ProcInfo
-function exports.load_stored_processor(entity, create)
-    game.print("loading stored processor info for entity: " .. tostring(entity.unit_number))
+function exports.load_stored_processor(entity, create, event)
+    game.print("loading stored info for entity: " .. tostring(entity.unit_number))
     if not storage.processors then storage.processors = {} end
     local info = storage.processors[entity.unit_number]
     if info and not info.locked then
-        game.print('refreshing processor info')
+        game.print('refreshing entity info')
         refresh_processor_info(info)
-    elseif not info and create then
-        game.print('creating new processor info')
+    elseif create then
+        game.print('creating new entity info')
         info = create_processor(entity)
         storage.processors[entity.unit_number] = info
     end
-    for _, iopoint in info.iopoints do
-        
+    if event then
+        local tag_info = read_processor_tags(entity, event)
+        if tag_info then 
+            info.mirroring = tag_info.mirroring
+            info.iopoints = tag_info.iopoints
+        end
     end
     return info
 end
-
-
----@param entity LuaEntity
----@param create boolean?
----@return IoPointInfo?
-function exports.load_stored_iopoint(entity, index, create)
-    game.print("loading stored iopoint info for entity: " .. tostring(entity.unit_number))
-    if not storage.iopoints then storage.iopoints = {} end
-    local info = storage.iopoints[entity.unit_number]
-    if info and not info.locked then
-        game.print('refreshing iopoint info')
-        refresh_iopoint_info(info)
-    elseif not info and create then
-        game.print('creating new processor info')
-        info = create_iopoint(entity, index)
-        storage.iopoints[entity.unit_number] = info
-    end
-    return info
-end
-
 
 ---@param entity LuaEntity
 function store_entity(entity)
     if not storage.entities then storage.entities = {} end
-    if not entity or not entity.valid then return end
     storage.entities[entity.unit_number] = entity
 end
 
@@ -338,7 +328,6 @@ end
 function load_entity(unit_number)
     if not storage.entities then storage.entities = {} end
     local entity = storage.entities[unit_number]
-    if not entity or not entity.valid then return nil end
     return entity
 end
 

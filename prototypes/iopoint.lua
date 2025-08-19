@@ -1,4 +1,4 @@
-local processor = require 'scripts.processor.processor'
+local ProcessorConfig = require 'scripts.processor.processor'
 local proto_lib = require 'lib.prototypes'
 require '__base__.prototypes.entity.entities'
 
@@ -29,8 +29,8 @@ local connection_points = proto_lib.create_wire_connection_points(iopoint_connec
 
 
 local iopoint_entity = table.merge(constant_combinator,  {
-    name = processor.iopoint_name,
-    icon = processor.png('icons/iopoint'),
+    name = ProcessorConfig.iopoint_name,
+    icon = ProcessorConfig.png_path('icons/iopoint'),
     icon_size = 64,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
     collision_mask = { layers={} },
@@ -38,23 +38,23 @@ local iopoint_entity = table.merge(constant_combinator,  {
     selection_priority = 70,
     flags = { "player-creation", "placeable-off-grid", "placeable-neutral" },
     circuit_wire_max_distance = 64,
-    connection_points = connection_points,
+    -- connection_points = connection_points,
     corpse = "small-remnants",
     dying_explosion = "explosion",
-    fast_replaceable_group = processor.iopoint_name,
+    fast_replaceable_group = ProcessorConfig.iopoint_name,
     icon_draw_specification = {scale = 0.7},
     sprites = make_4way_animation_from_spritesheet({layers =
     {
         {
             scale = 0.5,
-            filename = processor.png('entity/iopoint'),
+            filename = ProcessorConfig.png_path('entity/iopoint'),
             width = 48,
             height = 48,
             shift = util.by_pixel(-1, -6)
         },
         {
             scale = 0.5,
-            filename = processor.png('entity/iopoint-shadow'),
+            filename = ProcessorConfig.png_path('entity/iopoint-shadow'),
             width = 64,
             height = 48,
             shift = util.by_pixel(9, -2),
@@ -75,23 +75,23 @@ local iopoint_prototypes = {
     iopoint_entity,
     {
         type = 'item',
-        name = processor.iopoint_name,
+        name = ProcessorConfig.iopoint_name,
         icon_size = 64,
-        icon = processor.png('icons/iopoint'),
+        icon = ProcessorConfig.png_path('icons/iopoint'),
         subgroup = 'circuit-network',
         order = 'p[rocessor]',
-        place_result = processor.iopoint_name,
+        place_result = ProcessorConfig.iopoint_name,
         stack_size = 50,
         weight = 200000
     }, 
     {
         type = "item-with-tags",
-        name = processor.iopoint_name_tagged,
+        name = ProcessorConfig.iopoint_name_tagged,
         icon_size = 64,
-        icon = processor.png('icons/iopoint'),
+        icon = ProcessorConfig.png_path('icons/iopoint'),
         subgroup = 'circuit-network',
         order = 'p[rocessor]',
-        place_result = processor.iopoint_name,
+        place_result = ProcessorConfig.iopoint_name,
         stack_size = 1,
         flags = { "not-stackable" }
     }

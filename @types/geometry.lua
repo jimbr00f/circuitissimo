@@ -11,10 +11,6 @@
 ---@field item_shape SimpleShape
 ---@field item_count integer
 
----@class OrientableEntityFormation : PartitionShape
----@field origin OrientableOrigin
----@field path OrientablePath
-
 ---@alias DirectionMapping table<defines.direction, defines.direction[]>
 
 ---@class SimpleShape
@@ -29,7 +25,7 @@
 ---@field delta Delta
 
 ---@alias Path Point[]
----@alias OrientablePath table<defines.direction, Point[]>
+---@alias OrientablePath table<defines.direction, Path>
 ---@alias OrientableOrigin table<defines.direction, OriginPoint>
 
 ---@enum orientation
