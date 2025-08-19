@@ -13,9 +13,9 @@ local exports = {
     png = function(name) return ('%s/graphics/processor/%s.png'):format(mod_prefix, name) end,
     processor_name = prefix .. "-processor",
     processor_pattern = "^" .. prefix_pattern .. "%-processor",
-    processor_with_tags = prefix .. "-processor_with_tags",
+    processor_name_tagged = prefix .. "-processor-tagged",
     iopoint_name = prefix .. "-iopoint",
-    iopoint_with_tags = prefix .. "-iopoint_with_tags",
+    iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
     iopoint_formation = formation.build_oriented_formation({ x = 0.8, y = 0.8}, 4, formation.orthogonal_directions),
 }
