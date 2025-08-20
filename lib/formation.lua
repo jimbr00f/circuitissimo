@@ -1,3 +1,4 @@
+local Geometry = require 'lib.geometry'
 ---@param radial_size RadialSize
 ---@return SimpleShape
 local function convert_size_to_shape(radial_size)
@@ -44,10 +45,14 @@ local function build_orientable_origin(container_shape, item_shape)
     local rb = container_shape.right_bottom
     local isize = item_shape.size
     local origin = {
-        [defines.direction.north] = { point = { x = rb.x, y = lt.y }, delta = { x = -isize.width, y = 0 } },
-        [defines.direction.south] = { point = { x = lt.x, y = rb.y }, delta = { x = isize.width, y = 0 } },
-        [defines.direction.east] =  { point = { x = rb.x, y = rb.y }, delta = { x = 0, y = -isize.height } },
-        [defines.direction.west] =  { point = { x = lt.x, y = lt.y }, delta = { x = 0, y = isize.height } },
+        [orientation.r0] = { point = { x = lt.x, y = lt.y }, delta = { x = isize.width, y = 0 } },
+        [orientation.r1] = { point = { x = rb.x, y = lt.y }, delta = { x = 0, y = isize.height } },
+        [orientation.r2] = { point = { x = rb.x, y = rb.y }, delta = { x = -isize.width, y = 0 } },
+        [orientation.r3] = { point = { x = lt.x, y = rb.y }, delta = { x = 0, y = -isize.height } },
+        [orientation.mr0] = { point = { x = -lt.x, y = lt.y }, delta = { x = -isize.width, y = 0 } },
+        [orientation.mr1] = { point = { x = -rb.x, y = lt.y }, delta = { x = 0, y = isize.height } },
+        [orientation.mr2] = { point = { x = -rb.x, y = rb.y }, delta = { x = isize.width, y = 0 } },
+        [orientation.mr3] = { point = { x = -lt.x, y = rb.y }, delta = { x = 0, y = -isize.height } },
     }
     return origin
 end
@@ -57,38 +62,55 @@ end
 local function build_orientable_path(origin, count)
     ---@type OrientablePath
     local path = {}
-    for dir, pv in pairs(origin) do
-        ---@type Point[]
-        local positions = {}
+    for orientation, pv in pairs(origin) do
+        ---@type OrientedPath
+        local opath = { orientation = orientation, points = {} }
         local p = { x = pv.point.x, y = pv.point.y }
         for _ = 1, count do
-            table.insert(positions, p)
+            table.insert(opath.points, p)
             p = {
                 x = p.x + pv.delta.x,
                 y = p.y + pv.delta.y
             }
         end
-        path[dir] = positions
+        path[orientation] = opath
     end
     return path
 end
 
 ---@param path OrientablePath
----@param map DirectionMapping
+---@param map OrientationMapping
 ---@returns OrientablePath
 local function reorient_path(path, map)
     ---@type OrientablePath
     local reoriented = {}
-    for dir, path_keys in pairs(map) do
+    for orientation, path_keys in pairs(map) do
         ---@type Path[]
         local subpaths = {}
         for _, path_key in ipairs(path_keys) do
             local subpath = path[path_key]
             table.insert(subpaths, subpath)
         end
-        reoriented[dir] = table.array_combine(table.unpack(subpaths))
+        reoriented[orientation] = table.array_combine(table.unpack(subpaths))
     end
     return reoriented
+end
+
+
+
+---@class FormationSlot
+---@field position MapPosition
+---@field index integer
+local FormationSlot = { }
+FormationSlot.__index = FormationSlot
+
+---@param position MapPosition
+---@param index integer
+function FormationSlot:new(position, index)
+    local instance = { position = position, index = index }
+    setmetatable(instance, self)
+    self.__index = self
+    return instance
 end
 
 ---@class Formation : PartitionShape
@@ -96,6 +118,26 @@ end
 ---@field path OrientablePath
 ---@field lookup_radius number
 local Formation = {}
+Formation.__index = Formation
+
+
+function FormationSlot:__tostring()
+    return string.format("slot #%d at (%.1f, %.1f)", self.index, self.position.x, self.position.y)
+end
+
+---@param size RadialSize
+---@param count integer
+---@param map OrientationMapping
+---@returns Formation
+function Formation:new(size, count, map)
+    local instance = get_partition_shape(size, count) --[[@as Formation]]
+    instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
+    local path = build_orientable_path(instance.origin, count)
+    instance.path = reorient_path(path, map)
+    instance.lookup_radius = 1
+    setmetatable(instance, self)
+    return instance
+end
 
 ---@param position MapPosition
 ---@param orientation defines.direction
@@ -110,20 +152,41 @@ function Formation:get_position_index(position, orientation)
     return nil
 end
 
----@param size RadialSize
----@param count integer
----@param map DirectionMapping
----@returns Formation
-function Formation:new(size, count, map)
-    local instance = get_partition_shape(size, count) --[[@as Formation]]
-    instance.origin = build_orientable_origin(instance.shape, instance.item_shape)
-    local path = build_orientable_path(instance.origin, count)
-    instance.path = reorient_path(path, map)
-    instance.lookup_radius = 1
-    setmetatable(instance, self)
-    self.__index = self
-    return instance
+---@param direction defines.direction
+---@param mirroring boolean
+---@return orientation
+local function get_orientation(direction, mirroring)
+    if mirroring then 
+        return Geometry.mirror_direction_orientation[direction]
+    else 
+        return Geometry.canonical_direction_orientation[direction] 
+    end
 end
+
+---@param position MapPosition
+---@param direction defines.direction
+---@param mirroring boolean
+---@return FormationSlot?
+function Formation:get_formation_slot(position, direction, mirroring)
+    local orientation = get_orientation(direction, mirroring)
+    local opath = self.path[orientation]
+    for i, p in ipairs(opath.points) do
+        if math.abs(p.x - position.x) <= self.lookup_radius and math.abs(p.y - position.y) <= self.lookup_radius then
+            return { position = p, index = i }
+        end
+    end
+    return nil
+end
+
+
+--[[
+    4   3   2   1
+1                   4
+2                   3
+3                   2
+4                   1
+
+]]
 
 
 

@@ -1,0 +1,3 @@
+---@class IoPointConfig
+local IoPointConfig = {}
+

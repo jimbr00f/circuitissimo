@@ -87,13 +87,13 @@ local handlers = {
         local entity = event.entity
         if not entity or not entity.valid then return end
         if entity.name ~= ProcessorConfig.processor_name then return end
-        ---@type orientation?
+        ---@type axis?
         local mirroring = nil
         if event.name == defines.events.on_player_flipped_entity then
             if event.horizontal then 
-                mirroring = orientation.horizontal
+                mirroring = axis.horizontal
             else
-                mirroring = orientation.vertical
+                mirroring = axis.vertical
             end
         end
         local info = logic.load_stored_processor(entity, true)

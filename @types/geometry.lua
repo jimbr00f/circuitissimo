@@ -12,6 +12,7 @@
 ---@field item_count integer
 
 ---@alias DirectionMapping table<defines.direction, defines.direction[]>
+---@alias OrientationMapping table<orientation, orientation[]>
 
 ---@class SimpleShape
 ---@field left_top MapPosition.0
@@ -20,16 +21,37 @@
 ---@field size Size
 ---@field radius RadialSize
 
----@class OriginPoint
+---@class Origin
 ---@field point Point
 ---@field delta Delta
 
----@alias Path Point[]
----@alias OrientablePath table<defines.direction, Path>
----@alias OrientableOrigin table<defines.direction, OriginPoint>
+---@class Path 
+---@field points Point[]
+
+---@enum axis
+axis = {
+    vertical = 1 --[[@as axis.vertical ]],
+    horizontal = 2 --[[@as axis.horizontal ]],
+}
 
 ---@enum orientation
 orientation = {
-    vertical = 1 --[[@as orientation.vertical ]],
-    horizontal = 2 --[[@as orientation.horizontal ]],
+    r0 = 1 --[[@as orientation.r0]],
+    r1 = 1 --[[@as orientation.r1]],
+    r2 = 1 --[[@as orientation.r2]],
+    r3 = 1 --[[@as orientation.r3]],
+    mr0 = 1 --[[@as orientation.mr0]],
+    mr1 = 1 --[[@as orientation.mr1]],
+    mr2 = 1 --[[@as orientation.mr2]],
+    mr3 = 1 --[[@as orientation.mr3]],
 }
+
+---@class OrientedPath : Path
+---@field orientation orientation
+
+---@class OrientedOrigin : Origin
+---@field orientation orientation
+
+---@alias OrientablePath table<orientation, OrientedPath>
+
+---@alias OrientableOrigin table<orientation, OrientedOrigin>
