@@ -26,10 +26,10 @@ local handlers = {
 
     ---@param event EventData.on_player_rotated_entity | EventData.on_player_flipped_entity
     on_reoriented = function(event)
-        game.print("processor:on_rotated")
         local entity = event.entity
         if not entity or not entity.valid then return end
         if entity.name ~= ProcessorConfig.processor_name then return end
+        local processor = Processor.load_from_storage(entity)
         ---@type axis?
         local mirroring = nil
         if event.name == defines.events.on_player_flipped_entity then
@@ -38,9 +38,12 @@ local handlers = {
             else
                 mirroring = axis.vertical
             end
+            game.print(string.format('mirroring processor from %s to %s', processor.mirroring, mirroring))
+        else
+            game.print(string.format('reorienting processor from %s to %s', processor.direction, processor.entity.direction))
         end
-        local processor = Processor.load_from_storage(entity)
         processor:reorient(mirroring)
+        game.print(string.format('post-reorient: d: %s, m: %s, o: %s', processor.direction, processor.mirroring, processor.orientation))
     end,
 }
 

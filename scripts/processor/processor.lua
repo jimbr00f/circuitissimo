@@ -41,10 +41,13 @@ end
 
 ---@param mirroring? axis
 function Processor:reorient(mirroring)
-    game.print(string.format('reorienting processor; start = '))
+    game.print(string.format('reorient.begin: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:refresh()
+    game.print(string.format('reorient.refresh: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:infer_orientation(mirroring)
+    game.print(string.format('reorient.infer: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:reorient_iopoints()
+    game.print(string.format('reorient.iopoints: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
 end
 
 function Processor:refresh()
@@ -97,14 +100,6 @@ function Processor:load_iopoints()
 end
 
 function Processor:reorient_iopoints()
-    game.print(string.format("orientation: %s", tostring(self.orientation)))
-    local all_paths = ProcessorConfig.iopoint_formation.paths
-    game.print(string.format("# paths: %d", #all_paths))
-    local pathf = all_paths[self.orientation]
-    game.print(string.format("# path nil? %s", pathf == nil and "ya" or "ne" ))
-    for pk, pv in pairs(all_paths) do
-        game.print(string.format('key: %s', tostring(pk)))
-    end
     local path = ProcessorConfig.iopoint_formation.paths[self.orientation]
     for _, iopoint in pairs(self.iopoints) do
         local slot_target = path.slots[iopoint.index]

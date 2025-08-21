@@ -25,25 +25,14 @@ function EntityInfo:new(entity)
     return instance
 end
 
----@param direction defines.direction
----@param mirroring boolean
----@param orientation orientation
-function EntityInfo:reorient(direction, mirroring, orientation)
-    self.entity.direction = direction
-    self.entity.mirroring = mirroring
-    self.direction = direction
-    self.mirroring = mirroring
-    self.orientation = orientation
-end
-
-
 function EntityInfo:refresh_orientation()
     self:set_orientation(self.entity.direction, self.entity.mirroring)
 end
 
 ---@param mirroring? axis
 function EntityInfo:infer_orientation(mirroring)
-    self:set_orientation(self.entity.direction, mirroring and true or false)
+    local mirroring_state = bit32.bxor(mirroring and 1 or 0, self.mirroring and 1 or 0) == 1
+    self:set_orientation(self.entity.direction, mirroring_state)
 end
 
 function EntityInfo:apply_orientation()
@@ -64,6 +53,7 @@ function EntityInfo:sync_orientation(info)
     self.direction = info.direction
     self.mirroring = info.mirroring
     self.orientation = info.orientation
+    self:apply_orientation()
 end
 
 return EntityInfo
