@@ -69,6 +69,16 @@ local OrientationConversion = {
         [orientation.r3] = defines.direction.west,
         [orientation.mr1] = defines.direction.west,
     },
+    to_identity = {
+        [orientation.r0] = { orientation.r0 },
+        [orientation.mr0] = { orientation.mr0 },
+        [orientation.r1] = { orientation.r1 },
+        [orientation.mr3] = { orientation.mr3 },
+        [orientation.r2] = { orientation.r2 },
+        [orientation.mr2] = { orientation.mr2 },
+        [orientation.r3] = { orientation.r3 },
+        [orientation.mr1] = { orientation.mr1 },
+    }
 }
 OrientationConversion.__index = OrientationConversion
 

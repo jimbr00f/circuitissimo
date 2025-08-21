@@ -74,12 +74,13 @@ end
 ---@param is_hovered boolean
 ---@param final_dir defines.direction
 local function draw_anchor(surface, force, player_index, anchor_world, is_free, is_hovered, final_dir)
+    game.print(string.format('drawing anchor at %.1f, %.1f [%s]', anchor_world.x, anchor_world.y, tostring(final_dir)))
     local ids = storage.anchor_preview[player_index].render_ids
     local color = is_free and {g=1, a=0.35} or {r=0.6, g=0.6, b=0.6, a=0.25}
     local box = rendering.draw_rectangle{
         color = color,
         width = is_hovered and 2 or 1,
-        filled = true,
+        filled = false,
         left_top = {anchor_world.x - 0.5, anchor_world.y - 0.5},
         right_bottom = {anchor_world.x + 0.5, anchor_world.y + 0.5},
         surface = surface,
@@ -146,7 +147,7 @@ local function update_player_preview(player, pdata)
             }
             
             -- hover selection by proximity to cursor position
-            local d2 = dist_sq(world, player.hand_location)
+            local d2 = dist_sq(world, player.position)
             local is_hover = free and d2 < best_hover_d2
             if is_hover then
                 pdata.nearest_anchor = {

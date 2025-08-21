@@ -25,15 +25,32 @@ function FormationShape.convert_size_to_shape(radial_size)
     return shape
 end
 
+---@param margin integer|MapPosition|nil
+---@return MapPosition
+function FormationShape.normalize_margin(margin)
+    if not margin then
+        return { x = 0, y = 0 }
+    elseif type(margin) == "number" then 
+        return { x = margin, y = margin } 
+    else
+        return { 
+            x = margin.x or margin[1] , 
+            y = margin.y or margin[2] 
+        }
+    end
+end
+
 ---@param boundary_size RadialSize
 ---@param item_count integer
+---@param margin MapPosition
 ---@return PartitionShape
-function FormationShape.get_partition_shape(boundary_size, item_count)
+function FormationShape.get_partition_shape(boundary_size, item_count, margin)
     local container_shape = FormationShape.convert_size_to_shape(boundary_size)
+
     ---@type RadialSize
     local item_boundary_size = { 
-        x = boundary_size.x / (item_count - 1), 
-        y = boundary_size.y / (item_count - 1) 
+        x = (boundary_size.x - 2 * margin.x) / (item_count - 1), 
+        y = (boundary_size.y - 2 * margin.y) / (item_count - 1) 
     }
     local item_shape = FormationShape.convert_size_to_shape(item_boundary_size)
     return {
@@ -45,20 +62,27 @@ end
 
 ---@param container_shape SimpleShape
 ---@param item_shape SimpleShape
+---@param margin MapPosition
 ---@return OrientableOrigin
-function FormationShape.build_orientable_origin(container_shape, item_shape)
+function FormationShape.build_orientable_origin(container_shape, item_shape, margin)
     local lt = container_shape.left_top
     local rb = container_shape.right_bottom
     local isize = item_shape.size
+    local points = {
+        n = { x = lt.x + margin.x, y = lt.y },
+        e = { x = rb.x, y = lt.y + margin.y },
+        s = { x = rb.x - margin.x, y = rb.y },
+        w = { x = lt.x, y = rb.y - margin.y }
+    }
     local origin = {
-        [orientation.r0] = { point = { x = lt.x, y = lt.y }, delta = { x = isize.width, y = 0 } },
-        [orientation.r1] = { point = { x = rb.x, y = lt.y }, delta = { x = 0, y = isize.height } },
-        [orientation.r2] = { point = { x = rb.x, y = rb.y }, delta = { x = -isize.width, y = 0 } },
-        [orientation.r3] = { point = { x = lt.x, y = rb.y }, delta = { x = 0, y = -isize.height } },
-        [orientation.mr0] = { point = { x = -lt.x, y = lt.y }, delta = { x = -isize.width, y = 0 } },
-        [orientation.mr1] = { point = { x = -rb.x, y = lt.y }, delta = { x = 0, y = isize.height } },
-        [orientation.mr2] = { point = { x = -rb.x, y = rb.y }, delta = { x = isize.width, y = 0 } },
-        [orientation.mr3] = { point = { x = -lt.x, y = rb.y }, delta = { x = 0, y = -isize.height } },
+        [orientation.r0] = { point = points.n, delta = { x = isize.width, y = 0 } },
+        [orientation.r1] = { point = points.e, delta = { x = 0, y = isize.height } },
+        [orientation.r2] = { point = points.s, delta = { x = -isize.width, y = 0 } },
+        [orientation.r3] = { point = points.w, delta = { x = 0, y = -isize.height } },
+        [orientation.mr0] = { point = { x = -(points.n.x), y = points.n.y }, delta = { x = -isize.width, y = 0 } },
+        [orientation.mr1] = { point = { x = -(points.e.x), y = points.e.y }, delta = { x = 0, y = isize.height } },
+        [orientation.mr2] = { point = { x = -(points.s.x), y = points.s.y }, delta = { x = isize.width, y = 0 } },
+        [orientation.mr3] = { point = { x = -(points.w.x), y = points.w.y }, delta = { x = 0, y = -isize.height } },
     }
     return origin
 end
@@ -82,32 +106,6 @@ function FormationShape.build_orientable_path(origin, count)
         path[orientation] = opath
     end
     return path
-end
-
----@param path OrientablePath
----@param map OrientationMapping
----@returns table<orientation, FormationPath>
-function FormationShape.build_formation_paths(path, map)
-    ---@type table<orientation, FormationPath>
-    local formation_paths = {}
-    for orientation, path_orientations in pairs(map) do
-        ---@type FormationSlot[]
-        local slots = {}
-        for _, path_orientation in ipairs(path_orientations) do
-            local subpath = path[path_orientation]
-            local slot_direction = FormationConversion.orientation.to_direction[path_orientation]
-            for _, point in ipairs(subpath.points) do
-                ---@type FormationSlot
-                table.insert(slots, FormationSlot:new(#slots + 1, point, slot_direction))
-            end
-        end
-        ---@type FormationPath
-        formation_paths[orientation] = { 
-            orientation = orientation, 
-            slots = slots
-        }
-    end
-    return formation_paths
 end
 
 return FormationShape

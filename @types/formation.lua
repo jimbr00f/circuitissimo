@@ -28,7 +28,7 @@
 ---@field orientation orientation
 
 ---@class Formation : PartitionShape
----@field paths table<orientation, FormationPath>
+---@field paths table<orientation,FormationPath>
 ---@field lookup_radius number
 ---@field convert FormationConversion
 ---@field search FormationSearch

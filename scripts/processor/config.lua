@@ -5,6 +5,9 @@ local prefix_pattern = "circuitissimo"
 local tag_prefix = '__' .. prefix
 local mod_prefix = '__' .. prefix .. '__'
 
+local formation = Formation:new({ x = 1, y = 1}, 2, 1)
+formation:map_paths(Formation.convert.orientation.to_circular_orientation)
+
 ---@class ProcessorConfig
 ---@field prefix string
 ---@field prefix_pattern string
@@ -28,7 +31,7 @@ local ProcessorConfig = {
     iopoint_name = prefix .. "-iopoint",
     iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
-    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Formation.convert.orientation.to_circular_orientation),
+    iopoint_formation = formation
 }
 ProcessorConfig.__index = ProcessorConfig
 
