@@ -36,14 +36,14 @@ axis = {
 
 ---@enum orientation
 orientation = {
-    r0 = 1 --[[@as orientation.r0]],
+    r0 = 0 --[[@as orientation.r0]],
     r1 = 1 --[[@as orientation.r1]],
-    r2 = 1 --[[@as orientation.r2]],
-    r3 = 1 --[[@as orientation.r3]],
-    mr0 = 1 --[[@as orientation.mr0]],
-    mr1 = 1 --[[@as orientation.mr1]],
-    mr2 = 1 --[[@as orientation.mr2]],
-    mr3 = 1 --[[@as orientation.mr3]],
+    r2 = 2 --[[@as orientation.r2]],
+    r3 = 3 --[[@as orientation.r3]],
+    mr0 = 4 --[[@as orientation.mr0]],
+    mr1 = 5 --[[@as orientation.mr1]],
+    mr2 = 6 --[[@as orientation.mr2]],
+    mr3 = 7 --[[@as orientation.mr3]],
 }
 
 ---@class OrientedPath : Path

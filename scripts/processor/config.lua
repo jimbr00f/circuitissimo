@@ -1,5 +1,4 @@
-local Formation = require "lib.formation"
-local Geometry = require "lib.geometry"
+local Formation = require "lib.formation.formation"
 
 local prefix = "circuitissimo"
 local prefix_pattern = "circuitissimo"
@@ -29,7 +28,7 @@ local ProcessorConfig = {
     iopoint_name = prefix .. "-iopoint",
     iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
-    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Geometry.orientable_directions),
+    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Formation.ConvertOrientations.to_circular_orientation),
 }
 
 ---@param subpath string

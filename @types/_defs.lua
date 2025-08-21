@@ -1,3 +1,4 @@
-require '@types/entity'
-require '@types/geometry'
-require '@types/system'
+require '@types.connection'
+require '@types.geometry'
+require '@types.prototype'
+require '@types.system'

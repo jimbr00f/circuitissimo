@@ -1,5 +1,5 @@
-local ProcessorConfig = require "scripts.processor.processor"
-local logic = require "scripts.processor.logic"
+local ProcessorConfig = require "scripts.processor.config"
+local Processor = require 'scripts.processor.processor'
 
 local handlers = {
     ---@param event EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_built | EventData.script_raised_revive
@@ -20,30 +20,7 @@ local handlers = {
         local entity = event.entity
         if not entity or not entity.valid then return end
         if entity.name ~= ProcessorConfig.processor_name then return end
-        local info = logic.load_stored_processor(entity, true)
-        if event.stack then
-            local stack = event.stack
-            if stack.is_blueprint then
-                game.print('stack is bp')
-            elseif stack.is_item_with_entity_data then
-                game.print('stack is item with entity')
-            elseif stack.is_item_with_tags then
-                game.print('stack is item with tags')
-            end
-        end
-        if event.player_index and game.players[event.player_index] then
-            local stack = game.players[event.player_index].cursor_stack
-            if stack then
-                if stack.is_blueprint then
-                    game.print('cursor stack is bp')
-                elseif stack.is_item_with_entity_data then
-                    game.print('cursor stack is item with entity')
-                elseif stack.is_item_with_tags then
-                    game.print('cursor stack is item with tags')
-                end
-            end
-        end
-        logic.build_processor(info)
+        Processor.load(entity)
     end,
 
 
@@ -62,8 +39,8 @@ local handlers = {
                 mirroring = axis.vertical
             end
         end
-        local info = logic.load_stored_processor(entity, true)
-        logic.reorient_processor(info, mirroring)
+        local processor = Processor.load_from_storage(entity)
+        processor:reorient(mirroring)
     end,
 }
 

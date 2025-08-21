@@ -1,64 +1,61 @@
+local Formation = require 'lib.formation.formation'
 local IoPoint = require 'scripts.iopoint.iopoint'
 local Geometry = require 'lib.geometry'
 local Formatting = require 'lib.formatting'
 local ProcessorConfig = require "scripts.processor.config"
-
+---@type EntityInfo
+local EntityInfo = require('lib.entity-info')
 
 ---@class Processor : EntityInfo
 ---@field iopoints table<uint64, IoPoint>
----@field mirroring boolean
----@field locked boolean
----@field direction defines.direction
-local Processor = {}
+local Processor = setmetatable({}, { __index = EntityInfo })
 Processor.__index = Processor
+
 
 ---@param entity LuaEntity
 ---@return Processor
 function Processor:new(entity)
-    local instance = { 
-        entity = entity,
-        iopoints = {},
-        mirroring = false,
-        direction = defines.direction.north,
-        unit_number = entity.unit_number,
-        locked = false
-    }
+    game.print(string.format('creating new processor from entity: %s', Formatting.format_entity(entity)))
+    local instance = EntityInfo.new(self, entity) --[[@as Processor]]
+    instance.iopoints = {}
     setmetatable(instance, self)
     storage.processors[entity.unit_number] = instance
     return instance
 end
 
 function Processor.initialize()
+    game.print('initializing Processor class storage')
     ---@type table<uint64, IoPoint>
     storage.processors = storage.processors or {}
+end
+
+function Processor:destroy()
+    for _, iopoint in pairs(self.iopoints) do
+        iopoint:destroy()
+    end
+    self.locked = true
 end
 
 function Processor:__tostring()
     return string.format("%s at (%.1f, %.1f)", self.entity.name, self.entity.position.x, self.entity.position.y)
 end
 
----@param procinfo Processor
-local function update_connections(procinfo)
-    -- TODO: invoke Factorissimo connection builders
-end
 
-
-function Processor:load_connections()
-    if not self.iopoints then return end
-    ---@type IoPointWireConnection
-    for _, iopoint in ipairs(self.iopoints) do
-        iopoint:load_connections()
-    end
+---@param mirroring? axis
+function Processor:reorient(mirroring)
+    game.print(string.format('reorienting processor; start = '))
+    self:refresh()
+    self:infer_orientation(mirroring)
+    self:reorient_iopoints()
 end
 
 function Processor:refresh()
-    self:load_connections()
+    game.print('refreshing processor')
+    self.iopoints = self:load_iopoints()
 end
 
-
-
 ---@return IoPoint[]
-function Processor:refresh_iopoints()
+function Processor:load_iopoints()
     local filter = {
         name = ProcessorConfig.iopoint_name,
         area = Geometry.get_search_area(self.entity, 1)
@@ -67,9 +64,10 @@ function Processor:refresh_iopoints()
     local formation = ProcessorConfig.iopoint_formation
     local iopoints = {}
     for _, entity in ipairs(entities) do
-        local slot = formation:get_formation_slot(entity.position, self.direction)
+        local slot = formation:get_formation_slot(entity.position, self.direction, self.mirroring)
         if not slot then
             game.print(string.format('ERROR: No formation slot matches this entity: %s', Formatting.format_entity(entity)))
+            goto continue
         end
         local iopoint = self.iopoints[entity.unit_number]
         if not iopoint then
@@ -79,45 +77,43 @@ function Processor:refresh_iopoints()
             game.print(string.format('ERROR: loaded %s but matched with %s', iopoint, slot))
         end
         iopoints[entity.unit_number] = iopoint
+        ::continue::
     end
     return iopoints
 end
 
 function Processor:reorient_iopoints()
-    local target_formation = ProcessorConfig.iopoint_formation
-    for _, iopoint in self.iopoints do
-        
-    end
-end
-
-
-function Processor:destroy()
+    local path = ProcessorConfig.iopoint_formation.paths[orientation]
     for _, iopoint in pairs(self.iopoints) do
-        iopoint:destroy()
+        local slot_target = path.slots[iopoint.index]
+        iopoint.entity.teleport(slot_target.position)
+        iopoint:sync_orientation(self)
     end
-    self.locked = true
 end
 
----@param mirroring orientation?
-function Processor:reorient(mirroring)
-    if mirroring then
-        self.mirroring = not self.mirroring
+
+---@param entity LuaEntity
+---@return Processor
+function Processor.load(entity)
+    local processor = Processor.load_from_storage(entity, true)
+    if not processor then
+        error('Expected a non-null iopoint but received nil.')
     end
-    self:refresh_iopoints()
+    return processor
 end
+
 
 ---@param entity LuaEntity
 ---@param create boolean?
 ---@return Processor
 function Processor.load_from_storage(entity, create)
-    game.print("loading stored processor info for entity: " .. tostring(entity.unit_number))
+    game.print(string.format("%s stored processor for entity: %s", create and "loading/creating" or "loading", Formatting.format_entity(entity)))
     local processor = storage.processors[entity.unit_number]
-    if processor and not processor.locked then
-        game.print('refreshing processor info')
-        processor.refresh()
-    elseif not processor and create then
-        game.print('creating new processor info')
+    if not processor and create then
         processor = Processor:new(entity)
+    end
+    if processor and not processor.locked then
+        processor:refresh()
     end
     return processor
 end
