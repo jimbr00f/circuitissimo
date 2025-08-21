@@ -2,7 +2,7 @@ local Formation = require 'lib.formation.formation'
 local IoPoint = require 'scripts.iopoint.iopoint'
 local Formatting = require 'lib.formatting'
 local ProcessorConfig = require "scripts.processor.config"
-local EntityInfo = require 'lib.entity_info'
+local EntityInfo = require 'lib.entity-info'
 
 ---@class Processor : EntityInfo
 ---@field iopoints table<uint64, IoPoint>
