@@ -3,6 +3,7 @@
 
 ---@class OrientationConversion
 ---@field to_circular_orientation table<orientation, orientation[]>
+---@field to_direction table<orientation, defines.direction>
 
 ---@class DirectionConversion
 ---@field to_mirror_direction table<defines.direction, defines.direction>
@@ -10,6 +11,7 @@
 ---@field to_mirror_orientation table<defines.direction, orientation>
 ---@field to_axis table<defines.direction, axis>
 ---@field to_orientation fun(direction : defines.direction, mirroring: boolean) : orientation
+---@field to_rotation table<defines.direction, number>
 
 ---@class FormationConversion
 ---@field direction DirectionConversion
@@ -18,6 +20,7 @@
 ---@class FormationSlot
 ---@field index integer
 ---@field position MapPosition
+---@field direction defines.direction
 
 
 ---@class FormationPath

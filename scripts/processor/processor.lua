@@ -63,6 +63,12 @@ function Processor:get_formation_slot(entity)
     return slot
 end
 
+---@return FormationSlot[]
+function Processor:get_active_formation_slots()
+    local path = ProcessorConfig.iopoint_formation.paths[self.orientation]
+    return path.slots
+end
+
 ---@return IoPoint[]
 function Processor:load_iopoints()
     local filter = {

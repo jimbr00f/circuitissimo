@@ -7,10 +7,6 @@ factorissimo.on_event(factorissimo.events.on_init(), function()
     IoPoint.initialize()
     Processor.initialize()
 end)
-script.on_init(function()
-    game.print("HALP")
-end
-)
 
 for event_type, event_handler in pairs(processor_events.subscriptions) do
     script.on_event(event_type, event_handler)

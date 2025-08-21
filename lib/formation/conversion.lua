@@ -27,6 +27,12 @@ local DirectionConversion = {
         [defines.direction.south] = axis.vertical,
         [defines.direction.west] = axis.horizontal,
     },
+    to_rotation = {
+        [defines.direction.north] = 0.00,
+        [defines.direction.east] = 0.25,
+        [defines.direction.south] = 0.50,
+        [defines.direction.west] = 0.75,
+    }
 }
 DirectionConversion.__index = DirectionConversion
 
@@ -52,7 +58,17 @@ local OrientationConversion = {
         [orientation.mr1] = { orientation.mr1,orientation.mr2,orientation.mr3,orientation.mr0, },
         [orientation.mr2] = { orientation.mr2,orientation.mr3,orientation.mr0,orientation.mr1 },
         [orientation.mr3] = { orientation.mr3,orientation.mr0,orientation.mr1,orientation.mr2, },
-    }
+    },
+    to_direction = {
+        [orientation.r0] = defines.direction.north,
+        [orientation.mr0] = defines.direction.north,
+        [orientation.r1] = defines.direction.east,
+        [orientation.mr3] = defines.direction.east,
+        [orientation.r2] = defines.direction.south,
+        [orientation.mr2] = defines.direction.south,
+        [orientation.r3] = defines.direction.west,
+        [orientation.mr1] = defines.direction.west,
+    },
 }
 OrientationConversion.__index = OrientationConversion
 

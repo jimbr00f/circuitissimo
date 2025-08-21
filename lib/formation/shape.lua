@@ -1,3 +1,4 @@
+local FormationConversion = require 'conversion'
 local FormationSlot = require 'slot'
 
 ---@class FormationShape
@@ -89,14 +90,15 @@ end
 function FormationShape.build_formation_paths(path, map)
     ---@type table<orientation, FormationPath>
     local formation_paths = {}
-    for orientation, path_keys in pairs(map) do
+    for orientation, path_orientations in pairs(map) do
         ---@type FormationSlot[]
         local slots = {}
-        for _, path_key in ipairs(path_keys) do
-            local subpath = path[path_key]
+        for _, path_orientation in ipairs(path_orientations) do
+            local subpath = path[path_orientation]
+            local slot_direction = FormationConversion.orientation.to_direction[path_orientation]
             for _, point in ipairs(subpath.points) do
                 ---@type FormationSlot
-                table.insert(slots, FormationSlot:new(#slots + 1, point))
+                table.insert(slots, FormationSlot:new(#slots + 1, point, slot_direction))
             end
         end
         ---@type FormationPath

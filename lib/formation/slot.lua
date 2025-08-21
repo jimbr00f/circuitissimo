@@ -2,8 +2,8 @@
 local FormationSlot = { }
 FormationSlot.__index = FormationSlot
 
-function FormationSlot:new(index, position)
-    local instance = { index = index, position = position }
+function FormationSlot:new(index, position, direction)
+    local instance = { index = index, position = position, direction = direction }
     setmetatable(instance, self)
     return instance
 end
