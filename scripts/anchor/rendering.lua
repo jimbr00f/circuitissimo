@@ -1,3 +1,4 @@
+local AnchorConfig = require 'scripts.anchor.config'
 local Anchor = require 'scripts.anchor.anchor'
 local ProcessorConfig = require 'scripts.processor.config'
 local Processor = require 'scripts.processor.processor'
@@ -34,7 +35,6 @@ local function init_preview(player_index)
         cursor_has_iopoint = false,
         player_index = player_index,
         render_ids = {},
-        nearest_anchor = nil
     }
 end
 
@@ -71,16 +71,18 @@ end
 ---@param player_index integer
 ---@param anchor_world MapPosition
 ---@param is_free boolean
----@param is_hovered boolean
 ---@param final_dir defines.direction
-local function draw_anchor(surface, force, player_index, anchor_world, is_free, is_hovered, final_dir)
+local function draw_anchor(surface, force, player_index, anchor_world, final_dir)
     game.print(string.format('drawing anchor at %.1f, %.1f [%s]', anchor_world.x, anchor_world.y, tostring(final_dir)))
+    local is_free = surface.can_place_entity{
+        name = ProcessorConfig.iopoint_name, position = world, direction = slot.direction, force = player.force
+    }
     local shape = ProcessorConfig.iopoint_formation.item_shape
     local ids = storage.anchor_preview[player_index].render_ids
     local color = is_free and {g=1, a=0.35} or {r=0.6, g=0.6, b=0.6, a=0.25}
     local box = rendering.draw_rectangle{
         color = color,
-        width = is_hovered and 2 or 1,
+        width = 1,
         filled = false,
         left_top = {
             x = anchor_world.x + shape.left_top.x,
@@ -102,8 +104,8 @@ local function draw_anchor(surface, force, player_index, anchor_world, is_free, 
         surface = surface,
         target = {anchor_world.x, anchor_world.y - 0.2},
         orientation = Formation.convert.direction.to_rotation[final_dir],
-        x_scale = is_hovered and 0.7 or 0.55,
-        y_scale = is_hovered and 0.7 or 0.55,
+        x_scale = 0.55,
+        y_scale = 0.55,
         render_layer = "entity-info-icon-above",
         forces = {force},
         players = {player_index},
@@ -119,55 +121,42 @@ local function is_holding_connector(player)
     return (cs and cs.valid_for_read and cs.name == ProcessorConfig.iopoint_name)
 end
 
+
 ---@param player LuaPlayer
----@param pdata AnchorPreviewData
-local function update_player_preview(player, pdata)
-    local player_index = player.index
-    if not pdata.cursor_has_iopoint then
-        clear_preview(player_index)
-        return
-    end
-    
+---@return Anchor[]
+local function find_anchor_points(player)
     local surface = player.surface
-    local pos = player.physical_position
+    local pos = player.position
     
     local area = {
-        {pos.x - Anchor.find_radius, pos.y - Anchor.find_radius},
-        {pos.x + Anchor.find_radius, pos.y + Anchor.find_radius}
+        {pos.x - AnchorConfig.find_radius, pos.y - AnchorConfig.find_radius},
+        {pos.x + AnchorConfig.find_radius, pos.y + AnchorConfig.find_radius}
     }
     local processor_entities = surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
-    clear_preview(player_index)
     
-    pdata.nearest_anchor = nil
-    local best_hover_d2 = Anchor.hover_radius * Anchor.hover_radius
-    
+    local anchors = {}
     for _, proc_entity in ipairs(processor_entities) do
         ---@type Processor
         local proc = Processor.load_from_storage(proc_entity)
         local slots = proc:get_active_formation_slots()
-        for idx, slot in ipairs(slots) do
-            local world = local_to_world(proc.entity.position, slot.position)
-            
-            -- Is placeable there?
-            local free = surface.can_place_entity{
-                name = ProcessorConfig.iopoint_name, position = world, direction = slot.direction, force = player.force
-            }
-            
-            -- hover selection by proximity to cursor position
-            local d2 = dist_sq(world, player.position)
-            local is_hover = free and d2 < best_hover_d2
-            if is_hover then
-                pdata.nearest_anchor = {
-                    entity = proc_entity, 
-                    anchor_index = idx, 
-                    pos = world, 
-                    dir = slot.direction
-                }
-                best_hover_d2 = d2
-            end
-            
-            draw_anchor(surface, player.force, player_index, world, free, is_hover, slot.direction)
+        for _, slot in ipairs(slots) do
+            local anchor = Anchor:new(player, proc, slot)
+            table.insert(anchors, anchor)
         end
+    end
+    return anchors
+end
+
+
+---@param player LuaPlayer
+---@param pdata AnchorPreviewData
+local function update_player_preview(player, pdata)
+    clear_preview(player.index)
+    if not pdata.cursor_has_iot then return end
+    
+    local anchors = find_anchor_points(player)
+    for _, anchor in ipairs(anchors) do
+        anchor:draw()
     end
 end
 
@@ -177,66 +166,28 @@ end
 ---@param player? LuaPlayer
 local function try_snap_or_reject(entity, player)
     if not (entity and entity.valid and entity.name == ProcessorConfig.iopoint_name) then return end
-    local surface = entity.surface
-    local force = entity.force
-    
-    -- If this came from a player who had a hovered anchor, prefer that.
-    local target = nil
-    if player then
-        local rec = load_preview(player.index)
-        target = rec and rec.nearest_anchor
-    end
-    
-    -- Fallback: choose closest *valid* anchor near the entity position
-    if not target then
-        local pos = entity.position
-        local area = {
-            left_top = { x = pos.x - Anchor.find_radius, y = pos.y - Anchor.find_radius},
-            right_bottom = { x = pos.x + Anchor.find_radius, y = pos.y + Anchor.find_radius}
-        }
-        local processor_entities = surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = force}
-        local best_d2, best = 1/0, nil
-        for _, proc_entity in ipairs(processor_entities) do
-            local proc = Processor.load_from_storage(proc_entity)
-            local slots = proc:get_active_formation_slots()
-            for idx, slot in ipairs(slots) do
-                local world = local_to_world(proc.entity.position, slot.position)
-                if surface.can_place_entity{name = ProcessorConfig.iopoint_name, position = world, direction = slot.direction, force = force} then
-                    local d2 = dist_sq(world, pos)
-                    if d2 < best_d2 then
-                        best_d2 = d2
-                        best = {
-                            entity = proc, 
-                            pos = world, 
-                            dir = slot.direction, 
-                            anchor_index = idx
-                        }
-                    end
-                end
-            end
+    if not player then return end
+    local anchors = find_anchor_points(player)
+    local best_d2, target = 1/0, nil
+    for _, anchor in ipairs(anchors) do
+        local d2 = anchor:sq_distance_from(entity)
+        if d2 < best_d2 then
+            best_d2 = d2
+            target = {
+                pos = anchor:world_position(), 
+                dir = anchor.slot.direction,
+            }
         end
-        target = best
     end
     
-    if not target then
-        if player then
-            refund_item(player, ProcessorConfig.iopoint_name, 1)
-            player.create_local_flying_text{position = entity.position, text = {"", "[img=utility/warning_icon] Place next to a Processor"}}
-        end
-        entity.destroy{raise_destroy = true}
-        return
-    end
-    
-    -- final check + snap
-    if surface.can_place_entity{name = entity.name, position = target.pos, direction = target.dir, force = force} then
+    if target then
         entity.teleport(target.pos)
         entity.direction = target.dir
     else
+        entity.destroy{raise_destroy = true}
         if player then
             refund_item(player, ProcessorConfig.iopoint_name, 1)
-            player.create_local_flying_text{position = entity.position, text = {"", "[img=utility/warning_icon] Anchor blocked"}}
         end
-        entity.destroy{raise_destroy = true}
     end
 end
 
