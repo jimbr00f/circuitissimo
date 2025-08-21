@@ -36,7 +36,7 @@ local iopoint_entity = table.merge(constant_combinator,  {
     collision_mask = { layers={} },
     selection_box = { { -0.25, -0.25 }, { 0.25, 0.25 } },
     selection_priority = 70,
-    flags = { "player-creation", "placeable-off-grid", "placeable-neutral" },
+    flags = { "player-creation", "placeable-neutral" },
     circuit_wire_max_distance = 64,
     -- connection_points = connection_points,
     corpse = "small-remnants",

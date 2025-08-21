@@ -49,8 +49,8 @@ function FormationShape.get_partition_shape(container_size, item_count, margin)
 
     ---@type RadialSize
     local item_size = { 
-        x = (container_shape.radius.x - margin.x) / item_count,
-        y = (container_shape.radius.y - margin.y) / item_count
+        x = (container_shape.radius.x - margin.x) / (item_count - 1),
+        y = (container_shape.radius.y - margin.y) / (item_count - 1)
     }
     local item_shape = FormationShape.convert_size_to_shape(item_size)
     return {
