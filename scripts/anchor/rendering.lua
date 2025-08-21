@@ -75,14 +75,21 @@ end
 ---@param final_dir defines.direction
 local function draw_anchor(surface, force, player_index, anchor_world, is_free, is_hovered, final_dir)
     game.print(string.format('drawing anchor at %.1f, %.1f [%s]', anchor_world.x, anchor_world.y, tostring(final_dir)))
+    local shape = ProcessorConfig.iopoint_formation.item_shape
     local ids = storage.anchor_preview[player_index].render_ids
     local color = is_free and {g=1, a=0.35} or {r=0.6, g=0.6, b=0.6, a=0.25}
     local box = rendering.draw_rectangle{
         color = color,
         width = is_hovered and 2 or 1,
         filled = false,
-        left_top = {anchor_world.x - 0.5, anchor_world.y - 0.5},
-        right_bottom = {anchor_world.x + 0.5, anchor_world.y + 0.5},
+        left_top = {
+            x = anchor_world.x + shape.left_top.x,
+            y = anchor_world.y + shape.left_top.y
+        },
+        right_bottom = {
+            x = anchor_world.x + shape.right_bottom.x,
+            y = anchor_world.y + shape.right_bottom.y
+        },
         surface = surface,
         forces = {force},
         players = {player_index}

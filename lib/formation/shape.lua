@@ -17,7 +17,7 @@ function FormationShape.convert_size_to_shape(radial_size)
         right_bottom = right_bottom,
         box = { left_top = left_top, right_bottom = right_bottom }, 
         size = {
-            width = 2 * radial_size.x, 
+            width = 2 * radial_size.x,
             height = 2 * radial_size.y
         },
         radius = radial_size
@@ -40,19 +40,19 @@ function FormationShape.normalize_margin(margin)
     end
 end
 
----@param boundary_size RadialSize
+---@param container_size RadialSize
 ---@param item_count integer
 ---@param margin MapPosition
 ---@return PartitionShape
-function FormationShape.get_partition_shape(boundary_size, item_count, margin)
-    local container_shape = FormationShape.convert_size_to_shape(boundary_size)
+function FormationShape.get_partition_shape(container_size, item_count, margin)
+    local container_shape = FormationShape.convert_size_to_shape(container_size)
 
     ---@type RadialSize
-    local item_boundary_size = { 
-        x = (boundary_size.x - 2 * margin.x) / (item_count - 1), 
-        y = (boundary_size.y - 2 * margin.y) / (item_count - 1) 
+    local item_size = { 
+        x = (container_shape.radius.x - margin.x) / item_count,
+        y = (container_shape.radius.y - margin.y) / item_count
     }
-    local item_shape = FormationShape.convert_size_to_shape(item_boundary_size)
+    local item_shape = FormationShape.convert_size_to_shape(item_size)
     return {
         shape = container_shape,
         item_shape = item_shape,

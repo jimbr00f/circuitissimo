@@ -5,7 +5,7 @@ local prefix_pattern = "circuitissimo"
 local tag_prefix = '__' .. prefix
 local mod_prefix = '__' .. prefix .. '__'
 
-local formation = Formation:new({ x = 1, y = 1}, 2, 1)
+local formation = Formation:new({ x = 2, y = 2}, 2, 1)
 formation:map_paths(Formation.convert.orientation.to_circular_orientation)
 
 ---@class ProcessorConfig
