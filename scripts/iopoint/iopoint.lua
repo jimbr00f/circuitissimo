@@ -55,7 +55,9 @@ end
 function IoPoint.load_from_storage(entity, index, create)
     game.print("loading stored iopoint for entity: " .. tostring(entity.unit_number))
     local iopoint = storage.iopoints[entity.unit_number]
-    if not iopoint and create then
+    if iopoint then
+        setmetatable(iopoint, IoPoint)
+    elseif create then
         iopoint = IoPoint:new(entity, index)
     end
     if iopoint and not iopoint.locked then

@@ -1,12 +1,7 @@
 ---@class FormationSlot
----@field index integer
----@field position MapPosition
 local FormationSlot = { }
 FormationSlot.__index = FormationSlot
 
----@param position MapPosition
----@param index integer
----@return FormationSlot
 function FormationSlot:new(index, position)
     local instance = { index = index, position = position }
     setmetatable(instance, self)

@@ -38,6 +38,7 @@ factorissimo.finalize_events = function()
     if finalized then error("Events already finalized") end
     local i = 0
     for event, functions in pairs(events) do
+        
         local f = one_function_from_many(functions)
         if type(event) == "number" then
             script.on_nth_tick(event, f)

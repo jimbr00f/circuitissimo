@@ -1,16 +1,9 @@
 local FormationSearch = require 'search'
 local FormationShape = require 'shape'
 local FormationConversion = require 'conversion'
+local FormationSlot = require 'slot'
 
----@class FormationPath
----@field slots FormationSlot[]
----@field orientation orientation
-
----@class Formation : PartitionShape
----@field paths table<orientation, FormationPath>
----@field lookup_radius number
----@field convert FormationConversion
----@field search FormationSearch
+---@class Formation
 local Formation = {
     convert = FormationConversion,
     search = FormationSearch
@@ -38,8 +31,14 @@ end
 function Formation:get_formation_slot(position, direction, mirroring)
     local orientation = Formation.convert.direction.to_orientation(direction, mirroring)
     local path = self.paths[orientation]
+    game.print(string.format('getting formation slot matching position: %.1f,%.1f, dir: %s, mir: %s', position.x, position.y, tostring(direction), tostring(mirroring)))
     for _, slot in pairs(path.slots) do
-        if slot:matches_position(position, self.lookup_radius) then return slot end
+        if slot:matches_position(position, self.lookup_radius) then 
+            game.print(string.format('MATCH AT %.1f,%.1f', slot.position.x, slot.position.y))
+            return slot 
+        else
+            game.print(string.format('no match: %.1f,%.1f', slot.position.x, slot.position.y))
+        end
     end
     return nil
 end

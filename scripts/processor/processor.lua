@@ -52,6 +52,17 @@ function Processor:refresh()
     self.iopoints = self:load_iopoints()
 end
 
+---@param entity LuaEntity
+---@return FormationSlot?
+function Processor:get_formation_slot(entity)
+    local position = {
+        x = entity.position.x - self.entity.position.x,
+        y = entity.position.y - self.entity.position.y,
+    }
+    local slot = ProcessorConfig.iopoint_formation:get_formation_slot(position, self.direction, self.mirroring)
+    return slot
+end
+
 ---@return IoPoint[]
 function Processor:load_iopoints()
     local filter = {
@@ -59,10 +70,9 @@ function Processor:load_iopoints()
         area = Formation.search.get_search_area(self.entity, 1)
     }
     local entities = self.entity.surface.find_entities_filtered(filter)
-    local formation = ProcessorConfig.iopoint_formation
     local iopoints = {}
     for _, entity in ipairs(entities) do
-        local slot = formation:get_formation_slot(entity.position, self.direction, self.mirroring)
+        local slot = self:get_formation_slot(entity)
         if not slot then
             game.print(string.format('ERROR: No formation slot matches this entity: %s', Formatting.format_entity(entity)))
             goto continue
@@ -81,10 +91,22 @@ function Processor:load_iopoints()
 end
 
 function Processor:reorient_iopoints()
-    local path = ProcessorConfig.iopoint_formation.paths[orientation]
+    game.print(string.format("orientation: %s", tostring(self.orientation)))
+    local all_paths = ProcessorConfig.iopoint_formation.paths
+    game.print(string.format("# paths: %d", #all_paths))
+    local pathf = all_paths[self.orientation]
+    game.print(string.format("# path nil? %s", pathf == nil and "ya" or "ne" ))
+    for pk, pv in pairs(all_paths) do
+        game.print(string.format('key: %s', tostring(pk)))
+    end
+    local path = ProcessorConfig.iopoint_formation.paths[self.orientation]
     for _, iopoint in pairs(self.iopoints) do
         local slot_target = path.slots[iopoint.index]
-        iopoint.entity.teleport(slot_target.position)
+        local target_position = {
+            x = self.entity.position.x + slot_target.position.x,
+            y = self.entity.position.y + slot_target.position.y
+        }
+        iopoint.entity.teleport(target_position)
         iopoint:sync_orientation(self)
     end
 end
@@ -106,8 +128,14 @@ end
 ---@return Processor
 function Processor.load_from_storage(entity, create)
     game.print(string.format("%s stored processor for entity: %s", create and "loading/creating" or "loading", Formatting.format_entity(entity)))
+    ---@type Processor
     local processor = storage.processors[entity.unit_number]
-    if not processor and create then
+    if processor then
+        setmetatable(processor, Processor)
+        for _, io in pairs(processor.iopoints) do
+            setmetatable(io, IoPoint)
+        end
+    elseif create then
         processor = Processor:new(entity)
     end
     if processor and not processor.locked then

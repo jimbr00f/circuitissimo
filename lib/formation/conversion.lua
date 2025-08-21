@@ -1,8 +1,4 @@
 ---@class DirectionConversion
----@field to_mirror_direction table<defines.direction, defines.direction>
----@field to_canonical_orientation table<defines.direction, orientation>
----@field to_mirror_orientation table<defines.direction, orientation>
----@field to_axis table<defines.direction, axis>
 local DirectionConversion = {
     to_mirror_direction = {
         [defines.direction.north] = defines.direction.south,
@@ -32,6 +28,7 @@ local DirectionConversion = {
         [defines.direction.west] = axis.horizontal,
     },
 }
+DirectionConversion.__index = DirectionConversion
 
 ---@param direction defines.direction
 ---@param mirroring boolean
@@ -45,7 +42,6 @@ function DirectionConversion.to_orientation(direction, mirroring)
 end
 
 ---@class OrientationConversion
----@field to_circular_orientation table<orientation, orientation[]>
 local OrientationConversion = {
     to_circular_orientation = {
         [orientation.r0] = { orientation.r0,orientation.r1,orientation.r2,orientation.r3, },
@@ -58,10 +54,9 @@ local OrientationConversion = {
         [orientation.mr3] = { orientation.mr3,orientation.mr0,orientation.mr1,orientation.mr2, },
     }
 }
+OrientationConversion.__index = OrientationConversion
 
 ---@class FormationConversion
----@field direction DirectionConversion
----@field orientation OrientationConversion
 local FormationConversion = {
     direction = DirectionConversion,
     orientation = OrientationConversion

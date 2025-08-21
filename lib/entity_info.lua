@@ -21,7 +21,7 @@ function EntityInfo:new(entity)
         destroyed = false
     }
     setmetatable(instance, self)
-    instance.refresh_orientation()
+    EntityInfo.refresh_orientation(instance)
     return instance
 end
 
