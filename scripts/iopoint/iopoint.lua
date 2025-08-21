@@ -1,6 +1,5 @@
 local Formatting = require 'lib.formatting'
-local EntityInfo = require 'lib.entity-info'
-require '@types.connection'
+local EntityInfo = require 'lib.entity_info'
 
 ---@class IoPoint : EntityInfo
 ---@field index integer

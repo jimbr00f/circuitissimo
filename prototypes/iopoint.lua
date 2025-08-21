@@ -1,4 +1,4 @@
-local ProcessorConfig = require 'scripts.processor.processor'
+local ProcessorConfig = require 'scripts.processor.config'
 local proto_lib = require 'lib.prototypes'
 require '__base__.prototypes.entity.entities'
 

@@ -1,7 +1,8 @@
-local FormationSlot = require 'lib.formation.slot'
+local FormationSlot = require 'slot'
 
 ---@class FormationShape
 local FormationShape = {}
+FormationShape.__index = FormationShape
 
 ---@param radial_size RadialSize
 ---@return SimpleShape

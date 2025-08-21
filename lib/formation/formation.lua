@@ -1,6 +1,6 @@
-local FormationShape = require 'lib.formation.shape'
-require 'lib.formation.slot'
-local FormationConversion = require 'lib.formation.conversion'
+local FormationSearch = require 'search'
+local FormationShape = require 'shape'
+local FormationConversion = require 'conversion'
 
 ---@class FormationPath
 ---@field slots FormationSlot[]
@@ -9,11 +9,11 @@ local FormationConversion = require 'lib.formation.conversion'
 ---@class Formation : PartitionShape
 ---@field paths table<orientation, FormationPath>
 ---@field lookup_radius number
----@field ConvertDirections DirectionConversion
----@field ConvertOrientations OrientationConversion
+---@field convert FormationConversion
+---@field search FormationSearch
 local Formation = {
-    ConvertDirections = FormationConversion.direction,
-    ConvertOrientations = FormationConversion.orientation
+    convert = FormationConversion,
+    search = FormationSearch
 }
 Formation.__index = Formation
 
@@ -36,7 +36,7 @@ end
 ---@param mirroring boolean
 ---@return FormationSlot?
 function Formation:get_formation_slot(position, direction, mirroring)
-    local orientation = Formation.ConvertDirections.to_orientation(direction, mirroring)
+    local orientation = Formation.convert.direction.to_orientation(direction, mirroring)
     local path = self.paths[orientation]
     for _, slot in pairs(path.slots) do
         if slot:matches_position(position, self.lookup_radius) then return slot end

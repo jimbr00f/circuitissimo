@@ -6,10 +6,10 @@ FormationSlot.__index = FormationSlot
 
 ---@param position MapPosition
 ---@param index integer
+---@return FormationSlot
 function FormationSlot:new(index, position)
     local instance = { index = index, position = position }
     setmetatable(instance, self)
-    self.__index = self
     return instance
 end
 

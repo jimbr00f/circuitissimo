@@ -28,8 +28,9 @@ local ProcessorConfig = {
     iopoint_name = prefix .. "-iopoint",
     iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
-    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Formation.ConvertOrientations.to_circular_orientation),
+    iopoint_formation = Formation:new({ x = 2, y = 1}, 2, Formation.convert.orientation.to_circular_orientation),
 }
+ProcessorConfig.__index = ProcessorConfig
 
 ---@param subpath string
 ---@return string

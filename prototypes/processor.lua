@@ -1,11 +1,9 @@
-local Formation = require 'lib.formation'
-local ProcessorConfig = require 'scripts.processor.processor'
-local Geometry = require 'lib.geometry'
+local ProcessorConfig = require 'scripts.processor.config'
 
 ---@return Picture[]
 function get_cardinal_pictures(path)
     local pictures = {}
-    for name, i in pairs(Geometry.cardinal_direction) do
+    for name, i in pairs(defines.cardinal_direction) do
         ---@type Picture
         pictures[name] = {
             filename = ProcessorConfig.png_path(path),

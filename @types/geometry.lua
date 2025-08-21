@@ -55,3 +55,12 @@ orientation = {
 ---@alias OrientablePath table<orientation, OrientedPath>
 
 ---@alias OrientableOrigin table<orientation, OrientedOrigin>
+
+---@enum cardinal_direction
+local cardinal_direction = {
+    north = defines.direction.north --[[@as cardinal_direction.north]],
+    east  = defines.direction.east --[[@as cardinal_direction.east]],
+    south = defines.direction.south --[[@as cardinal_direction.south]],
+    west  = defines.direction.west --[[@as cardinal_direction.west]],
+}
+defines.cardinal_direction = cardinal_direction

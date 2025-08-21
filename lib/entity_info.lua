@@ -20,8 +20,8 @@ function EntityInfo:new(entity)
         locked = false,
         destroyed = false
     }
-    EntityInfo.refresh_orientation(instance)
     setmetatable(instance, self)
+    instance.refresh_orientation()
     return instance
 end
 
@@ -56,7 +56,7 @@ end
 function EntityInfo:set_orientation(direction, mirroring)
     self.direction = direction
     self.mirroring = mirroring
-    self.orientation = Formation.ConvertDirections.to_orientation(self.direction, self.mirroring)
+    self.orientation = Formation.convert.direction.to_orientation(self.direction, self.mirroring)
 end
 
 ---@param info EntityInfo

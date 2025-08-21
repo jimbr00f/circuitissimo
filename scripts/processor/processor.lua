@@ -1,10 +1,8 @@
 local Formation = require 'lib.formation.formation'
 local IoPoint = require 'scripts.iopoint.iopoint'
-local Geometry = require 'lib.geometry'
 local Formatting = require 'lib.formatting'
 local ProcessorConfig = require "scripts.processor.config"
----@type EntityInfo
-local EntityInfo = require('lib.entity-info')
+local EntityInfo = require 'lib.entity_info'
 
 ---@class Processor : EntityInfo
 ---@field iopoints table<uint64, IoPoint>
@@ -58,7 +56,7 @@ end
 function Processor:load_iopoints()
     local filter = {
         name = ProcessorConfig.iopoint_name,
-        area = Geometry.get_search_area(self.entity, 1)
+        area = Formation.search.get_search_area(self.entity, 1)
     }
     local entities = self.entity.surface.find_entities_filtered(filter)
     local formation = ProcessorConfig.iopoint_formation

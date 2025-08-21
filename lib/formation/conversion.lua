@@ -1,17 +1,9 @@
 ---@class DirectionConversion
----@field cardinal_direction table<string, defines.direction>
 ---@field to_mirror_direction table<defines.direction, defines.direction>
 ---@field to_canonical_orientation table<defines.direction, orientation>
 ---@field to_mirror_orientation table<defines.direction, orientation>
 ---@field to_axis table<defines.direction, axis>
 local DirectionConversion = {
-    cardinal_direction = {
-        north = defines.direction.north,
-        east  = defines.direction.east,
-        south = defines.direction.south,
-        west  = defines.direction.west,
-    },
-
     to_mirror_direction = {
         [defines.direction.north] = defines.direction.south,
         [defines.direction.east] = defines.direction.west,
@@ -70,9 +62,10 @@ local OrientationConversion = {
 ---@class FormationConversion
 ---@field direction DirectionConversion
 ---@field orientation OrientationConversion
-FormationConversion = {
+local FormationConversion = {
     direction = DirectionConversion,
     orientation = OrientationConversion
 }
+FormationConversion.__index = FormationConversion
 
 return FormationConversion

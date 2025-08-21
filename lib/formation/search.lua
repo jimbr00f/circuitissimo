@@ -1,5 +1,6 @@
 ---@class FormationSearch
 local FormationSearch = {}
+FormationSearch.__index = FormationSearch
 
 ---@param entity LuaEntity
 ---@param radius number
