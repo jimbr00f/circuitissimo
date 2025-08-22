@@ -1,3 +1,5 @@
+local Processor = require 'scripts.processor.processor'
+local AnchorConfig = require 'scripts.anchor.config'
 local Formation = require 'lib.formation.formation'
 local ProcessorConfig = require 'scripts.processor.config'
 
@@ -49,12 +51,51 @@ function Anchor:world_position()
     }
 end
 
+---@param p1 MapPosition
+---@param p2 MapPosition
+local function sq_distance(p1, p2)
+    return (p1.x - p2.x)^2 + (p1.y - p2.y)^2
+end
+
 ---@param entity LuaEntity
-function Anchor:sq_distance_from(entity)
-    local world = self:world_position()
-    local p = entity.position
-    local dist = (p.x - world.x)^2 + (p.y - world.y)^2
-    return dist
+---@param anchors Anchor[]
+---@return Anchor?
+function Anchor.select_closest(entity, anchors)
+    local closest = nil
+    local best_sqd = math.huge
+    for _, anchor in ipairs(anchors) do
+        local sqd = sq_distance(anchor:world_position(), entity.position)
+        if sqd < best_sqd then
+            best_sqd = sqd
+            closest = anchor
+        end
+    end
+    return closest
+end
+
+---@param player_index integer
+---@return Anchor[]
+function Anchor.find_anchors(player_index)
+    local player = game.get_player(player_index)
+    local anchors = {}
+    if not player then return anchors end
+    local pos = player.position
+    
+    local area = {
+        {pos.x - AnchorConfig.find_radius, pos.y - AnchorConfig.find_radius},
+        {pos.x + AnchorConfig.find_radius, pos.y + AnchorConfig.find_radius}
+    }
+    local processor_entities = player.surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
+    for _, proc_entity in ipairs(processor_entities) do
+        ---@type Processor
+        local proc = Processor.load_from_storage(proc_entity)
+        local slots = proc:get_active_formation_slots()
+        for _, slot in ipairs(slots) do
+            local anchor = Anchor:new(player, proc, slot)
+            table.insert(anchors, anchor)
+        end
+    end
+    return anchors
 end
 
 ---@return integer[]

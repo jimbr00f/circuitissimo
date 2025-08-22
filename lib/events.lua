@@ -234,6 +234,9 @@ factorissimo.events = {
 ---| EventData.on_player_changed_surface
 ---| EventData.on_player_changed_force
 
+---@alias CursorEventData
+---| EventData.on_player_cursor_stack_changed
+
 
 ---@param handler fun(event: BuiltEventData)
 function factorissimo.handle_built(handler)
