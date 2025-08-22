@@ -4,13 +4,76 @@ local ProcessorConfig = require 'scripts.processor.config'
 local Processor = require 'scripts.processor.processor'
 local Formation = require 'lib.formation.formation'
 
-local function local_to_world(proc_pos, local_pos)
-    return {x = proc_pos.x + local_pos.x, y = proc_pos.y + local_pos.y}
+---@class PlayerAnchorRenderingState
+local PlayerAnchorRenderingState = {}
+PlayerAnchorRenderingState.__index = PlayerAnchorRenderingState
+
+---@param player LuaPlayer
+---@return PlayerAnchorRenderingState
+function PlayerAnchorRenderingState:new(player)
+    game.print(string.format('creating a new anchor rendering state for player %d', player.index))
+    local instance = {
+        enable_rendering = false,
+        player_index = player.index,
+        render_ids = {} --[[ @as table<integer,integer[]> ]],
+        anchors = {} --[[ @as Anchor[] ]]
+    }
+    setmetatable(instance, self)
+    storage.player_anchor_rendering_state[player.index] = instance
+    return instance
 end
 
-local function dist_sq(a, b)
-    local dx, dy = a.x - b.x, a.y - b.y
-    return dx*dx + dy*dy
+function PlayerAnchorRenderingState.initialize()
+    game.print('initializing IoPoint class storage')
+    ---@type table<integer, PlayerAnchorRenderingState>
+    storage.player_anchor_rendering_state = storage.player_anchor_rendering_state or {}
+end
+
+function PlayerAnchorRenderingState:__tostring()
+    return string.format('anchor rendering state for player %d: rendering %s for %d render objects', self.player_index, self.enable_rendering and 'enabled' or 'disabled', #self.render_ids)
+end
+
+---@return LuaPlayer
+function PlayerAnchorRenderingState:get_player()
+    local player = game.get_player(self.player_index)
+    if not player then
+        error(string.format('No player found matching index %d', self.player_index))
+    end
+    return player
+end
+
+function PlayerAnchorRenderingState:refresh()
+    local player = self:get_player()
+    local cs = player.cursor_stack
+    if cs and cs.valid_for_read and cs.name == ProcessorConfig.iopoint_name then
+       self.enable_rendering = true
+    end
+
+    self:clear_anchors()
+    if not self.enable_rendering then return end
+    
+    self.anchors = self:find_anchor_points()
+    for _, anchor in ipairs(self.anchors) do
+        local render_ids = anchor:draw()
+        self.render_ids = table.array_combine(self.render_ids, render_ids)
+    end
+end
+
+function PlayerAnchorRenderingState:clear_anchors()
+    game.print('clearing PARS anchors')
+    self.anchors = {}
+    self:clear_renders()
+end
+
+function PlayerAnchorRenderingState:clear_renders()
+    game.print('clearing PARS')
+    for _, id in self.render_ids do
+        local render = rendering.get_object_by_id(id)
+        if render then
+            render.destroy()
+        end
+    end
+    self.render_ids = {} --[[@as table<integer,integer[]>]]
 end
 
 ---@param player LuaPlayer
@@ -26,105 +89,43 @@ local function refund_item(player, name, count)
     end
 end
 
--- Render helpers --------------------------------------------------------------
-
----@param player_index integer
----@return AnchorPreviewData
-local function init_preview(player_index)
-    return {
-        cursor_has_iopoint = false,
-        player_index = player_index,
-        render_ids = {},
-    }
-end
-
----@param player_index integer
----@return AnchorPreviewData
-local function load_preview(player_index)
-    local pdata = storage.anchor_preview[player_index]
-    if not pdata then
-        pdata = init_preview(player_index)
-        storage.anchor_preview[player_index] = pdata
+---@param player LuaPlayer
+---@return PlayerAnchorRenderingState
+function PlayerAnchorRenderingState.load(player)
+    local pars = PlayerAnchorRenderingState.load_from_storage(player, true)
+    if not pars then
+        error('Expected a non-null Player-Anchor Rendering State but received nil.')
     end
-    return pdata
-end
-
----@param player_index integer
----@return AnchorPreviewData
-local function clear_preview(player_index)
-    local pdata = storage.anchor_preview[player_index]
-    if pdata then
-        for _, id in ipairs(pdata.render_ids) do
-            local render = rendering.get_object_by_id(id)
-            if render then
-                render.destroy()
-            end
-        end
-    end
-    pdata = init_preview(player_index)
-    storage.anchor_preview[player_index] = pdata
-    return pdata
-end
-
----@param surface LuaSurface
----@param force string|integer|LuaForce
----@param player_index integer
----@param anchor_world MapPosition
----@param is_free boolean
----@param final_dir defines.direction
-local function draw_anchor(surface, force, player_index, anchor_world, final_dir)
-    game.print(string.format('drawing anchor at %.1f, %.1f [%s]', anchor_world.x, anchor_world.y, tostring(final_dir)))
-    local is_free = surface.can_place_entity{
-        name = ProcessorConfig.iopoint_name, position = world, direction = slot.direction, force = player.force
-    }
-    local shape = ProcessorConfig.iopoint_formation.item_shape
-    local ids = storage.anchor_preview[player_index].render_ids
-    local color = is_free and {g=1, a=0.35} or {r=0.6, g=0.6, b=0.6, a=0.25}
-    local box = rendering.draw_rectangle{
-        color = color,
-        width = 1,
-        filled = false,
-        left_top = {
-            x = anchor_world.x + shape.left_top.x,
-            y = anchor_world.y + shape.left_top.y
-        },
-        right_bottom = {
-            x = anchor_world.x + shape.right_bottom.x,
-            y = anchor_world.y + shape.right_bottom.y
-        },
-        surface = surface,
-        forces = {force},
-        players = {player_index}
-    }
-    table.insert(ids, box.id)
-    
-    -- draw a direction arrow on top for clarity (like station helpers)
-    local arrow = rendering.draw_sprite{
-        sprite = "utility/indication_arrow", -- vanilla arrow
-        surface = surface,
-        target = {anchor_world.x, anchor_world.y - 0.2},
-        orientation = Formation.convert.direction.to_rotation[final_dir],
-        x_scale = 0.55,
-        y_scale = 0.55,
-        render_layer = "entity-info-icon-above",
-        forces = {force},
-        players = {player_index},
-        tint = is_free and {g=1, a=0.8} or {r=0.8, g=0.8, b=0.8, a=0.5},
-    }
-    table.insert(ids, arrow.id)
-end
-
--- Preview update --------------------------------------------------------------
-
-local function is_holding_connector(player)
-    local cs = player.cursor_stack
-    return (cs and cs.valid_for_read and cs.name == ProcessorConfig.iopoint_name)
+    return pars
 end
 
 
 ---@param player LuaPlayer
+---@param create boolean?
+---@return PlayerAnchorRenderingState
+function PlayerAnchorRenderingState.load_from_storage(player, create)
+    game.print(string.format("%s PA Rendering State for player %s", create and "loading/creating" or "loading", player.index))
+    ---@type PlayerAnchorRenderingState
+    local pars = storage.player_anchor_rendering_state[player.index] --[[@as PlayerAnchorRenderingState]]
+    if pars then
+        setmetatable(pars, PlayerAnchorRenderingState)
+    elseif create then
+        pars = PlayerAnchorRenderingState:new(player)
+    end
+    if pars then
+        for _, anchor in pars.anchors do
+            setmetatable(anchor, Anchor)
+        end
+        pars:refresh()
+    end
+    return pars
+end
+
+
+---@param player? LuaPlayer
 ---@return Anchor[]
-local function find_anchor_points(player)
+function PlayerAnchorRenderingState:find_anchor_points(player)
+    player = player or self:get_player()
     local surface = player.surface
     local pos = player.position
     
@@ -147,16 +148,17 @@ local function find_anchor_points(player)
     return anchors
 end
 
-
----@param player LuaPlayer
----@param pdata AnchorPreviewData
-local function update_player_preview(player, pdata)
-    clear_preview(player.index)
-    if not pdata.cursor_has_iot then return end
-    
-    local anchors = find_anchor_points(player)
+---@param entity LuaEntity
+---@param anchors Anchor[]
+---@return Anchor?
+local function get_nearest_anchor_point(entity, anchors)
+    local nearest = nil
     for _, anchor in ipairs(anchors) do
-        anchor:draw()
+        local d2 = anchor:sq_distance_from(entity)
+        if d2 < best_d2 then
+            best_d2 = d2
+            nearest = anchor
+        end
     end
 end
 
@@ -167,22 +169,12 @@ end
 local function try_snap_or_reject(entity, player)
     if not (entity and entity.valid and entity.name == ProcessorConfig.iopoint_name) then return end
     if not player then return end
-    local anchors = find_anchor_points(player)
-    local best_d2, target = 1/0, nil
-    for _, anchor in ipairs(anchors) do
-        local d2 = anchor:sq_distance_from(entity)
-        if d2 < best_d2 then
-            best_d2 = d2
-            target = {
-                pos = anchor:world_position(), 
-                dir = anchor.slot.direction,
-            }
-        end
-    end
-    
-    if target then
-        entity.teleport(target.pos)
-        entity.direction = target.dir
+    local pars = PlayerAnchorRenderingState.load(player)
+    local anchor = get_nearest_anchor_point(entity, pars.anchors)
+
+    if anchor then
+        entity.teleport(anchor:world_position())
+        entity.direction = anchor.slot.direction
     else
         entity.destroy{raise_destroy = true}
         if player then
@@ -193,22 +185,13 @@ end
 
 -- Events ---------------------------------------------------------------------
 
----@param e EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_built
-local function on_built(e)
+factorissimo.handle_built(function(e)
     local ent = e.entity
     if not (ent and ent.valid and ent.name == ProcessorConfig.iopoint_name) then return end
     local player = game.players[e.player_index]
     try_snap_or_reject(ent, player)
-end
-
-script.on_event(defines.events.on_built_entity, on_built)
-script.on_event(defines.events.on_robot_built_entity, on_built)
-script.on_event(defines.events.script_raised_built, on_built)
-script.on_event(defines.events.on_entity_cloned, function(e)
-    if e.destination and e.destination.valid and e.destination.name == ProcessorConfig.iopoint_name then
-        try_snap_or_reject(e.destination)
-    end
 end)
+
 
 script.on_init(function()
     storage.anchor_preview = storage.anchor_preview or {}
@@ -225,8 +208,7 @@ end)
 
 ---@param e EventData.on_player_cursor_stack_changed
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
-    local pdata = load_preview(e.player_index)
-    local player = game.players[e.player_index]
+    local player = game.get_player(e.player_index)
     local cs = player.cursor_stack
     if cs and cs.valid_for_read and cs.name == ProcessorConfig.iopoint_name then
         pdata.cursor_has_iopoint = true
@@ -235,7 +217,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
 end
 )
 
-script.on_nth_tick(Anchor.tick_interval, function(e)
+script.on_nth_tick(AnchorConfig.tick_interval, function(e)
     for player_index, pdata in pairs(storage.anchor_preview) do
         if pdata.cursor_has_iopoint then
             local player = game.get_player(player_index)
@@ -245,3 +227,8 @@ script.on_nth_tick(Anchor.tick_interval, function(e)
         end
     end
 end)
+
+factorissimo.handle_player_changed(function(event)
+end)
+
+return PlayerAnchorRenderingState

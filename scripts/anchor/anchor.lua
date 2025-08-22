@@ -28,8 +28,8 @@ function Anchor.initialize()
     game.print('initializing IoPoint class storage')
     ---@type table<integer, AnchorPreviewData>
     storage.anchor_preview = storage.anchor_preview or {}
-    ---@type table<integer, integer[]>
-    storage.anchor_renders = storage.anchor_renders or {}
+    ---@type table<integer, PlayerAnchorRenderingState>
+    storage.anchors = storage.anchors or {}
 end
 
 function Anchor:destroy()
@@ -50,16 +50,16 @@ function Anchor:world_position()
 end
 
 ---@param entity LuaEntity
-function Anchor:distance_from(entity)
+function Anchor:sq_distance_from(entity)
     local world = self:world_position()
     local p = entity.position
     local dist = (p.x - world.x)^2 + (p.y - world.y)^2
     return dist
 end
 
+---@return integer[]
 function Anchor:draw()
-    storage.anchor_renders[self.player.index] = storage.anchor_renders[self.player.index] or {}
-    local ids = storage.anchor_renders[self.player.index]
+    local ids = {}
     local world = self:world_position()
     game.print(string.format('drawing anchor at %.1f, %.1f [%s]', world.x, world.y, self.slot.direction))
     local is_free = self.player.surface.can_place_entity{
@@ -99,6 +99,12 @@ function Anchor:draw()
         tint = is_free and {g=1, a=0.8} or {r=0.8, g=0.8, b=0.8, a=0.5},
     }
     table.insert(ids, arrow.id)
+    return ids
 end
+
+factorissimo.handle_init(function()
+    Anchor.initialize()
+end)
+
 
 return Anchor

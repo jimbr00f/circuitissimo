@@ -145,5 +145,8 @@ function Processor.load_from_storage(entity, create)
     return processor
 end
 
+factorissimo.handle_init(function()
+    Processor.initialize()
+end)
 
 return Processor

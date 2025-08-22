@@ -173,6 +173,21 @@ factorissimo.events = {
             defines.events.on_space_platform_mined_tile,
         }
     end,
+    on_oriented = function()
+        return {
+            defines.events.on_player_rotated_entity,
+            defines.events.on_player_flipped_entity
+        }
+    end,
+    on_player_changed = function()
+        return {
+            defines.events.on_player_changed_position,
+            defines.events.on_player_changed_surface,
+            defines.events.on_player_changed_force,
+            defines.events.on_player_joined_game,
+            defines.events.on_player_left_game,
+        }
+    end,
     --- Called for on_init and on_configuration_changed
     on_init = function()
         return "ON INIT EVENT"
@@ -182,3 +197,75 @@ factorissimo.events = {
         return "build"
     end
 }
+
+
+---@alias BuiltEventData 
+---| EventData.on_built_entity
+---| EventData.on_robot_built_entity
+---| EventData.script_raised_built
+---| EventData.script_raised_revive
+---| EventData.on_space_platform_built_entity
+---| EventData.on_biter_base_built
+
+---@alias DestroyedEventData 
+---| EventData.on_player_mined_entity
+---| EventData.on_robot_mined_entity
+---| EventData.on_entity_died
+---| EventData.script_raised_destroy
+---| EventData.on_space_platform_mined_entity
+
+
+---@alias BuiltTileEventData
+---| EventData.on_robot_built_tile
+---| EventData.on_player_built_tile
+---| EventData.on_space_platform_built_tile
+
+---@alias MinedTileEventData 
+---| EventData.on_player_mined_tile
+---| EventData.on_robot_mined_tile
+---| EventData.on_space_platform_mined_tile
+
+---@alias OrientedEventData
+---| EventData.on_player_rotated_entity
+---| EventData.on_player_flipped_entity
+
+---@alias PlayerChangedEventData
+---| EventData.on_player_changed_position
+---| EventData.on_player_changed_surface
+---| EventData.on_player_changed_force
+
+
+---@param handler fun(event: BuiltEventData)
+function factorissimo.handle_built(handler)
+    factorissimo.on_event(factorissimo.events.on_built(), handler)
+end
+
+---@param handler fun(event: DestroyedEventData)
+function factorissimo.handle_destroyed(handler)
+    factorissimo.on_event(factorissimo.events.on_destroyed(), handler)
+end
+
+---@param handler fun(event: BuiltTileEventData)
+function factorissimo.handle_built_tile(handler)
+    factorissimo.on_event(factorissimo.events.on_built_tile(), handler)
+end
+
+---@param handler fun(event: MinedTileEventData)
+function factorissimo.handle_mined_tile(handler)
+    factorissimo.on_event(factorissimo.events.on_mined_tile(), handler)
+end
+
+---@param handler fun(event: OrientedEventData)
+function factorissimo.handle_oriented(handler)
+    factorissimo.on_event(factorissimo.events.on_oriented(), handler)
+end
+
+---@param handler fun(event: PlayerChangedEventData)
+function factorissimo.handle_player_changed(handler)
+    factorissimo.on_event(factorissimo.events.on_player_changed(), handler)
+end
+
+---@param handler fun()
+function factorissimo.handle_init(handler)
+    factorissimo.on_event(factorissimo.events.on_init(), handler)
+end

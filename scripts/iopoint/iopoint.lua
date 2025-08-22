@@ -66,4 +66,8 @@ function IoPoint.load_from_storage(entity, index, create)
     return iopoint
 end
 
+factorissimo.handle_init(function()
+    IoPoint.initialize()
+end)
+
 return IoPoint
