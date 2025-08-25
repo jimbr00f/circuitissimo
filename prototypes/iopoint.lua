@@ -54,7 +54,6 @@ local iopoint_entity = table.merge(constant_combinator,  {
     icon = ProcessorConfig.png_path('icons/iopoint'),
     icon_size = 64,
     collision_box = { { -0.1, -0.1 }, { 0.1, 0.1 } },
-    collision_mask = { layers={} },
     selection_box = { { -0.25, -0.25 }, { 0.25, 0.25 } },
     selection_priority = 70,
     flags = { "player-creation", "placeable-neutral" },
