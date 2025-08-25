@@ -21,6 +21,11 @@ end)
 factorissimo.on_event(factorissimo.events.on_built(), function(event)
     local entity = event.entity
     if not entity or not entity.valid then return end
-    if entity.name ~= ProcessorConfig.processor_name then return end
-    Processor.load(entity)
+    if entity.name == ProcessorConfig.processor_name then
+        Processor.load(entity)    
+    elseif entity.name == ProcessorConfig.iopoint_name then
+        local player = game.get_player(event.player_index)
+        if not player then return end
+        Processor.try_attach_iopoint(entity, player)
+    end
 end)

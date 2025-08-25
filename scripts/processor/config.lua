@@ -33,7 +33,10 @@ local ProcessorConfig = {
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
     iopoint_formation = formation,
     iopoint_placement_error_text = prefix .. "-iopoint-placement-error",
-    iopoint_exists_error_text = prefix .. "-iopoint-exists-error"
+    iopoint_exists_error_text = prefix .. "-iopoint-exists-error",
+
+    -- search for processors within this many tiles of the cursor
+    find_radius = 3.0,
 }
 ProcessorConfig.__index = ProcessorConfig
 

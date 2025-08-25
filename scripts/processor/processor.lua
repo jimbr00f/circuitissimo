@@ -111,13 +111,32 @@ function Processor:reorient_iopoints()
 end
 
 ---@param entity LuaEntity
+---@param player LuaPlayer
+function Processor.try_attach_iopoint(entity, player)
+    local area = { 
+        top_left = { x = entity.position.x - ProcessorConfig.find_radius, y = entity.position.x - ProcessorConfig.find_radius },
+        bottom_right = { x = entity.position.x + ProcessorConfig.find_radius, y = entity.position.x + ProcessorConfig.find_radius },
+    }
+    local processor_entities = entity.surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
+    for _, proc_entity in ipairs(processor_entities) do
+        ---@type Processor
+        local proc = Processor.load_from_storage(proc_entity)
+        local slot = proc:get_formation_slot(entity)
+        if slot then
+            local iopoint = proc:set_iopoint(entity, slot)
+            return iopoint
+        end
+    end
+    return nil
+end
+
+---@paratity LuaEntity
 ---@param slot FormationSlot
 ---@return IoPoint?
 function Processor:set_iopoint(entity, slot)
     local slot_taken = self.indexed_iopoints[slot.index] ~= nil
     if slot_taken then 
         return nil 
-
     end
     local iopoint = IoPoint.load_from_storage(entity)
     if iopoint then

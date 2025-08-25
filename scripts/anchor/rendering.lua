@@ -102,64 +102,20 @@ function PlayerAnchorRenderingState:clear_renders()
     self.render_ids = {} --[[@as table<integer,integer[]>]]
 end
 
----@param player LuaPlayer
-local function refund_item(player, name, count)
-    if not (player and player.valid) then return end
-    local inserted = player.insert{name = name, count = count}
-    if inserted < count then
-        player.surface.spill_item_stack{
-            position = player.position, 
-            stack = {name = name, count = count - inserted}, 
-            enable_looted = true
-        }
-    end
-end
-
 ---@param player_index integer
----@param flags AnchorEventFlags
 ---@return PlayerAnchorRenderingState
-function PlayerAnchorRenderingState.load(player_index, flags)
+function PlayerAnchorRenderingState.load(player_index)
     ---@type PlayerAnchorRenderingState
     local pars = storage.player_anchor_rendering_state[player_index] --[[@as PlayerAnchorRenderingState]]
     if pars then
         setmetatable(pars, PlayerAnchorRenderingState)
-    else
-        pars = PlayerAnchorRenderingState:new(player_index)
-    end
-    if pars then
         for _, anchor in ipairs(pars.anchors) do
             setmetatable(anchor, Anchor)
         end
-        pars:refresh(flags)
+    else
+        pars = PlayerAnchorRenderingState:new(player_index)
     end
     return pars
-end
-
----@param entity LuaEntity
----@param player LuaPlayer
-function PlayerAnchorRenderingState:try_snap_iopoint(entity, player)
-    local anchor = Anchor.select_match(entity, self.anchors)
-    local error_text = nil
-    if anchor then
-        -- game.print(string.format('teleporting iopoint to %s', anchor))
-        -- entity.teleport(anchor:world_position())
-        entity.direction = anchor.slot.direction
-        -- game.print(string.format('setting iopoint to anchor slot #%d', anchor.slot.index))
-        local iopoint = anchor.processor:set_iopoint(entity, anchor.slot)
-        if not iopoint then
-            error_text = ProcessorConfig.iopoint_exists_error_text
-        end
-    end
-    if error_text then
-        refund_item(player, ProcessorConfig.iopoint_name, 1)
-        player.create_local_flying_text{
-            text = { error_text },
-            position = entity.position,
-            surface = entity.surface,
-            create_at_cursor = true
-        }
-        entity.destroy{raise_destroy = true}
-    end
 end
 
 -- Events ---------------------------------------------------------------------
@@ -172,8 +128,8 @@ factorissimo.handle_built(function(event)
     local flags = create_event_flags()
     flags.iopoint_built = true
 
-    local pars = PlayerAnchorRenderingState.load(event.player_index, flags)
-    pars:try_snap_iopoint(entity, player)
+    local pars = PlayerAnchorRenderingState.load(event.player_index)
+    pars:refresh(flags)
 end)
 
 factorissimo.handle_player_changed(function(event)
@@ -181,7 +137,8 @@ factorissimo.handle_player_changed(function(event)
     if not player then return end
     local flags = create_event_flags(player)
     flags.player_changed = true
-    local pars = PlayerAnchorRenderingState.load(event.player_index, flags)
+    local pars = PlayerAnchorRenderingState.load(event.player_index)
+    pars:refresh(flags)
     pars:draw_anchors()
 end)
 
@@ -192,7 +149,8 @@ factorissimo.on_event(defines.events.on_player_cursor_stack_changed,
         if not player then return end
         local flags = create_event_flags(player)
         flags.cursor_changed = true
-        local pars = PlayerAnchorRenderingState.load(event.player_index, flags)
+        local pars = PlayerAnchorRenderingState.load(event.player_index)
+        pars:refresh(flags)
         pars:draw_anchors()
     end
 )
