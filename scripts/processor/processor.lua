@@ -130,7 +130,7 @@ function Processor.try_attach_iopoint(entity, player)
     return nil
 end
 
----@paratity LuaEntity
+---@param entity LuaEntity
 ---@param slot FormationSlot
 ---@return IoPoint?
 function Processor:set_iopoint(entity, slot)

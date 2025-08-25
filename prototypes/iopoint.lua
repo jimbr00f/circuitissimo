@@ -4,29 +4,50 @@ require '__base__.prototypes.entity.entities'
 
 local constant_combinator = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 
----@type WireConnectionOrigin
-local iopoint_connection_origin = {
-    entity = { x = 0, y = -8 },
-    shadow = { x = 8, y = -1 }
-}
----@type WireConnectionOffsets
-local iopoint_connection_offsets = {
-    entity = {
-        { x = 2, y = -2 },
-        { x = -2, y = -2 },
-        { x = -6, y = 6 },
-        { x = 6, y = -6 },
+local pixel_connection_points = {
+    {
+        wire = {
+            red = { x = -2, y = -4 },
+            green = { x = 3, y = -2 }
+        },
+        shadow = {
+            red = { x = 0, y = 0 },
+            green = { x = 0, y = 0 }
+        }
     },
-    shadow = {
-        { x = -2, y = -6 },
-        { x = -7, y = -6 },
-        { x = -6, y = 5 },
-        { x = 6, y = 5 },
-    }
+    {
+        wire = {
+            red = { x = 4, y = -4 },
+            green = { x = -2, y = -2 }
+        },
+        shadow = {
+            red = { x = 0, y = 0 },
+            green = { x = 0, y = 0 }
+        }
+    },
+    {
+        wire = {
+            red = { x = 9, y = -1 },
+            green = { x = -7, y = -7 }
+        },
+        shadow = {
+            red = { x = 0, y = 0 },
+            green = { x = 0, y = 0 }
+        }
+    },
+    {
+        wire = {
+            red = { x = -6, y = -1 },
+            green = { x = 8, y = -7 }
+        },
+        shadow = {
+            red = { x = 0, y = 0 },
+            green = { x = 0, y = 0 }
+        }
+    },
 }
 
-local connection_points = proto_lib.create_wire_connection_points(iopoint_connection_origin, iopoint_connection_offsets)
-
+local connection_points = proto_lib.convert_pixels_to_tiles(pixel_connection_points)
 
 local iopoint_entity = table.merge(constant_combinator,  {
     name = ProcessorConfig.iopoint_name,
@@ -38,7 +59,6 @@ local iopoint_entity = table.merge(constant_combinator,  {
     selection_priority = 70,
     flags = { "player-creation", "placeable-neutral" },
     circuit_wire_max_distance = 64,
-    -- connection_points = connection_points,
     corpse = "small-remnants",
     dying_explosion = "explosion",
     fast_replaceable_group = ProcessorConfig.iopoint_name,
@@ -49,15 +69,14 @@ local iopoint_entity = table.merge(constant_combinator,  {
             scale = 0.5,
             filename = ProcessorConfig.png_path('entity/iopoint'),
             width = 48,
-            height = 48,
-            shift = util.by_pixel(-1, -6)
+            height = 48
         },
         {
             scale = 0.5,
             filename = ProcessorConfig.png_path('entity/iopoint-shadow'),
             width = 64,
             height = 48,
-            shift = util.by_pixel(9, -2),
+            shift = util.by_pixel(12, 4),
             draw_as_shadow = true,
         }
     }}),
@@ -68,6 +87,7 @@ local iopoint_entity = table.merge(constant_combinator,  {
         util.by_pixel(0, 4),
         util.by_pixel(0, 4),
     },
+    circuit_wire_connection_points = connection_points
   }
 )
 

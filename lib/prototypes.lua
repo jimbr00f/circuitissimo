@@ -28,4 +28,24 @@ function exports.create_wire_connection_points(origin, offsets)
     return wire_connection_points
 end
 
+---@param connection_points  EntityWireConnectionPointPrototype[]
+function exports.convert_pixels_to_tiles(connection_points)
+    local converted = {}
+    for _, item in ipairs(connection_points) do
+        ---@type EntityWireConnectionPointPrototype
+        local converted_item = {
+            wire = {
+                red = util.by_pixel(item.wire.red.x, item.wire.red.y),
+                green = util.by_pixel(item.wire.green.x, item.wire.green.y)
+            },
+            shadow = {
+                red = util.by_pixel(item.shadow.red.x, item.shadow.red.y),
+                green = util.by_pixel(item.shadow.green.x, item.shadow.green.y)
+            }
+        }
+        table.insert(converted, converted_item)
+    end
+    return converted
+end
+
 return exports
