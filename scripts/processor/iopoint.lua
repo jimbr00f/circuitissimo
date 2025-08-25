@@ -1,7 +1,6 @@
 local EntityInfo = require 'lib.entity-info'
 
 ---@class IoPoint : EntityInfo
----@field index integer
 local IoPoint = setmetatable({}, { __index = EntityInfo })
 IoPoint.__index = IoPoint
 

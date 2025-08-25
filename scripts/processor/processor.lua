@@ -4,8 +4,6 @@ local ProcessorConfig = require 'scripts.processor.config'
 local Utility = require 'scripts.processor.utility'
 
 ---@class Processor : EntityInfo
----@field iopoints table<uint64, IoPoint>
----@field indexed_iopoints table<integer, uint64>
 local Processor = setmetatable({}, { __index = EntityInfo })
 Processor.__index = Processor
 

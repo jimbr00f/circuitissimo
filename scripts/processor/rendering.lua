@@ -1,16 +1,13 @@
 local ProcessorConfig = require 'scripts.processor.config'
 local ProcessorSlot = require 'scripts.processor.slot'
 
----@class PlayerRenderingState
----@field player_index integer
----@field render_ids integer[]
----@field refresh_required boolean
-local PlayerRenderingState = {}
-PlayerRenderingState.__index = PlayerRenderingState
+---@class ProcessorRenderingState
+local ProcessorRenderingState = {}
+ProcessorRenderingState.__index = ProcessorRenderingState
 
 ---@param player_index int
----@return PlayerRenderingState
-function PlayerRenderingState:new(player_index)
+---@return ProcessorRenderingState
+function ProcessorRenderingState:new(player_index)
     local instance = {
         player_index = player_index,
         render_ids = {} --[[ @as table<integer,integer[]> ]],
@@ -21,17 +18,17 @@ function PlayerRenderingState:new(player_index)
     return instance
 end
 
-function PlayerRenderingState.initialize()
-    ---@type table<integer, PlayerRenderingState>
+function ProcessorRenderingState.initialize()
+    ---@type table<integer, ProcessorRenderingState>
     storage.player_anchor_rendering_state = storage.player_anchor_rendering_state or {}
 end
 
-function PlayerRenderingState:__tostring()
+function ProcessorRenderingState:__tostring()
     return string.format('PA rendering state for player %d:%d renders', self.player_index, #self.render_ids)
 end
 
 ---@return LuaPlayer
-function PlayerRenderingState:get_player()
+function ProcessorRenderingState:get_player()
     local player = game.get_player(self.player_index)
     if not player then
         error(string.format('No player found matching index %d', self.player_index))
@@ -55,7 +52,7 @@ local function is_player_holding_iopoint(player)
 end
 
 ---@param slots ProcessorSlot[]
-function PlayerRenderingState:render_slots(slots)
+function ProcessorRenderingState:render_slots(slots)
     if #self.render_ids > 0 then
         self:clear_renders()
     end
@@ -65,7 +62,7 @@ function PlayerRenderingState:render_slots(slots)
     end
 end
 
-function PlayerRenderingState:clear_renders()
+function ProcessorRenderingState:clear_renders()
     for _, id in ipairs(self.render_ids) do
         local render = rendering.get_object_by_id(id)
         if render then
@@ -76,26 +73,26 @@ function PlayerRenderingState:clear_renders()
 end
 
 ---@param player_index integer
----@return PlayerRenderingState
-function PlayerRenderingState.load(player_index)
-    ---@type PlayerRenderingState
-    local pars = storage.player_anchor_rendering_state[player_index] --[[@as PlayerRenderingState]]
+---@return ProcessorRenderingState
+function ProcessorRenderingState.load(player_index)
+    ---@type ProcessorRenderingState
+    local pars = storage.player_anchor_rendering_state[player_index] --[[@as ProcessorRenderingState]]
     if pars then
-        setmetatable(pars, PlayerRenderingState)
+        setmetatable(pars, ProcessorRenderingState)
     else
-        pars = PlayerRenderingState:new(player_index)
+        pars = ProcessorRenderingState:new(player_index)
     end
     return pars
 end
 
 
----@return PlayerRenderingState[]
-function PlayerRenderingState.load_refreshes()
-    ---@type PlayerRenderingState[]
+---@return ProcessorRenderingState[]
+function ProcessorRenderingState.load_refreshes()
+    ---@type ProcessorRenderingState[]
     local refreshes = {}
     for _, pars in pairs(storage.player_anchor_rendering_state) do
         if pars.refresh_required then
-            setmetatable(pars, PlayerRenderingState)
+            setmetatable(pars, ProcessorRenderingState)
             table.insert(refreshes, pars)
         end
     end
@@ -106,25 +103,25 @@ end
 factorissimo.handle_built(function(event)
     local entity = event.entity
     if not (entity and entity.valid and entity.name == ProcessorConfig.iopoint_name) then return end
-    local pars = PlayerRenderingState.load(event.player_index)
+    local pars = ProcessorRenderingState.load(event.player_index)
     pars.refresh_required = true
 end)
 
 factorissimo.handle_player_changed(function(event)
-    local pars = PlayerRenderingState.load(event.player_index)
+    local pars = ProcessorRenderingState.load(event.player_index)
     pars.refresh_required = true
 end)
 
 factorissimo.on_event(defines.events.on_player_cursor_stack_changed,
     ---@param event EventData.on_player_cursor_stack_changed]
     function(event)
-        local pars = PlayerRenderingState.load(event.player_index)
+        local pars = ProcessorRenderingState.load(event.player_index)
         pars.refresh_required = true
     end
 )
 
 factorissimo.on_nth_tick(ProcessorConfig.rendering_interval, function()
-    local pars_list = PlayerRenderingState.load_refreshes()
+    local pars_list = ProcessorRenderingState.load_refreshes()
     for _, pars in ipairs(pars_list) do
         pars:clear_renders()
         local player = game.get_player(pars.player_index)
@@ -136,4 +133,4 @@ factorissimo.on_nth_tick(ProcessorConfig.rendering_interval, function()
     end
 end)
 
-return PlayerRenderingState
+return ProcessorRenderingState

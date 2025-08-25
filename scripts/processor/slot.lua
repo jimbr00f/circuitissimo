@@ -5,8 +5,6 @@ local Processor = require 'scripts.processor.processor'
 local ProcessorConfig = require 'scripts.processor.config'
 
 ---@class ProcessorSlot : FormationSlot
----@field player LuaPlayer
----@field processor Processor
 local ProcessorSlot = setmetatable({}, { __index = FormationSlot })
 ProcessorSlot.__index = ProcessorSlot
 

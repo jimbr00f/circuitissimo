@@ -6,10 +6,17 @@ FormationSearch.__index = FormationSearch
 ---@param radius number
 ---@return BoundingBox
 function FormationSearch.get_search_area(origin, radius)
-    local box = origin.selection_box or {
-        left_top = origin.position,
-        right_bottom = origin.position
-    }
+    ---@type BoundingBox
+    local box = nil
+    if origin:is_player() then 
+        box = {
+            left_top = origin.position,
+            right_bottom = origin.position
+        }
+    else
+        box = origin.selection_box
+    end
+
     ---@type BoundingBox
     local area = {
         left_top = { x = box.left_top.x - radius, y = box.left_top.y - radius },

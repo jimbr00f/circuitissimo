@@ -1,5 +1,4 @@
 ---@class FormationSearch
----@field get_search_area fun(origin: LuaEntity|LuaControl, radius: number) : BoundingBox
 
 ---@class OrientationConversion
 ---@field to_circular_orientation table<orientation, orientation[]>

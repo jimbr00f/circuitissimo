@@ -1,13 +1,6 @@
 local Formation = require 'lib.formation.formation'
 
 ---@class EntityInfo
----@field entity LuaEntity
----@field unit_number uint64
----@field direction defines.direction
----@field mirroring boolean
----@field orientation orientation
----@field locked boolean
----@field destroyed boolean
 local EntityInfo = {}
 EntityInfo.__index = EntityInfo
 
