@@ -1,4 +1,4 @@
-local Formation = require "lib.formation.formation"
+local Formation = require 'lib.formation.formation'
 
 local prefix = "circuitissimo"
 local prefix_pattern = "circuitissimo"
@@ -20,6 +20,7 @@ formation:map_paths(Formation.convert.orientation.to_circular_orientation)
 ---@field iopoint_pattern string
 ---@field iopoint_name_tagged string
 ---@field iopoint_formation Formation
+---@field rendering_interval integer
 local ProcessorConfig = {
     prefix = prefix,
     prefix_pattern = prefix_pattern,
@@ -36,7 +37,9 @@ local ProcessorConfig = {
     iopoint_exists_error_text = prefix .. "-iopoint-exists-error",
 
     -- search for processors within this many tiles of the cursor
-    find_radius = 1.0,
+    attach_radius = 1.0,
+    search_radius = 10.0,
+    rendering_interval = 10
 }
 ProcessorConfig.__index = ProcessorConfig
 

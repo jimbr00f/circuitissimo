@@ -1,8 +1,7 @@
-local Formation = require 'lib.formation.formation'
-local IoPoint = require 'scripts.iopoint.iopoint'
-local Formatting = require 'lib.formatting'
-local ProcessorConfig = require "scripts.processor.config"
 local EntityInfo = require 'lib.entity-info'
+local IoPoint = require 'scripts.processor.iopoint'
+local ProcessorConfig = require 'scripts.processor.config'
+local Utility = require 'scripts.processor.utility'
 
 ---@class Processor : EntityInfo
 ---@field iopoints table<uint64, IoPoint>
@@ -80,11 +79,7 @@ end
 
 ---@return IoPoint[]
 function Processor:load_iopoints()
-    local filter = {
-        name = ProcessorConfig.iopoint_name,
-        area = Formation.search.get_search_area(self.entity, 1)
-    }
-    local entities = self.entity.surface.find_entities_filtered(filter)
+    local entities = Utility.find_nearest_entities(self.entity, ProcessorConfig.attach_radius, ProcessorConfig.iopoint_name)
     local iopoints = {}
     for _, entity in ipairs(entities) do
         local slot = self:get_formation_slot(entity)
@@ -118,13 +113,8 @@ function Processor:reorient_iopoints()
 end
 
 ---@param entity LuaEntity
----@param player LuaPlayer
-function Processor.try_attach_iopoint(entity, player)
-    local area = { 
-        top_left = { x = entity.position.x - ProcessorConfig.find_radius, y = entity.position.y - ProcessorConfig.find_radius },
-        bottom_right = { x = entity.position.x + ProcessorConfig.find_radius, y = entity.position.y + ProcessorConfig.find_radius },
-    }
-    local processor_entities = entity.surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
+function Processor.try_attach_iopoint(entity)
+    local processor_entities = Utility.find_nearest_entities(entity, ProcessorConfig.attach_radius, ProcessorConfig.processor_name)
     for _, proc_entity in ipairs(processor_entities) do
         ---@type Processor
         local proc = Processor.load_from_storage(proc_entity)

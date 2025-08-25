@@ -1,72 +1,63 @@
-local Processor = require 'scripts.processor.processor'
-local AnchorConfig = require 'scripts.anchor.config'
 local Formation = require 'lib.formation.formation'
+local FormationSlot = require 'lib.formation.slot'
+local Utility = require 'scripts.processor.utility'
+local Processor = require 'scripts.processor.processor'
 local ProcessorConfig = require 'scripts.processor.config'
 
----@class Anchor
+---@class ProcessorSlot : FormationSlot
 ---@field player LuaPlayer
 ---@field processor Processor
----@field slot FormationSlot
-local Anchor = {}
-Anchor.__index = Anchor
+local ProcessorSlot = setmetatable({}, { __index = FormationSlot })
+ProcessorSlot.__index = ProcessorSlot
 
+---@param slot FormationSlot
 ---@param player LuaPlayer
 ---@param processor Processor
----@param slot FormationSlot
----@return Anchor
-function Anchor:new(player, processor, slot)
-    ---@type Anchor
-    local instance = {
-        player = player,
-        processor = processor,
-        slot = slot
-    }
+---@return ProcessorSlot
+function ProcessorSlot:new(slot, player, processor)
+    local instance = FormationSlot.new(self, slot.index, slot.position, slot.direction) --[[@as ProcessorSlot]]
+    instance.player = player
+    instance.processor = processor
     setmetatable(instance, self)
     return instance
 end
 
-function Anchor:__tostring()
-    return string.format('anchor for %s', self.processor, self.slot)
+function ProcessorSlot:__tostring()
+    return string.format("%s, attached to %s", FormationSlot.__tostring(self), self.processor)
 end
 
-function Anchor:world_position()
-    local p_proc = self.processor.entity.position
-    local p_slot = self.slot.position
+function ProcessorSlot:world_position()
+    local proc_pos = self.processor.entity.position
+    local slot_pos = self.position
     return {
-        x = p_proc.x + p_slot.x,
-        y = p_proc.y + p_slot.y
+        x = proc_pos.x + slot_pos.x,
+        y = proc_pos.y + slot_pos.y
     }
 end
 
 ---@param player LuaPlayer
----@return Anchor[]
-function Anchor.find_anchors(player)
-    local anchors = {}
-    local pos = player.position
-    
-    local area = {
-        {pos.x - AnchorConfig.find_radius, pos.y - AnchorConfig.find_radius},
-        {pos.x + AnchorConfig.find_radius, pos.y + AnchorConfig.find_radius}
-    }
-    local processor_entities = player.surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
-    for _, proc_entity in ipairs(processor_entities) do
+---@return ProcessorSlot[]
+function ProcessorSlot.find_available_slots(player)
+    local p_slots = {}
+    local p_entities = Utility.find_nearest_entities(player, ProcessorConfig.search_radius, ProcessorConfig.processor_name)
+    for _, proc_entity in ipairs(p_entities) do
         ---@type Processor
         local proc = Processor.load_from_storage(proc_entity)
-        local slots = proc:get_available_formation_slots()
-        for _, slot in ipairs(slots) do
-            local anchor = Anchor:new(player, proc, slot)
-            table.insert(anchors, anchor)
+        local f_slots = proc:get_available_formation_slots()
+        for _, f_slot in ipairs(f_slots) do
+            local p_slot = ProcessorSlot:new(f_slot, player, proc)
+            table.insert(p_slots, p_slot)
         end
     end
-    return anchors
+    return p_slots
 end
 
 ---@return integer[]
-function Anchor:draw()
+function ProcessorSlot:draw()
     local ids = {}
     local world = self:world_position()
     local is_free = self.player.surface.can_place_entity{
-        name = ProcessorConfig.iopoint_name, position = world, direction = self.slot.direction, force = self.player.force
+        name = ProcessorConfig.iopoint_name, position = world, direction = self.direction, force = self.player.force
     }
     local shape = ProcessorConfig.iopoint_formation.item_shape
     local color = is_free and {g=1, a=0.35} or {r=0.6, g=0.6, b=0.6, a=0.25}
@@ -89,7 +80,7 @@ function Anchor:draw()
     table.insert(ids, box.id)
 
     local text = rendering.draw_text{
-        text = tostring(self.slot.index),
+        text = tostring(self.index),
         target = { x = world.x + shape.left_top.x + 0.2, y = world.y + shape.left_top.y + 0.2},
         surface = self.player.surface,
         forces = {self.player.force},
@@ -103,7 +94,7 @@ function Anchor:draw()
         sprite = "utility/indication_arrow", -- vanilla arrow
         surface = self.player.surface,
         target = {world.x, world.y - 0.2},
-        orientation = Formation.convert.direction.to_rotation[self.slot.direction],
+        orientation = Formation.convert.direction.to_rotation[self.direction],
         x_scale = 0.55,
         y_scale = 0.55,
         render_layer = "entity-info-icon-above",
@@ -115,4 +106,4 @@ function Anchor:draw()
     return ids
 end
 
-return Anchor
+return ProcessorSlot

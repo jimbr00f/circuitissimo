@@ -1,4 +1,3 @@
-local Formatting = require 'lib.formatting'
 local EntityInfo = require 'lib.entity-info'
 
 ---@class IoPoint : EntityInfo

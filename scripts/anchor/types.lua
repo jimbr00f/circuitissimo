@@ -1,4 +1,0 @@
----@class PlayerAnchorRenderingState
----@field player_index integer
----@field render_ids integer[]
----@field refresh_required boolean

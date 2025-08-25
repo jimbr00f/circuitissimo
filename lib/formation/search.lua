@@ -2,11 +2,14 @@
 local FormationSearch = {}
 FormationSearch.__index = FormationSearch
 
----@param entity LuaEntity
+---@param origin LuaEntity|LuaControl
 ---@param radius number
 ---@return BoundingBox
-function FormationSearch.get_search_area(entity, radius)
-    local box = entity.selection_box
+function FormationSearch.get_search_area(origin, radius)
+    local box = origin.selection_box or {
+        left_top = origin.position,
+        right_bottom = origin.position
+    }
     ---@type BoundingBox
     local area = {
         left_top = { x = box.left_top.x - radius, y = box.left_top.y - radius },
