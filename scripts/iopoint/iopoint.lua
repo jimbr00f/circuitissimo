@@ -6,8 +6,8 @@ local EntityInfo = require 'lib.entity-info'
 local IoPoint = setmetatable({}, { __index = EntityInfo })
 IoPoint.__index = IoPoint
 
----@param entity LuaEntity
----@param index number
+---@param entity LuaEntity The existing game entity for this IoPoint
+---@param index number The index corresponding to the IoPoint's ordered FormationSlot
 ---@return IoPoint
 function IoPoint:new(entity, index)
     game.print(string.format('creating new iopoint #%d from entity: %s', index, Formatting.format_entity(entity)))
@@ -50,14 +50,15 @@ function IoPoint.load(entity, index)
 end
 
 ---@param entity LuaEntity
----@param create boolean?
+---@param index? integer
+---@param create? boolean
 ---@return IoPoint?
 function IoPoint.load_from_storage(entity, index, create)
     game.print("loading stored iopoint for entity: " .. tostring(entity.unit_number))
     local iopoint = storage.iopoints[entity.unit_number]
     if iopoint then
         setmetatable(iopoint, IoPoint)
-    elseif create then
+    elseif create and index then
         iopoint = IoPoint:new(entity, index)
     end
     if iopoint and not iopoint.locked then

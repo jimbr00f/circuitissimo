@@ -6,6 +6,7 @@ local EntityInfo = require 'lib.entity-info'
 
 ---@class Processor : EntityInfo
 ---@field iopoints table<uint64, IoPoint>
+---@field indexed_iopoints table<integer, uint64>
 local Processor = setmetatable({}, { __index = EntityInfo })
 Processor.__index = Processor
 
@@ -16,6 +17,7 @@ function Processor:new(entity)
     game.print(string.format('creating new processor from entity: %s', Formatting.format_entity(entity)))
     local instance = EntityInfo.new(self, entity) --[[@as Processor]]
     instance.iopoints = {}
+    instance.indexed_iopoints = {}
     setmetatable(instance, self)
     storage.processors[entity.unit_number] = instance
     return instance
@@ -53,6 +55,10 @@ end
 function Processor:refresh()
     game.print('refreshing processor')
     self.iopoints = self:load_iopoints()
+    self.indexed_iopoints = {}
+    for _, iopoint in pairs(self.iopoints) do
+        self.indexed_iopoints[iopoint.index] = iopoint.unit_number
+    end
 end
 
 ---@param entity LuaEntity
@@ -81,11 +87,13 @@ function Processor:load_iopoints()
     local entities = self.entity.surface.find_entities_filtered(filter)
     local iopoints = {}
     for _, entity in ipairs(entities) do
+        game.print(string.format('loading iopoints: found entity at %0.1f, %0.1f', entity.position.x, entity.position.y))
         local slot = self:get_formation_slot(entity)
         if not slot then
             game.print(string.format('ERROR: No formation slot matches this entity: %s', Formatting.format_entity(entity)))
             goto continue
         end
+        game.print(string.format('found a matching iopoint slot at %0.1f, %0.1f', slot.position.x, slot.position.y))
         local iopoint = self.iopoints[entity.unit_number]
         if not iopoint then
             iopoint = IoPoint.load(entity, slot.index)
@@ -112,6 +120,31 @@ function Processor:reorient_iopoints()
     end
 end
 
+---@param entity LuaEntity
+---@param slot FormationSlot
+---@return IoPoint?
+function Processor:set_iopoint(entity, slot)
+    game.print(string.format('setting iopoint to slot #%d', slot.index))
+    local slot_taken = self.indexed_iopoints[slot.index] ~= nil
+    if slot_taken then 
+        game.print(string.format('attempted to place %d, but slot #%d taken by %d', entity.unit_number, slot.index, self.indexed_iopoints[slot.index]))
+        return nil 
+
+    end
+    local iopoint = IoPoint.load_from_storage(entity)
+    if iopoint then
+        game.print(string.format('removing iopoint from previous slot #%d', iopoint.index))
+        self.indexed_iopoints[iopoint.index] = nil
+        iopoint.index = slot.index
+    else
+        iopoint = IoPoint:new(entity, slot.index)
+        self.iopoints[entity.unit_number] = iopoint
+        game.print(string.format('created new iopoint at slot #%d', iopoint.index))
+    end
+    game.print(string.format('finalized iopoint index at slot #%d', slot.index))
+    self.indexed_iopoints[slot.index] = entity.unit_number
+    return iopoint
+end
 
 ---@param entity LuaEntity
 ---@return Processor
@@ -122,7 +155,6 @@ function Processor.load(entity)
     end
     return processor
 end
-
 
 ---@param entity LuaEntity
 ---@param create boolean?
@@ -138,8 +170,6 @@ function Processor.load_from_storage(entity, create)
         end
     elseif create then
         processor = Processor:new(entity)
-    end
-    if processor and not processor.locked then
         processor:refresh()
     end
     return processor

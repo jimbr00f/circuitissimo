@@ -2,6 +2,7 @@ local AnchorConfig = require 'scripts.anchor.config'
 local Anchor = require 'scripts.anchor.anchor'
 local ProcessorConfig = require 'scripts.processor.config'
 local Processor = require 'scripts.processor.processor'
+local IoPoint = require 'scripts.iopoint.iopoint'
 local Formation = require 'lib.formation.formation'
 
 ---@class PlayerAnchorRenderingState
@@ -97,7 +98,7 @@ end
 
 function PlayerAnchorRenderingState:clear_renders()
     game.print('clearing PARS')
-    for _, id in self.render_ids do
+    for _, id in ipairs(self.render_ids) do
         local render = rendering.get_object_by_id(id)
         if render then
             render.destroy()
@@ -132,7 +133,7 @@ function PlayerAnchorRenderingState.load(player_index, flags)
         pars = PlayerAnchorRenderingState:new(player_index)
     end
     if pars then
-        for _, anchor in pars.anchors do
+        for _, anchor in ipairs(pars.anchors) do
             setmetatable(anchor, Anchor)
         end
         pars:refresh(flags)
@@ -140,14 +141,31 @@ function PlayerAnchorRenderingState.load(player_index, flags)
     return pars
 end
 
-
-
--- Snap/Reject on build --------------------------------------------------------
-
 ---@param entity LuaEntity
----@param player? LuaPlayer
-local function try_snap_or_reject(entity, player)
-
+---@param player LuaPlayer
+function PlayerAnchorRenderingState:try_snap_iopoint(entity, player)
+    local anchor = Anchor.select_match(entity, self.anchors)
+    local error_text = nil
+    if anchor then
+        -- game.print(string.format('teleporting iopoint to %s', anchor))
+        -- entity.teleport(anchor:world_position())
+        entity.direction = anchor.slot.direction
+        -- game.print(string.format('setting iopoint to anchor slot #%d', anchor.slot.index))
+        local iopoint = anchor.processor:set_iopoint(entity, anchor.slot)
+        if not iopoint then
+            error_text = ProcessorConfig.iopoint_exists_error_text
+        end
+    end
+    if error_text then
+        refund_item(player, ProcessorConfig.iopoint_name, 1)
+        player.create_local_flying_text{
+            text = { error_text },
+            position = entity.position,
+            surface = entity.surface,
+            create_at_cursor = true
+        }
+        entity.destroy{raise_destroy = true}
+    end
 end
 
 -- Events ---------------------------------------------------------------------
@@ -161,17 +179,7 @@ factorissimo.handle_built(function(event)
     flags.iopoint_built = true
 
     local pars = PlayerAnchorRenderingState.load(event.player_index, flags)
-    local anchor = Anchor.select_closest(entity, pars.anchors)
-
-    if anchor then
-        entity.teleport(anchor:world_position())
-        entity.direction = anchor.slot.direction
-    else
-        entity.destroy{raise_destroy = true}
-        if player then
-            refund_item(player, ProcessorConfig.iopoint_name, 1)
-        end
-    end
+    pars:try_snap_iopoint(entity, player)
 end)
 
 factorissimo.handle_player_changed(function(event)
@@ -183,7 +191,7 @@ factorissimo.handle_player_changed(function(event)
     pars:draw_anchors()
 end)
 
-factorissimo.on_event(defines.events.on_player_cursor_stack_changed, 
+factorissimo.on_event(defines.events.on_player_cursor_stack_changed,
     ---@param event EventData.on_player_cursor_stack_changed]
     function(event)
         local player = game.get_player(event.player_index)

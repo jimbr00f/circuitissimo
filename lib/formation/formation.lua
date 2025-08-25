@@ -41,7 +41,7 @@ function Formation:new(size, count, margin)
     local origin = FormationShape.build_orientable_origin(instance.shape, instance.item_shape, n_margin)
     local path = FormationShape.build_orientable_path(origin, count)
     instance.paths = convert_orientable_to_formation_paths(path)
-    instance.lookup_radius = 1
+    instance.lookup_radius = 0.5
     setmetatable(instance, self)
     return instance
 end

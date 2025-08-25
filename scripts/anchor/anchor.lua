@@ -15,7 +15,7 @@ Anchor.__index = Anchor
 ---@param slot FormationSlot
 ---@return Anchor
 function Anchor:new(player, processor, slot)
-    game.print(string.format('creating new anchor for processor %s, slot %s', processor, slot))
+    -- game.print(string.format('creating new anchor for processor %s, slot %s', processor, slot))
     ---@type Anchor
     local instance = {
         player = player,
@@ -28,8 +28,6 @@ end
 
 function Anchor.initialize()
     game.print('initializing IoPoint class storage')
-    ---@type table<integer, AnchorPreviewData>
-    storage.anchor_preview = storage.anchor_preview or {}
     ---@type table<integer, PlayerAnchorRenderingState>
     storage.anchors = storage.anchors or {}
 end
@@ -39,7 +37,7 @@ function Anchor:destroy()
 end
 
 function Anchor:__tostring()
-    return string.format('anchor for processor %s, slot %s', self.processor, self.slot)
+    return string.format('anchor for %s', self.processor, self.slot)
 end
 
 function Anchor:world_position()
@@ -60,12 +58,22 @@ end
 ---@param entity LuaEntity
 ---@param anchors Anchor[]
 ---@return Anchor?
-function Anchor.select_closest(entity, anchors)
+function Anchor.select_match(entity, anchors)
+    game.print(string.format('finding anchor closest to %0.1f,%0.1f', entity.position.x, entity.position.y))
     local closest = nil
     local best_sqd = math.huge
     for _, anchor in ipairs(anchors) do
-        local sqd = sq_distance(anchor:world_position(), entity.position)
-        if sqd < best_sqd then
+        local w = anchor:world_position()
+        local sqd = sq_distance(w, entity.position)
+        -- local msg = string.format('considered anchor #%d at %0.1f,%01.f, d=%d; ', anchor.slot.index, w.x, w.y, sqd)
+        -- if sqd <= AnchorConfig.placement_radius then
+        --     msg = msg .. 'placement radius ok; '
+        -- end
+        -- if sqd < best_sqd then
+        --     msg = msg .. 'best so far; setting closest '
+        -- end
+        -- game.print(msg)
+        if sqd <= AnchorConfig.placement_radius and sqd < best_sqd then
             best_sqd = sqd
             closest = anchor
         end
@@ -102,7 +110,7 @@ end
 function Anchor:draw()
     local ids = {}
     local world = self:world_position()
-    game.print(string.format('drawing anchor at %.1f, %.1f [%s]', world.x, world.y, self.slot.direction))
+    -- game.print(string.format('drawing anchor at %.1f, %.1f [%s]', world.x, world.y, self.slot.direction))
     local is_free = self.player.surface.can_place_entity{
         name = ProcessorConfig.iopoint_name, position = world, direction = self.slot.direction, force = self.player.force
     }
@@ -125,6 +133,16 @@ function Anchor:draw()
         players = {self.player.index}
     }
     table.insert(ids, box.id)
+
+    local text = rendering.draw_text{
+        text = tostring(self.slot.index),
+        target = { x = world.x + shape.left_top.x + 0.2, y = world.y + shape.left_top.y + 0.2},
+        surface = self.player.surface,
+        forces = {self.player.force},
+        players = {self.player.index},
+        color = { r=0, g=1, b=1}
+    }
+    table.insert(ids, text.id)
     
     -- draw a direction arrow on top for clarity (like station helpers)
     local arrow = rendering.draw_sprite{

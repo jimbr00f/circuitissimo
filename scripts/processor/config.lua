@@ -32,7 +32,8 @@ local ProcessorConfig = {
     iopoint_name_tagged = prefix .. "-iopoint-tagged",
     iopoint_pattern = "^" .. prefix_pattern .. "%-iopoint",
     iopoint_formation = formation,
-    iopoint_built_error_text = prefix .. "-iopoint-built-error"
+    iopoint_placement_error_text = prefix .. "-iopoint-placement-error",
+    iopoint_exists_error_text = prefix .. "-iopoint-exists-error"
 }
 ProcessorConfig.__index = ProcessorConfig
 
