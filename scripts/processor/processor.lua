@@ -14,7 +14,6 @@ Processor.__index = Processor
 ---@param entity LuaEntity
 ---@return Processor
 function Processor:new(entity)
-    game.print(string.format('creating new processor from entity: %s', Formatting.format_entity(entity)))
     local instance = EntityInfo.new(self, entity) --[[@as Processor]]
     instance.iopoints = {}
     instance.indexed_iopoints = {}
@@ -24,7 +23,6 @@ function Processor:new(entity)
 end
 
 function Processor.initialize()
-    game.print('initializing Processor class storage')
     ---@type table<uint64, IoPoint>
     storage.processors = storage.processors or {}
 end
@@ -43,17 +41,12 @@ end
 
 ---@param mirroring? axis
 function Processor:reorient(mirroring)
-    game.print(string.format('reorient.begin: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:refresh()
-    game.print(string.format('reorient.refresh: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:infer_orientation(mirroring)
-    game.print(string.format('reorient.infer: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
     self:reorient_iopoints()
-    game.print(string.format('reorient.iopoints: d: %s, m: %s, o: %s', self.direction, self.mirroring, self.orientation))
 end
 
 function Processor:refresh()
-    game.print('refreshing processor')
     self.iopoints = self:load_iopoints()
     self.indexed_iopoints = {}
     for _, iopoint in pairs(self.iopoints) do
@@ -87,13 +80,10 @@ function Processor:load_iopoints()
     local entities = self.entity.surface.find_entities_filtered(filter)
     local iopoints = {}
     for _, entity in ipairs(entities) do
-        game.print(string.format('loading iopoints: found entity at %0.1f, %0.1f', entity.position.x, entity.position.y))
         local slot = self:get_formation_slot(entity)
         if not slot then
-            game.print(string.format('ERROR: No formation slot matches this entity: %s', Formatting.format_entity(entity)))
             goto continue
         end
-        game.print(string.format('found a matching iopoint slot at %0.1f, %0.1f', slot.position.x, slot.position.y))
         local iopoint = self.iopoints[entity.unit_number]
         if not iopoint then
             iopoint = IoPoint.load(entity, slot.index)
@@ -124,24 +114,19 @@ end
 ---@param slot FormationSlot
 ---@return IoPoint?
 function Processor:set_iopoint(entity, slot)
-    game.print(string.format('setting iopoint to slot #%d', slot.index))
     local slot_taken = self.indexed_iopoints[slot.index] ~= nil
     if slot_taken then 
-        game.print(string.format('attempted to place %d, but slot #%d taken by %d', entity.unit_number, slot.index, self.indexed_iopoints[slot.index]))
         return nil 
 
     end
     local iopoint = IoPoint.load_from_storage(entity)
     if iopoint then
-        game.print(string.format('removing iopoint from previous slot #%d', iopoint.index))
         self.indexed_iopoints[iopoint.index] = nil
         iopoint.index = slot.index
     else
         iopoint = IoPoint:new(entity, slot.index)
         self.iopoints[entity.unit_number] = iopoint
-        game.print(string.format('created new iopoint at slot #%d', iopoint.index))
     end
-    game.print(string.format('finalized iopoint index at slot #%d', slot.index))
     self.indexed_iopoints[slot.index] = entity.unit_number
     return iopoint
 end
@@ -160,7 +145,6 @@ end
 ---@param create boolean?
 ---@return Processor
 function Processor.load_from_storage(entity, create)
-    game.print(string.format("%s stored processor for entity: %s", create and "loading/creating" or "loading", Formatting.format_entity(entity)))
     ---@type Processor
     local processor = storage.processors[entity.unit_number]
     if processor then

@@ -12,7 +12,6 @@ PlayerAnchorRenderingState.__index = PlayerAnchorRenderingState
 ---@param player_index int
 ---@return PlayerAnchorRenderingState
 function PlayerAnchorRenderingState:new(player_index)
-    game.print(string.format('creating a new anchor rendering state for player %d', player_index))
     local instance = {
         player_index = player_index,
         render_ids = {} --[[ @as table<integer,integer[]> ]],
@@ -24,7 +23,6 @@ function PlayerAnchorRenderingState:new(player_index)
 end
 
 function PlayerAnchorRenderingState.initialize()
-    game.print('initializing IoPoint class storage')
     ---@type table<integer, PlayerAnchorRenderingState>
     storage.player_anchor_rendering_state = storage.player_anchor_rendering_state or {}
 end
@@ -83,7 +81,6 @@ function PlayerAnchorRenderingState:refresh(flags)
 end
 
 function PlayerAnchorRenderingState:draw_anchors()
-    game.print('drawing PARS anchors')
     for _, anchor in ipairs(self.anchors) do
         local render_ids = anchor:draw()
         self.render_ids = table.array_combine(self.render_ids, render_ids)
@@ -91,13 +88,11 @@ function PlayerAnchorRenderingState:draw_anchors()
 end
 
 function PlayerAnchorRenderingState:clear_anchors()
-    game.print('clearing PARS anchors')
     self.anchors = {}
     self:clear_renders()
 end
 
 function PlayerAnchorRenderingState:clear_renders()
-    game.print('clearing PARS')
     for _, id in ipairs(self.render_ids) do
         local render = rendering.get_object_by_id(id)
         if render then
@@ -124,7 +119,6 @@ end
 ---@param flags AnchorEventFlags
 ---@return PlayerAnchorRenderingState
 function PlayerAnchorRenderingState.load(player_index, flags)
-    game.print(string.format("loading/creating PA Rendering State for player %s", player_index))
     ---@type PlayerAnchorRenderingState
     local pars = storage.player_anchor_rendering_state[player_index] --[[@as PlayerAnchorRenderingState]]
     if pars then

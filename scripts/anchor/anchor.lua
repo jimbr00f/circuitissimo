@@ -27,13 +27,11 @@ function Anchor:new(player, processor, slot)
 end
 
 function Anchor.initialize()
-    game.print('initializing IoPoint class storage')
     ---@type table<integer, PlayerAnchorRenderingState>
     storage.anchors = storage.anchors or {}
 end
 
 function Anchor:destroy()
-    game.print(string.format('destroying anchor for processor %s, slot %s', self.processor, self.slot))
 end
 
 function Anchor:__tostring()
@@ -59,7 +57,6 @@ end
 ---@param anchors Anchor[]
 ---@return Anchor?
 function Anchor.select_match(entity, anchors)
-    game.print(string.format('finding anchor closest to %0.1f,%0.1f', entity.position.x, entity.position.y))
     local closest = nil
     local best_sqd = math.huge
     for _, anchor in ipairs(anchors) do
