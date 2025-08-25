@@ -4,7 +4,7 @@
 ---@field tick_interval integer
 local AnchorConfig = {
     -- search for processors within this many tiles of the cursor
-    find_radius = 6.0,
+    find_radius = 10.0,
     -- match anchor points that are up to this distance away from the placement position
     placement_radius = 0.1,
     -- preview update throttle (every 10 ticks ~= 6x/sec)

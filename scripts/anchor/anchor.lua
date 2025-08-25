@@ -15,7 +15,6 @@ Anchor.__index = Anchor
 ---@param slot FormationSlot
 ---@return Anchor
 function Anchor:new(player, processor, slot)
-    -- game.print(string.format('creating new anchor for processor %s, slot %s', processor, slot))
     ---@type Anchor
     local instance = {
         player = player,
@@ -24,14 +23,6 @@ function Anchor:new(player, processor, slot)
     }
     setmetatable(instance, self)
     return instance
-end
-
-function Anchor.initialize()
-    ---@type table<integer, PlayerAnchorRenderingState>
-    storage.anchors = storage.anchors or {}
-end
-
-function Anchor:destroy()
 end
 
 function Anchor:__tostring()
@@ -47,43 +38,10 @@ function Anchor:world_position()
     }
 end
 
----@param p1 MapPosition
----@param p2 MapPosition
-local function sq_distance(p1, p2)
-    return (p1.x - p2.x)^2 + (p1.y - p2.y)^2
-end
-
----@param entity LuaEntity
----@param anchors Anchor[]
----@return Anchor?
-function Anchor.select_match(entity, anchors)
-    local closest = nil
-    local best_sqd = math.huge
-    for _, anchor in ipairs(anchors) do
-        local w = anchor:world_position()
-        local sqd = sq_distance(w, entity.position)
-        -- local msg = string.format('considered anchor #%d at %0.1f,%01.f, d=%d; ', anchor.slot.index, w.x, w.y, sqd)
-        -- if sqd <= AnchorConfig.placement_radius then
-        --     msg = msg .. 'placement radius ok; '
-        -- end
-        -- if sqd < best_sqd then
-        --     msg = msg .. 'best so far; setting closest '
-        -- end
-        -- game.print(msg)
-        if sqd <= AnchorConfig.placement_radius and sqd < best_sqd then
-            best_sqd = sqd
-            closest = anchor
-        end
-    end
-    return closest
-end
-
----@param player_index integer
+---@param player LuaPlayer
 ---@return Anchor[]
-function Anchor.find_anchors(player_index)
-    local player = game.get_player(player_index)
+function Anchor.find_anchors(player)
     local anchors = {}
-    if not player then return anchors end
     local pos = player.position
     
     local area = {
@@ -94,7 +52,7 @@ function Anchor.find_anchors(player_index)
     for _, proc_entity in ipairs(processor_entities) do
         ---@type Processor
         local proc = Processor.load_from_storage(proc_entity)
-        local slots = proc:get_active_formation_slots()
+        local slots = proc:get_available_formation_slots()
         for _, slot in ipairs(slots) do
             local anchor = Anchor:new(player, proc, slot)
             table.insert(anchors, anchor)
@@ -107,7 +65,6 @@ end
 function Anchor:draw()
     local ids = {}
     local world = self:world_position()
-    -- game.print(string.format('drawing anchor at %.1f, %.1f [%s]', world.x, world.y, self.slot.direction))
     local is_free = self.player.surface.can_place_entity{
         name = ProcessorConfig.iopoint_name, position = world, direction = self.slot.direction, force = self.player.force
     }
@@ -157,10 +114,5 @@ function Anchor:draw()
     table.insert(ids, arrow.id)
     return ids
 end
-
-factorissimo.handle_init(function()
-    Anchor.initialize()
-end)
-
 
 return Anchor

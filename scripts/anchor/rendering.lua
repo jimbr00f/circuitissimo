@@ -15,7 +15,7 @@ function PlayerAnchorRenderingState:new(player_index)
     local instance = {
         player_index = player_index,
         render_ids = {} --[[ @as table<integer,integer[]> ]],
-        anchors = {} --[[ @as Anchor[] ]]
+        refresh_required = false
     }
     setmetatable(instance, self)
     storage.player_anchor_rendering_state[player_index] = instance
@@ -28,7 +28,7 @@ function PlayerAnchorRenderingState.initialize()
 end
 
 function PlayerAnchorRenderingState:__tostring()
-    return string.format('PA rendering state for player %d: %d anchors, %d renders', self.player_index, #self.anchors, #self.render_ids)
+    return string.format('PA rendering state for player %d:%d renders', self.player_index, #self.render_ids)
 end
 
 ---@return LuaPlayer
@@ -49,47 +49,21 @@ end
 ---@param player LuaPlayer
 ---@return boolean
 local function is_player_holding_iopoint(player)
-    if player and player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == ProcessorConfig.iopoint_name then
+    if player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == ProcessorConfig.iopoint_name then
         return true
     end
     return false
 end
 
----@param player? LuaPlayer
----@return AnchorEventFlags
-local function create_event_flags(player)
-    local flags = {
-        player_changed = false,
-        cursor_changed = false,
-        cursor_has_iopoint = false,
-        iopoint_built = false
-    }
-    if player then
-        flags.cursor_has_iopoint = is_player_holding_iopoint(player)
+---@param anchors Anchor[]
+function PlayerAnchorRenderingState:render_anchors(anchors)
+    if #self.render_ids > 0 then
+        self:clear_renders()
     end
-    return flags
-end
-
----@param flags AnchorEventFlags
-function PlayerAnchorRenderingState:refresh(flags)
-    if flags.player_changed or flags.cursor_changed or flags.iopoint_built then
-        self:clear_anchors()
-        if flags.cursor_has_iopoint or flags.iopoint_built then
-            self.anchors = Anchor.find_anchors(self.player_index)
-        end
-    end
-end
-
-function PlayerAnchorRenderingState:draw_anchors()
-    for _, anchor in ipairs(self.anchors) do
+    for _, anchor in ipairs(anchors) do
         local render_ids = anchor:draw()
         self.render_ids = table.array_combine(self.render_ids, render_ids)
     end
-end
-
-function PlayerAnchorRenderingState:clear_anchors()
-    self.anchors = {}
-    self:clear_renders()
 end
 
 function PlayerAnchorRenderingState:clear_renders()
@@ -109,63 +83,58 @@ function PlayerAnchorRenderingState.load(player_index)
     local pars = storage.player_anchor_rendering_state[player_index] --[[@as PlayerAnchorRenderingState]]
     if pars then
         setmetatable(pars, PlayerAnchorRenderingState)
-        for _, anchor in ipairs(pars.anchors) do
-            setmetatable(anchor, Anchor)
-        end
     else
         pars = PlayerAnchorRenderingState:new(player_index)
     end
     return pars
 end
 
--- Events ---------------------------------------------------------------------
+
+---@return PlayerAnchorRenderingState[]
+function PlayerAnchorRenderingState.load_refreshes()
+    ---@type PlayerAnchorRenderingState[]
+    local refreshes = {}
+    for _, pars in pairs(storage.player_anchor_rendering_state) do
+        if pars.refresh_required then
+            setmetatable(pars, PlayerAnchorRenderingState)
+            table.insert(refreshes, pars)
+        end
+    end
+    return refreshes
+end
+
 
 factorissimo.handle_built(function(event)
     local entity = event.entity
     if not (entity and entity.valid and entity.name == ProcessorConfig.iopoint_name) then return end
-    local player = game.players[event.player_index]
-    if not player then return end
-    local flags = create_event_flags()
-    flags.iopoint_built = true
-
     local pars = PlayerAnchorRenderingState.load(event.player_index)
-    pars:refresh(flags)
+    pars.refresh_required = true
 end)
 
 factorissimo.handle_player_changed(function(event)
-    local player = game.get_player(event.player_index)
-    if not player then return end
-    local flags = create_event_flags(player)
-    flags.player_changed = true
     local pars = PlayerAnchorRenderingState.load(event.player_index)
-    pars:refresh(flags)
-    pars:draw_anchors()
+    pars.refresh_required = true
 end)
 
 factorissimo.on_event(defines.events.on_player_cursor_stack_changed,
     ---@param event EventData.on_player_cursor_stack_changed]
     function(event)
-        local player = game.get_player(event.player_index)
-        if not player then return end
-        local flags = create_event_flags(player)
-        flags.cursor_changed = true
         local pars = PlayerAnchorRenderingState.load(event.player_index)
-        pars:refresh(flags)
-        pars:draw_anchors()
+        pars.refresh_required = true
     end
 )
 
-
--- -- why do we need to keep doing this?? dont the renders just stick around?
--- script.on_nth_tick(AnchorConfig.tick_interval, function(e)
---     for player_index, pdata in pairs(storage.anchor_preview) do
---         if pdata.cursor_has_iopoint then
---             local player = game.get_player(player_index)
---             if player then
---                 update_player_preview(player, pdata)
---             end
---         end
---     end
--- end)
+factorissimo.on_nth_tick(AnchorConfig.tick_interval, function()
+    local pars_list = PlayerAnchorRenderingState.load_refreshes()
+    for _, pars in ipairs(pars_list) do
+        pars:clear_renders()
+        local player = game.get_player(pars.player_index)
+        if player and is_player_holding_iopoint(player) then
+            local anchors = Anchor.find_anchors(player)
+            pars:render_anchors(anchors)
+        end
+        pars.refresh_required = false
+    end
+end)
 
 return PlayerAnchorRenderingState

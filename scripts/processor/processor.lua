@@ -66,9 +66,16 @@ function Processor:get_formation_slot(entity)
 end
 
 ---@return FormationSlot[]
-function Processor:get_active_formation_slots()
+function Processor:get_available_formation_slots()
     local path = ProcessorConfig.iopoint_formation.paths[self.orientation]
-    return path.slots
+    ---@type FormationSlot[]
+    local available = {}
+    for _, slot in ipairs(path.slots) do
+        if self.indexed_iopoints[slot.index] == nil then
+            table.insert(available, slot)
+        end
+    end
+    return available
 end
 
 ---@return IoPoint[]
@@ -114,8 +121,8 @@ end
 ---@param player LuaPlayer
 function Processor.try_attach_iopoint(entity, player)
     local area = { 
-        top_left = { x = entity.position.x - ProcessorConfig.find_radius, y = entity.position.x - ProcessorConfig.find_radius },
-        bottom_right = { x = entity.position.x + ProcessorConfig.find_radius, y = entity.position.x + ProcessorConfig.find_radius },
+        top_left = { x = entity.position.x - ProcessorConfig.find_radius, y = entity.position.y - ProcessorConfig.find_radius },
+        bottom_right = { x = entity.position.x + ProcessorConfig.find_radius, y = entity.position.y + ProcessorConfig.find_radius },
     }
     local processor_entities = entity.surface.find_entities_filtered{area = area, name = ProcessorConfig.processor_name, force = player.force}
     for _, proc_entity in ipairs(processor_entities) do
@@ -135,7 +142,7 @@ end
 ---@return IoPoint?
 function Processor:set_iopoint(entity, slot)
     local slot_taken = self.indexed_iopoints[slot.index] ~= nil
-    if slot_taken then 
+    if slot_taken then
         return nil 
     end
     local iopoint = IoPoint.load_from_storage(entity)

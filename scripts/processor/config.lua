@@ -36,7 +36,7 @@ local ProcessorConfig = {
     iopoint_exists_error_text = prefix .. "-iopoint-exists-error",
 
     -- search for processors within this many tiles of the cursor
-    find_radius = 3.0,
+    find_radius = 1.0,
 }
 ProcessorConfig.__index = ProcessorConfig
 
