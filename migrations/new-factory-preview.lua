@@ -1,4 +1,4 @@
-local mod_gui = require "mod-gui"
+local mod_gui = require 'mod-gui'
 
 for _, player in pairs(game.players) do
     local buttonflow = mod_gui.get_button_flow(player)

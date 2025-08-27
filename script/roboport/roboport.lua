@@ -1,5 +1,5 @@
-local blacklisted_names = require "script.roboport.blacklist"
-local utility_constants = require "script.roboport.utility-constants"
+local blacklisted_names = require 'script.roboport.blacklist'
+local utility_constants = require 'script.roboport.utility-constants'
 
 local STACK_SIZE_MULTIPLIER = 50
 

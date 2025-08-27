@@ -1,4 +1,4 @@
-local mod_gui = require "mod-gui"
+local mod_gui = require 'mod-gui'
 local get_factory_by_entity = remote_api.get_factory_by_entity
 local find_surrounding_factory = remote_api.find_surrounding_factory
 
