@@ -1,6 +1,6 @@
 local ProcessorConfig = require 'scripts.processor.config'
 local Processor = require 'scripts.processor.processor'
-local IoPoint = require 'scripts.processor.iopoint'
+local ProcessorIoPoint = require 'scripts.processor.iopoint'
 local ProcessorRenderingState = require 'scripts.processor.rendering'
 
 factorissimo.on_event(factorissimo.events.on_oriented(),
@@ -35,7 +35,7 @@ end)
 
 factorissimo.on_event(factorissimo.events.on_init(),
 function()
-    IoPoint.initialize()
+    ProcessorIoPoint.initialize()
     Processor.initialize()
     ProcessorRenderingState.initialize()
 end)

@@ -1,8 +1,8 @@
----@class IoPoint : EntityInfo
+---@class ProcessorIoPoint : EntityInfo
 ---@field index integer
 
 ---@class Processor : EntityInfo
----@field iopoints table<uint64, IoPoint>
+---@field iopoints table<uint64, ProcessorIoPoint>
 ---@field indexed_iopoints table<integer, uint64>
 
 ---@class ProcessorRenderingState

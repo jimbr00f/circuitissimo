@@ -1,5 +1,5 @@
 local EntityInfo = require 'lib.entity-info'
-local IoPoint = require 'scripts.processor.iopoint'
+local ProcessorIoPoint = require 'scripts.processor.iopoint'
 local ProcessorConfig = require 'scripts.processor.config'
 local Utility = require 'scripts.processor.utility'
 
@@ -20,7 +20,7 @@ function Processor:new(entity)
 end
 
 function Processor.initialize()
-    ---@type table<uint64, IoPoint>
+    ---@type table<uint64, ProcessorIoPoint>
     storage.processors = storage.processors or {}
 end
 
@@ -75,7 +75,7 @@ function Processor:get_available_formation_slots()
     return available
 end
 
----@return IoPoint[]
+---@return ProcessorIoPoint[]
 function Processor:load_iopoints()
     local entities = Utility.find_nearest_entities(self.entity, ProcessorConfig.attach_radius, ProcessorConfig.iopoint_name)
     local iopoints = {}
@@ -86,7 +86,7 @@ function Processor:load_iopoints()
         end
         local iopoint = self.iopoints[entity.unit_number]
         if not iopoint then
-            iopoint = IoPoint.load(entity, slot.index)
+            iopoint = ProcessorIoPoint.load(entity, slot.index)
         end
         if iopoint.index ~= slot.index then
             game.print(string.format('ERROR: loaded %s but matched with %s', iopoint, slot))
@@ -127,18 +127,18 @@ end
 
 ---@param entity LuaEntity
 ---@param slot FormationSlot
----@return IoPoint?
+---@return ProcessorIoPoint?
 function Processor:set_iopoint(entity, slot)
     local slot_taken = self.indexed_iopoints[slot.index] ~= nil
     if slot_taken then
         return nil 
     end
-    local iopoint = IoPoint.load_from_storage(entity)
+    local iopoint = ProcessorIoPoint.load_from_storage(entity)
     if iopoint then
         self.indexed_iopoints[iopoint.index] = nil
         iopoint.index = slot.index
     else
-        iopoint = IoPoint:new(entity, slot.index)
+        iopoint = ProcessorIoPoint:new(entity, slot.index)
         self.iopoints[entity.unit_number] = iopoint
     end
     self.indexed_iopoints[slot.index] = entity.unit_number
@@ -164,7 +164,7 @@ function Processor.load_from_storage(entity, create)
     if processor then
         setmetatable(processor, Processor)
         for _, io in pairs(processor.iopoints) do
-            setmetatable(io, IoPoint)
+            setmetatable(io, ProcessorIoPoint)
         end
     elseif create then
         processor = Processor:new(entity)

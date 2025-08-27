@@ -14,13 +14,13 @@ function ProcessorRenderingState:new(player_index)
         refresh_required = false
     }
     setmetatable(instance, self)
-    storage.player_anchor_rendering_state[player_index] = instance
+    storage.rendering_state[player_index] = instance
     return instance
 end
 
 function ProcessorRenderingState.initialize()
     ---@type table<integer, ProcessorRenderingState>
-    storage.player_anchor_rendering_state = storage.player_anchor_rendering_state or {}
+    storage.rendering_state = storage.rendering_state or {}
 end
 
 function ProcessorRenderingState:__tostring()
@@ -35,12 +35,6 @@ function ProcessorRenderingState:get_player()
     end
     return player
 end
-
----@class AnchorEventFlags
----@field player_changed boolean
----@field cursor_changed boolean
----@field cursor_has_iopoint boolean
----@field iopoint_built boolean
 
 ---@param player LuaPlayer
 ---@return boolean
@@ -76,7 +70,7 @@ end
 ---@return ProcessorRenderingState
 function ProcessorRenderingState.load(player_index)
     ---@type ProcessorRenderingState
-    local pars = storage.player_anchor_rendering_state[player_index] --[[@as ProcessorRenderingState]]
+    local pars = storage.rendering_state[player_index] --[[@as ProcessorRenderingState]]
     if pars then
         setmetatable(pars, ProcessorRenderingState)
     else
@@ -90,7 +84,7 @@ end
 function ProcessorRenderingState.load_refreshes()
     ---@type ProcessorRenderingState[]
     local refreshes = {}
-    for _, pars in pairs(storage.player_anchor_rendering_state) do
+    for _, pars in pairs(storage.rendering_state) do
         if pars.refresh_required then
             setmetatable(pars, ProcessorRenderingState)
             table.insert(refreshes, pars)

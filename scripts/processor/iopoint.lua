@@ -1,42 +1,42 @@
 local EntityInfo = require 'lib.entity-info'
 
----@class IoPoint : EntityInfo
-local IoPoint = setmetatable({}, { __index = EntityInfo })
-IoPoint.__index = IoPoint
+---@class ProcessorIoPoint : EntityInfo
+local ProcessorIoPoint = setmetatable({}, { __index = EntityInfo })
+ProcessorIoPoint.__index = ProcessorIoPoint
 
----@param entity LuaEntity The existing game entity for this IoPoint
----@param index number The index corresponding to the IoPoint's ordered FormationSlot
----@return IoPoint
-function IoPoint:new(entity, index)
-    local instance = EntityInfo.new(self, entity) --[[@as IoPoint]]
+---@param entity LuaEntity The existing game entity for this ProcessorIoPoint
+---@param index number The index corresponding to the ProcessorIoPoint's ordered FormationSlot
+---@return ProcessorIoPoint
+function ProcessorIoPoint:new(entity, index)
+    local instance = EntityInfo.new(self, entity) --[[@as ProcessorIoPoint]]
     instance.index = index
     setmetatable(instance, self)
     storage.iopoints[entity.unit_number] = instance
     return instance
 end
 
-function IoPoint.initialize()
-    ---@type table<uint64, IoPoint>
+function ProcessorIoPoint.initialize()
+    ---@type table<uint64, ProcessorIoPoint>
     storage.iopoints = storage.iopoints or {}
 end
 
-function IoPoint:destroy()
+function ProcessorIoPoint:destroy()
     self.entity.destroy()
     self.locked = true
 end
 
-function IoPoint:__tostring()
+function ProcessorIoPoint:__tostring()
     return string.format("%s #%d at (%.1f, %.1f)", self.entity.name, self.index, self.entity.position.x, self.entity.position.y)
 end
 
-function IoPoint:refresh()
+function ProcessorIoPoint:refresh()
 end
 
 ---@param entity LuaEntity
 ---@param index integer
----@return IoPoint
-function IoPoint.load(entity, index)
-    local iopoint = IoPoint.load_from_storage(entity, index, true)
+---@return ProcessorIoPoint
+function ProcessorIoPoint.load(entity, index)
+    local iopoint = ProcessorIoPoint.load_from_storage(entity, index, true)
     if not iopoint then
         error('Expected a non-null iopoint but received nil.')
     end
@@ -46,13 +46,13 @@ end
 ---@param entity LuaEntity
 ---@param index? integer
 ---@param create? boolean
----@return IoPoint?
-function IoPoint.load_from_storage(entity, index, create)
+---@return ProcessorIoPoint?
+function ProcessorIoPoint.load_from_storage(entity, index, create)
     local iopoint = storage.iopoints[entity.unit_number]
     if iopoint then
-        setmetatable(iopoint, IoPoint)
+        setmetatable(iopoint, ProcessorIoPoint)
     elseif create and index then
-        iopoint = IoPoint:new(entity, index)
+        iopoint = ProcessorIoPoint:new(entity, index)
     end
     if iopoint and not iopoint.locked then
         iopoint:refresh()
@@ -61,7 +61,7 @@ function IoPoint.load_from_storage(entity, index, create)
 end
 
 factorissimo.handle_init(function()
-    IoPoint.initialize()
+    ProcessorIoPoint.initialize()
 end)
 
-return IoPoint
+return ProcessorIoPoint
