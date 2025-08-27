@@ -132,7 +132,7 @@ end
 ---@return table
 table.merge = function(...)
     local result = {}
-    for _, tbl in pairs {...} do
+    for _, tbl in ipairs {...} do
         for k, v in pairs(tbl) do result[k] = v end
     end
     return result
@@ -178,7 +178,7 @@ end
 ---Like normal pairs(), but in deterministic randomized order
 ---@param t table
 ---@return fun():any, any
-function factorissimo.shuffled_pairs(t)
+table.shuffled_pairs = function(t)
     local shuffled_keys = shuffle(t)
     local i = 0
     return function()

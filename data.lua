@@ -10,6 +10,8 @@ require "prototypes.greenhouse"
 require "prototypes.space-age-rebalance"
 require "graphics.space-platform-build-anim.entity-build-animations"
 require "compat.power-grid-comb"
+require "prototypes.processor"
+require "prototypes.iopoint"
 
 data:extend {
     {

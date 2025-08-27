@@ -1,5 +1,6 @@
 -- Adds helper functions for data stage. Shared across all pymods and adapted for use in maraxsis
 
+---@diagnostic disable-next-line
 factorissimo.on_event = function() end
 
 ---Returns a 1x1 empty image.
