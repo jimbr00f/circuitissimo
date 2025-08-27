@@ -1,7 +1,7 @@
 local EntityInfo = require 'lib.entity-info'
-local ProcessorIoPoint = require 'scripts.processor.iopoint'
-local ProcessorConfig = require 'scripts.processor.config'
-local Utility = require 'scripts.processor.utility'
+local ProcessorIoPoint = require 'script.processor.iopoint'
+local ProcessorConfig = require 'script.processor.config'
+local Utility = require 'script.processor.utility'
 
 ---@class Processor : EntityInfo
 local Processor = setmetatable({}, { __index = EntityInfo })

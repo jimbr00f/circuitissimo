@@ -1,5 +1,5 @@
-local ProcessorConfig = require 'scripts.processor.config'
-local ProcessorSlot = require 'scripts.processor.slot'
+local ProcessorConfig = require 'script.processor.config'
+local ProcessorSlot = require 'script.processor.slot'
 
 ---@class ProcessorRenderingState
 local ProcessorRenderingState = {}

@@ -1,3 +1,3 @@
 
-require "scripts.processor.events"
+require 'script.processor.events"
 

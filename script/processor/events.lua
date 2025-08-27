@@ -1,7 +1,7 @@
-local ProcessorConfig = require 'scripts.processor.config'
-local Processor = require 'scripts.processor.processor'
-local ProcessorIoPoint = require 'scripts.processor.iopoint'
-local ProcessorRenderingState = require 'scripts.processor.rendering'
+local ProcessorConfig = require 'script.processor.config'
+local Processor = require 'script.processor.processor'
+local ProcessorIoPoint = require 'script.processor.iopoint'
+local ProcessorRenderingState = require 'script.processor.rendering'
 
 factorissimo.on_event(factorissimo.events.on_oriented(),
 ---@param event EventData.on_player_rotated_entity | EventData.on_player_flipped_entity

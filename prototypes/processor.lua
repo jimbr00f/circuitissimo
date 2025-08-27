@@ -1,4 +1,4 @@
-local ProcessorConfig = require 'scripts.processor.config'
+local ProcessorConfig = require 'script.processor.config'
 
 ---@return Picture[]
 function get_cardinal_pictures(path)

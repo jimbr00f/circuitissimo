@@ -1,8 +1,8 @@
 local Formation = require 'lib.formation.formation'
 local FormationSlot = require 'lib.formation.slot'
-local Utility = require 'scripts.processor.utility'
-local Processor = require 'scripts.processor.processor'
-local ProcessorConfig = require 'scripts.processor.config'
+local Utility = require 'script.processor.utility'
+local Processor = require 'script.processor.processor'
+local ProcessorConfig = require 'script.processor.config'
 
 ---@class ProcessorSlot : FormationSlot
 local ProcessorSlot = setmetatable({}, { __index = FormationSlot })

@@ -23,6 +23,6 @@ require "compat.maraxsis"
 require "compat.resource-spawner-overhaul"
 require "compat.picker-dollies"
 
-require 'scripts.circuitissimo'
+require 'script.processor.events'
 
 factorissimo.finalize_events()
