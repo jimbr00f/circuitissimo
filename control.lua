@@ -16,13 +16,12 @@ require 'script.lights'
 require 'script.port-markers'
 require 'script.borehole-pump'
 require 'script.migration'
+require 'script.processor.events'
 
 require 'compat.factorio-maps'
 require 'compat.cerys'
 require 'compat.maraxsis'
 require 'compat.resource-spawner-overhaul'
 require 'compat.picker-dollies'
-
-require 'script.processor.events'
 
 factorissimo.finalize_events()

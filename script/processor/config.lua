@@ -1,9 +1,11 @@
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
 local Formation = require 'lib.formation.formation'
 
-local prefix = "circuitissimo"
-local prefix_pattern = "circuitissimo"
-local tag_prefix = '__' .. prefix
-local mod_prefix = '__' .. prefix .. '__'
+local prefix = CircuitissimoConfig.prefix
+local prefix_pattern = CircuitissimoConfig.prefix_pattern
+local mod_prefix = CircuitissimoConfig.mod_prefix
+local tag_prefix = CircuitissimoConfig.tag_prefix
 
 local formation = Formation:new({ x = 1.5, y = 1.5}, 2, 1)
 formation:map_paths(Formation.convert.orientation.to_circular_orientation)
@@ -11,8 +13,8 @@ formation:map_paths(Formation.convert.orientation.to_circular_orientation)
 ---@class ProcessorConfig
 ---@field prefix string
 ---@field prefix_pattern string
----@field mod_prefix string
 ---@field tag_prefix string
+---@field mod_prefix string
 ---@field processor_name string
 ---@field processor_pattern string
 ---@field processor_name_tagged string
@@ -24,8 +26,8 @@ formation:map_paths(Formation.convert.orientation.to_circular_orientation)
 local ProcessorConfig = {
     prefix = prefix,
     prefix_pattern = prefix_pattern,
-    mod_prefix = mod_prefix,
     tag_prefix = tag_prefix,
+    mod_prefix = mod_prefix,
     processor_name = prefix .. "-processor",
     processor_pattern = "^" .. prefix_pattern .. "%-processor",
     processor_name_tagged = prefix .. "-processor-tagged",

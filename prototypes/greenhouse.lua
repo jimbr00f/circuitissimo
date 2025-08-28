@@ -1,12 +1,14 @@
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 if not mods["space-age"] then return end
 
-local F = "__factorissimo-2-notnotmelon__"
 local pf = "p-q-"
 
 data:extend {{
     name = "factory-upgrade-greenhouse",
     type = "technology",
-    icon = F .. "/graphics/technology/factory-upgrade-greenhouse.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-upgrade-greenhouse.png",
     icon_size = 256,
     prerequisites = {"factory-architecture-t3", "factory-interior-upgrade-lights"},
     effects = {},

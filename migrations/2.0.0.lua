@@ -1,4 +1,6 @@
-require '__factorissimo-2-notnotmelon__.script.electricity'
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+require (CircuitissimoConfig.mod_prefix .. '.script.electricity')
 
 for _, pole in ipairs(storage.middleman_power_poles or {}) do
     if pole ~= 0 then pole.destroy() end

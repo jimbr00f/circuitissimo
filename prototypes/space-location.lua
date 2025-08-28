@@ -1,3 +1,6 @@
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 -- generate a surface prototype for the personal roboport travel surface. see travel.lua for more information
 data:extend {{
     type = "planet",
@@ -50,7 +53,7 @@ local function generate_factory_floor_planet_icons(planet)
 
     -- add a factory icon to the bottom right corner
     table.insert(icons, {
-        icon = "__factorissimo-2-notnotmelon__/graphics/icon/factory-subicon.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-subicon.png",
         icon_size = 64,
         scale = 1
     })

@@ -1,4 +1,6 @@
-local F = "__factorissimo-2-notnotmelon__"
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 local pf = "p-q-"
 
 local starting_planet = "nauvis"
@@ -27,7 +29,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-architecture-t1",
-        icon = F .. "/graphics/technology/factory-architecture-1.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-architecture-1.png",
         icon_size = 256,
         prerequisites = {"stone-wall", "logistics"},
         effects = effects,
@@ -41,7 +43,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-architecture-t2",
-        icon = F .. "/graphics/technology/factory-architecture-2.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-architecture-2.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t1", "steel-processing", "electric-energy-distribution-1"},
         effects = {
@@ -60,7 +62,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-architecture-t3",
-        icon = F .. "/graphics/technology/factory-architecture-3.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-architecture-3.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "concrete", "electric-energy-distribution-2", "production-science-pack"},
         effects = {
@@ -81,7 +83,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-connection-type-fluid",
-        icon = F .. "/graphics/technology/factory-connection-type-fluid.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-connection-type-fluid.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t1"}, -- 'fluid-handling'
         effects = {},
@@ -95,7 +97,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-connection-type-chest",
-        icon = F .. "/graphics/technology/factory-connection-type-chest.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-connection-type-chest.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "logistics-2"},
         effects = {},
@@ -109,7 +111,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-connection-type-circuit",
-        icon = F .. "/graphics/technology/factory-connection-type-circuit.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-connection-type-circuit.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "circuit-network", "logistic-science-pack"},
         effects = {{type = "unlock-recipe", recipe = "factory-circuit-connector"}},
@@ -123,7 +125,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-connection-type-heat",
-        icon = F .. "/graphics/technology/factory-connection-type-heat.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-connection-type-heat.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2"},
         effects = {},
@@ -140,7 +142,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-interior-upgrade-lights",
-        icon = F .. "/graphics/technology/factory-interior-upgrade-lights.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-interior-upgrade-lights.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t1", "lamp"},
         effects = {},
@@ -154,7 +156,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-interior-upgrade-display",
-        icon = F .. "/graphics/technology/factory-interior-upgrade-display.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-interior-upgrade-display.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "lamp"},
         effects = {},
@@ -168,7 +170,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-interior-upgrade-roboport",
-        icon = F .. "/graphics/technology/factory-interior-upgrade-roboport.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-interior-upgrade-roboport.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "construction-robotics"},
         effects = {},
@@ -185,7 +187,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-recursion-t1",
-        icon = F .. "/graphics/technology/factory-recursion-1.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-recursion-1.png",
         icon_size = 256,
         prerequisites = {"factory-architecture-t2", "logistics-2"},
         effects = {},
@@ -199,7 +201,7 @@ data:extend {
     {
         type = "technology",
         name = "factory-recursion-t2",
-        icon = F .. "/graphics/technology/factory-recursion-2.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-recursion-2.png",
         icon_size = 256,
         prerequisites = {"factory-recursion-t1", "factory-architecture-t3"},
         effects = {},

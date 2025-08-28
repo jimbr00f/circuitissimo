@@ -1,3 +1,6 @@
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 local tile_graphics = require("__base__/prototypes/tile/tile-graphics")
 local tile_spritesheet_layout = tile_graphics.tile_spritesheet_layout
 
@@ -8,7 +11,6 @@ local concrete_vehicle_speed_modifier = data.raw["tile"]["concrete"].vehicle_fri
 local concrete_driving_sound = table.deepcopy(data.raw["tile"]["concrete"].driving_sound)
 local concrete_tile_build_sounds = table.deepcopy(data.raw["tile"]["concrete"].build_sound)
 
-local F = "__factorissimo-2-notnotmelon__"
 local alt_graphics = settings.startup["Factorissimo2-alt-graphics"].value
 local no_tile_transitions = settings.startup["Factorissimo2-disable-new-tile-effects"].value
 
@@ -30,7 +32,7 @@ local function tile_transitions(tile_variants)
             background_layer_group = "zero",
             offset_background_layer_by_tile_layer = true,
 
-            spritesheet = "__factorissimo-2-notnotmelon__/graphics/tile/out-of-map-transition.png",
+            spritesheet = CircuitissimoConfig.mod_prefix .. "/graphics/tile/out-of-map-transition.png",
             layout = tile_spritesheet_layout.transition_4_4_8_1_1,
             overlay_enabled = false
         }
@@ -132,18 +134,18 @@ end
 local function pictures_ff(i)
     return {
         {
-            picture = F .. "/graphics/tile/ff_1.png",
+            picture = CircuitissimoConfig.mod_prefix .. "/graphics/tile/ff_1.png",
             count = 16,
             size = 1
         },
         {
-            picture = F .. "/graphics/tile/ff_2.png",
+            picture = CircuitissimoConfig.mod_prefix .. "/graphics/tile/ff_2.png",
             count = 4,
             size = 2,
             probability = 0.39
         },
         {
-            picture = F .. "/graphics/tile/ff_4.png",
+            picture = CircuitissimoConfig.mod_prefix .. "/graphics/tile/ff_4.png",
             count = 4,
             size = 4,
             probability = 1
@@ -154,7 +156,7 @@ end
 local function pictures_fp(i)
     return {
         {
-            picture = F .. "/graphics/tile/fw" .. i .. "_1.png",
+            picture = CircuitissimoConfig.mod_prefix .. "/graphics/tile/fw" .. i .. "_1.png",
             count = 16,
             size = 1
         },
@@ -164,7 +166,7 @@ end
 local function pictures_fw(i)
     return {
         {
-            picture = F .. "/graphics/tile/fw" .. i .. "_1.png",
+            picture = CircuitissimoConfig.mod_prefix .. "/graphics/tile/fw" .. i .. "_1.png",
             count = 16,
             size = 1
         },

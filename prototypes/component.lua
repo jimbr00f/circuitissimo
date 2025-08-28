@@ -1,4 +1,5 @@
-local F = "__factorissimo-2-notnotmelon__";
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
 
 require("circuit-connector-sprites")
 
@@ -37,16 +38,16 @@ local function create_energy_interfaces(size, icon)
     }}
 end
 
-create_energy_interfaces(8, F .. "/graphics/icon/factory-1.png")
-create_energy_interfaces(12, F .. "/graphics/icon/factory-2.png")
-create_energy_interfaces(16, F .. "/graphics/icon/factory-3.png")
+create_energy_interfaces(8, CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-1.png")
+create_energy_interfaces(12, CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-2.png")
+create_energy_interfaces(16, CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-3.png")
 
 -- Connection indicators
 
 data:extend {{
     type = "item",
     name = "factory-connection-indicator-settings",
-    icon = F .. "/graphics/indicator/blueprint-settings.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/indicator/blueprint-settings.png",
     stack_size = 1,
     hidden = true,
     hidden_in_factoriopedia = true,
@@ -75,7 +76,7 @@ local function create_indicator(ctype, suffix, image)
         pictures                  = {
             picture = {
                 sheet = {
-                    filename = F .. "/graphics/indicator/" .. image .. ".png",
+                    filename = CircuitissimoConfig.mod_prefix .. "/graphics/indicator/" .. image .. ".png",
                     priority = "extra-high",
                     frames = 4,
                     width = 64,

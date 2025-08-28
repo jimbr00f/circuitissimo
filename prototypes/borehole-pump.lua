@@ -1,3 +1,6 @@
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 -- if you don't have space age, this thing would just produce water
 if not mods["space-age"] then return end
 
@@ -7,13 +10,12 @@ if mods.pypetroleumhandling then return end
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
 local sounds = require("__base__.prototypes.entity.sounds")
 
-local F = "__factorissimo-2-notnotmelon__"
 local pf = "p-q-"
 
 data:extend {{
     type = "item",
     name = "borehole-pump",
-    icon = F .. "/graphics/icon/borehole-pump.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/borehole-pump.png",
     icon_size = 64,
     flags = {},
     subgroup = "factorissimo2",
@@ -41,7 +43,7 @@ data:extend {{
 data:extend {{
     type = "technology",
     name = "factory-upgrade-borehole-pump",
-    icon = F .. "/graphics/technology/factory-upgrade-borehole-pump.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/technology/factory-upgrade-borehole-pump.png",
     icon_size = 256,
     prerequisites = {"factory-architecture-t3", "electromagnetic-science-pack"},
     effects = {
@@ -76,7 +78,7 @@ data:extend {{
     fixed_quality = "normal",
     heating_energy = data.raw["assembling-machine"]["assembling-machine-3"].heating_energy,
     flags = {"placeable-neutral", "player-creation"},
-    icon = F .. "/graphics/icon/borehole-pump.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/borehole-pump.png",
     icon_size = 64,
     flags = {"placeable-neutral", "player-creation", "filter-directions"},
     minable = {mining_time = 0.5, result = "borehole-pump"},
@@ -134,7 +136,7 @@ data:extend {{
                     get_shifted_underground_pipe_picture("south", util.by_pixel(16, 32)),
                     {
                         priority = "high",
-                        filename = F .. "/graphics/entity/borehole-pump-n.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-n.png",
                         line_length = 1,
                         width = 224,
                         height = 282,
@@ -145,7 +147,7 @@ data:extend {{
                         repeat_count = 1,
                     },
                     {
-                        filename = F .. "/graphics/entity/borehole-pump-n-sh.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-n-sh.png",
                         priority = "high",
                         width = 332,
                         height = 226,
@@ -161,7 +163,7 @@ data:extend {{
                     get_shifted_underground_pipe_picture("west", util.by_pixel(-32, 16)),
                     {
                         priority = "high",
-                        filename = F .. "/graphics/entity/borehole-pump-e.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-e.png",
                         line_length = 1,
                         width = 224,
                         height = 282,
@@ -172,7 +174,7 @@ data:extend {{
                         repeat_count = 1,
                     },
                     {
-                        filename = F .. "/graphics/entity/borehole-pump-e-sh.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-e-sh.png",
                         priority = "high",
                         width = 332,
                         height = 226,
@@ -188,7 +190,7 @@ data:extend {{
                     get_shifted_underground_pipe_picture("north", util.by_pixel(-16, -32)),
                     {
                         priority = "high",
-                        filename = F .. "/graphics/entity/borehole-pump-s.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-s.png",
                         line_length = 1,
                         width = 224,
                         height = 282,
@@ -199,7 +201,7 @@ data:extend {{
                         repeat_count = 1,
                     },
                     {
-                        filename = F .. "/graphics/entity/borehole-pump-s-sh.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-s-sh.png",
                         priority = "high",
                         width = 332,
                         height = 226,
@@ -216,7 +218,7 @@ data:extend {{
                     get_shifted_underground_pipe_picture("east", util.by_pixel(32, -16)),
                     {
                         priority = "high",
-                        filename = F .. "/graphics/entity/borehole-pump-w.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-w.png",
                         line_length = 1,
                         width = 224,
                         height = 282,
@@ -227,7 +229,7 @@ data:extend {{
                         repeat_count = 1,
                     },
                     {
-                        filename = F .. "/graphics/entity/borehole-pump-w-sh.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/borehole-pump-w-sh.png",
                         priority = "high",
                         width = 332,
                         height = 226,

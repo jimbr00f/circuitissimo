@@ -1,11 +1,12 @@
-local F = "__factorissimo-2-notnotmelon__"
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
 
 -- Circuit connectors
 
 data:extend {{
     type = "item",
     name = "factory-circuit-connector",
-    icon = F .. "/graphics/icon/factory-circuit-connector.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-circuit-connector.png",
     icon_size = 64,
     flags = {},
     subgroup = "factorissimo2",
@@ -17,7 +18,7 @@ data:extend {{
 data:extend {{
     type = "electric-pole",
     name = "factory-circuit-connector",
-    icon = F .. "/graphics/icon/factory-circuit-connector.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-circuit-connector.png",
     icon_size = 64,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.5, result = "factory-circuit-connector"},
@@ -32,14 +33,14 @@ data:extend {{
         layers = {
             {
                 direction_count = 1,
-                filename = F .. "/graphics/entity/factory-circuit-connector.png",
+                filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/factory-circuit-connector.png",
                 width = 64,
                 height = 64,
                 scale = 0.51,
             },
             {
                 direction_count = 1,
-                filename = F .. "/graphics/entity/factory-circuit-connector-sh.png",
+                filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/factory-circuit-connector-sh.png",
                 width = 85,
                 height = 85,
                 scale = 0.51,

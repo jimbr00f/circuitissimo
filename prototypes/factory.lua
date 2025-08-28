@@ -1,4 +1,6 @@
-local F = "__factorissimo-2-notnotmelon__";
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
+
 local alt_graphics = settings.startup["Factorissimo2-alt-graphics"].value and "-alt" or ""
 require("circuit-connector-sprites")
 
@@ -13,7 +15,7 @@ data:extend {
     {
         type = "storage-tank",
         name = "factory-1",
-        icon = F .. "/graphics/icon/factory-1.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-1.png",
         icon_size = 64,
         flags = {"player-creation", "placeable-player"},
         minable = {mining_time = 0.5, result = "factory-1-instantiated", count = 1},
@@ -25,7 +27,7 @@ data:extend {
             picture = {
                 layers = {
                     {
-                        filename = F .. "/graphics/factory/factory-1-shadow.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-1-shadow.png",
                         width = 416 * 2,
                         height = 320 * 2,
                         scale = 0.5,
@@ -33,7 +35,7 @@ data:extend {
                         draw_as_shadow = true
                     },
                     {
-                        filename = F .. "/graphics/factory/factory-1" .. alt_graphics .. ".png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-1" .. alt_graphics .. ".png",
                         width = 416 * 2,
                         height = 320 * 2,
                         scale = 0.5,
@@ -59,11 +61,11 @@ data:extend {
         localised_name = {"item-name.factory-packed", {"entity-name.factory-1"}},
         icons = {
             {
-                icon = F .. "/graphics/icon/factory-1.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-1.png",
                 icon_size = 64,
             },
             {
-                icon = F .. "/graphics/icon/packing-tape.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/packing-tape.png",
                 icon_size = 64,
             }
         },
@@ -79,7 +81,7 @@ data:extend {
     {
         type = "item",
         name = "factory-1",
-        icon = F .. "/graphics/icon/factory-1.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-1.png",
         icon_size = 64,
         subgroup = "factorissimo2",
         order = "a-a",
@@ -94,7 +96,7 @@ data:extend {
     {
         type = "storage-tank",
         name = "factory-2",
-        icon = F .. "/graphics/icon/factory-2.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-2.png",
         icon_size = 64,
         flags = {"player-creation", "placeable-player"},
         minable = {mining_time = 0.5, result = "factory-2-instantiated", count = 1},
@@ -105,7 +107,7 @@ data:extend {
             picture = {
                 layers = {
                     {
-                        filename = F .. "/graphics/factory/factory-2-shadow.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-2-shadow.png",
                         width = 544 * 2,
                         height = 448 * 2,
                         scale = 0.5,
@@ -113,7 +115,7 @@ data:extend {
                         draw_as_shadow = true
                     },
                     {
-                        filename = F .. "/graphics/factory/factory-2" .. alt_graphics .. ".png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-2" .. alt_graphics .. ".png",
                         width = 544 * 2,
                         height = 448 * 2,
                         scale = 0.5,
@@ -139,11 +141,11 @@ data:extend {
         localised_name = {"item-name.factory-packed", {"entity-name.factory-2"}},
         icons = {
             {
-                icon = F .. "/graphics/icon/factory-2.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-2.png",
                 icon_size = 64,
             },
             {
-                icon = F .. "/graphics/icon/packing-tape.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/packing-tape.png",
                 icon_size = 64,
             }
         },
@@ -159,7 +161,7 @@ data:extend {
     {
         type = "item",
         name = "factory-2",
-        icon = F .. "/graphics/icon/factory-2.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-2.png",
         icon_size = 64,
         subgroup = "factorissimo2",
         order = "a-b",
@@ -174,7 +176,7 @@ data:extend {
     {
         type = "storage-tank",
         name = "factory-3",
-        icon = F .. "/graphics/icon/factory-3.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-3.png",
         icon_size = 64,
         flags = {"player-creation", "placeable-player"},
         minable = {mining_time = 0.5, result = "factory-3-instantiated", count = 1},
@@ -185,7 +187,7 @@ data:extend {
             picture = {
                 layers = {
                     {
-                        filename = F .. "/graphics/factory/factory-3-shadow.png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-3-shadow.png",
                         width = 704 * 2,
                         height = 608 * 2,
                         scale = 0.5,
@@ -193,7 +195,7 @@ data:extend {
                         draw_as_shadow = true
                     },
                     {
-                        filename = F .. "/graphics/factory/factory-3" .. alt_graphics .. ".png",
+                        filename = CircuitissimoConfig.mod_prefix .. "/graphics/factory/factory-3" .. alt_graphics .. ".png",
                         width = 704 * 2,
                         height = 608 * 2,
                         scale = 0.5,
@@ -219,11 +221,11 @@ data:extend {
         localised_name = {"item-name.factory-packed", {"entity-name.factory-3"}},
         icons = {
             {
-                icon = F .. "/graphics/icon/factory-3.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-3.png",
                 icon_size = 64,
             },
             {
-                icon = F .. "/graphics/icon/packing-tape.png",
+                icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/packing-tape.png",
                 icon_size = 64,
             }
         },
@@ -239,7 +241,7 @@ data:extend {
     {
         type = "item",
         name = "factory-3",
-        icon = F .. "/graphics/icon/factory-3.png",
+        icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/factory-3.png",
         icon_size = 64,
         subgroup = "factorissimo2",
         order = "a-c",

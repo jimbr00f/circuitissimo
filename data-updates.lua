@@ -3,12 +3,12 @@ require 'prototypes.ceiling'
 require 'prototypes.factory-pumps'
 require 'prototypes.quality-tooltips'
 require 'script.roboport.utility-constants'
-
-local F = "__factorissimo-2-notnotmelon__"
+---@class CircuitissimoConfig
+local CircuitissimoConfig = require 'script.config'
 
 local function blank()
     return {
-        filename = F .. "/graphics/nothing.png",
+        filename = CircuitissimoConfig.mod_prefix .. "/graphics/nothing.png",
         priority = "high",
         width = 1,
         height = 1
