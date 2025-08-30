@@ -8,10 +8,10 @@ require 'prototypes.borehole-pump'
 require 'prototypes.roboport'
 require 'prototypes.greenhouse'
 require 'prototypes.space-age-rebalance'
-require 'graphics.space-platform-build-anim.entity-build-animations'
-require 'compat.power-grid-comb'
 require 'prototypes.processor'
 require 'prototypes.iopoint'
+require 'graphics.space-platform-build-anim.entity-build-animations'
+require 'compat.power-grid-comb'
 
 data:extend {
     {
