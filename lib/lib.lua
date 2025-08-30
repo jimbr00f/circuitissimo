@@ -1,6 +1,6 @@
 _G.factorissimo = factorissimo or {}
 
-require '@types/_defs'
+require '@types._defs'
 require 'table'
 require 'string'
 require 'defines'

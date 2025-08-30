@@ -1,3 +1,4 @@
+require '@types.geometry'
 local FormationSearch = require 'search'
 local FormationShape = require 'shape'
 local FormationConversion = require 'conversion'

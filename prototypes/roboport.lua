@@ -130,7 +130,7 @@ roboport.logistics_radius = 2
 roboport.construction_radius = 64
 roboport.robot_slots_count = 0
 roboport.material_slots_count = 1
-roboport.icon = CircuitissimoConfig.mod_prefix .. "notnotmelon__/graphics/icon/construction-chest.png"
+roboport.icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/construction-chest.png"
 roboport.icon_size = 64
 roboport.energy_source = {type = "void"}
 roboport.hidden = true
@@ -151,12 +151,12 @@ entities_to_extend[#entities_to_extend + 1] = roboport
 local storage_chest = table.deepcopy(data.raw["logistic-container"]["storage-chest"])
 storage_chest.name = "factory-construction-chest"
 storage_chest.inventory_type = "with_bar"
-storage_chest.icon = CircuitissimoConfig.mod_prefix .. "notnotmelon__/graphics/icon/construction-chest.png"
+storage_chest.icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/construction-chest.png"
 storage_chest.icon_size = 64
 storage_chest.inventory_size = 100
 storage_chest.hidden = true
 storage_chest.flags = {"player-creation", "placeable-player", "no-automated-item-removal", "no-automated-item-insertion", "not-on-map"}
-storage_chest.animation.layers[1].filename = CircuitissimoConfig.mod_prefix .. "notnotmelon__/graphics/entity/construction-chest.png"
+storage_chest.animation.layers[1].filename = CircuitissimoConfig.mod_prefix .. "/graphics/entity/construction-chest.png"
 entities_to_extend[#entities_to_extend + 1] = storage_chest
 
 for _, factory_name in pairs {"factory-1", "factory-2", "factory-3"} do
@@ -220,7 +220,7 @@ data:extend {{
 data:extend {{
     type = "item",
     name = "factory-construction-chest",
-    icon = CircuitissimoConfig.mod_prefix .. "notnotmelon__/graphics/icon/construction-chest.png",
+    icon = CircuitissimoConfig.mod_prefix .. "/graphics/icon/construction-chest.png",
     icon_size = 64,
     stack_size = 1,
     hidden = true,

@@ -1,3 +1,4 @@
+require 'lib.table'
 local ProcessorConfig = require 'script.processor.config'
 local proto_lib = require 'lib.prototypes'
 require '__base__.prototypes.entity.entities'

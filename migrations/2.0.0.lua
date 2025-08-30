@@ -7,26 +7,18 @@ for _, pole in ipairs(storage.middleman_power_poles or {}) do
 end
 storage.middleman_power_poles = nil
 
-for _, factory in pairs(storage.factories) do
-    for _, inside_power_pole in pairs(factory.inside_power_poles or {}) do
-        if inside_power_pole and inside_power_pole.valid then
-            inside_power_pole.destroy()
+if storage.factories ~= nil then
+    for _, factory in pairs(storage.factories) do
+        for _, inside_power_pole in pairs(factory.inside_power_poles or {}) do
+            if inside_power_pole and inside_power_pole.valid then
+                inside_power_pole.destroy()
+            end
         end
-    end
-    factory.inside_power_poles = nil
-    factory.middleman_id = nil
-    factory.direct_connection = nil
+        factory.inside_power_poles = nil
+        factory.middleman_id = nil
+        factory.direct_connection = nil
 
-    factorissimo.update_power_connection(factory)
-end
-
-local new_surface_factories = {}
-for surface_name, factory_list in pairs(storage.surface_factories or {}) do
-    if type(surface_name) == "string" then
-        local surface = game.get_surface(surface_name)
-        new_surface_factories[surface.index] = factory_list
-    else
-        new_surface_factories[surface_name] = factory_list
+        factorissimo.update_power_connection(factory)
     end
 end
 

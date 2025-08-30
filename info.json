@@ -6,7 +6,7 @@
   "author": "jimbroof",
   "description": "Implements the combinator-focused Processor entity from the Compact Circuits mod using the recursive surface infrastructure from the Factorissimo 3 mod.",
   "dependencies": [
-    "base >= 2.0.0",
-    "? factorissimo-2-notnotmelon >= 2.5.3"
+    "base >= 2.0.60",
+    "? space-age"
   ]
 }
