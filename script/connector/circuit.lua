@@ -1,8 +1,22 @@
-local Circuit = {}
+require '@types.surface'
+local SurfaceConnector = require 'surface-connector'
 
-Circuit.color = {r = 255 / 255, g = 61 / 255, b = 61 / 255}
-Circuit.entity_types = {"factory-circuit-connector"}
-Circuit.unlocked = function(force) return force.technologies["factory-connection-type-circuit"].researched end
+---@class CircuitConnector : SurfaceConnector
+local CircuitConnector = setmetatable({}, { __index = SurfaceConnector })
+CircuitConnector.__index = CircuitConnector
+
+
+---@return CircuitConnector
+function CircuitConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as CircuitConnector]]
+    setmetatable(instance, self)
+    return instance
+end
+
+
+CircuitConnector.color = {r = 255 / 255, g = 61 / 255, b = 61 / 255}
+CircuitConnector.entity_types = {"factory-circuit-connector"}
+function CircuitConnector.unlocked(force) return force.technologies["factory-connection-type-circuit"].researched end
 
 local function connect_two_poles_with_circuit_wires(pole_1, pole_2)
     for _, connector_type in pairs {
@@ -15,7 +29,7 @@ local function connect_two_poles_with_circuit_wires(pole_1, pole_2)
     end
 end
 
-Circuit.connect = function(factory, cid, cpos, outside_entity, inside_entity)
+function CircuitConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
     if outside_entity.name ~= "factory-circuit-connector" or inside_entity.name ~= "factory-circuit-connector" then return nil end
 
     local inside_middleman = inside_entity.surface.create_entity {
@@ -48,7 +62,7 @@ Circuit.connect = function(factory, cid, cpos, outside_entity, inside_entity)
 end
 
 -- return true if the two poles are connected to each other
-Circuit.recheck = function(conn)
+function CircuitConnector.recheck(conn)
     local pole_1 = conn.inside_entity
     local pole_2 = conn.outside_entity
 
@@ -67,19 +81,19 @@ Circuit.recheck = function(conn)
     return wire_counter == 2
 end
 
-Circuit.indicator_settings = {connection_mode.b0}
+CircuitConnector.indicator_settings = {connection_mode.b0}
 
-Circuit.direction = function(conn)
+function CircuitConnector.direction(conn)
     return connection_mode.b0, defines.direction.north
 end
 
-Circuit.rotate = factorissimo.beep
+CircuitConnector.rotate = factorissimo.beep
 
-Circuit.adjust = factorissimo.beep
+CircuitConnector.adjust = factorissimo.beep
 
-Circuit.destroy = function(conn)
+function CircuitConnector.destroy(conn)
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end
     if conn.outside_middleman and conn.outside_middleman.valid then conn.outside_middleman.destroy() end
 end
 
-return Circuit
+return CircuitConnector

@@ -1,17 +1,26 @@
-local Belt = {}
+require '@types.surface'
+local Formation = require 'lib.formation.formation'
+local SurfaceConnector = require 'surface-connector'
 
-Belt.color = {r = 0, g = 183 / 255, b = 0}
-Belt.entity_types = {"transport-belt", "underground-belt", "loader", "loader-1x1", "linked-belt", "splitter", "lane-splitter", "inserter"}
-Belt.unlocked = function(force) return true end
+---@class BeltConnector : SurfaceConnector
+local BeltConnector = setmetatable({}, { __index = SurfaceConnector })
+BeltConnector.__index = BeltConnector
 
-Belt.indicator_settings = {connection_mode.d0}
 
-local opposite = {
-    [defines.direction.north] = defines.direction.south,
-    [defines.direction.south] = defines.direction.north,
-    [defines.direction.east] = defines.direction.west,
-    [defines.direction.west] = defines.direction.east,
-}
+---@return BeltConnector
+function BeltConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as BeltConnector]]
+    setmetatable(instance, self)
+    return instance
+end
+
+BeltConnector.color = {r = 0, g = 183 / 255, b = 0}
+BeltConnector.entity_types = {"transport-belt", "underground-belt", "loader", "loader-1x1", "linked-belt", "splitter", "lane-splitter", "inserter"}
+function BeltConnector.unlocked(force) return true end
+
+BeltConnector.indicator_settings = {connection_mode.d0}
+
+local opposite = Formation.convert.direction.to_mirror_direction
 
 local function get_belt_type(entity)
     if entity.type == "loader" or entity.type == "loader-1x1" then
@@ -42,7 +51,7 @@ end
 ---@param inside_entity LuaEntity
 ---@param direction_out defines.direction
 ---@param direction_in defines.direction
----@return defines.direction
+---@return defines.direction?
 local function get_conn_facing(outside_entity, inside_entity, direction_out, direction_in)
     local outside_entity_type, inside_entity_type = outside_entity.type, inside_entity.type
     local outside_dir, inside_dir = get_entity_direction(outside_entity), get_entity_direction(inside_entity)
@@ -71,7 +80,7 @@ end
 ---@param cpos ConnectionPosition
 ---@param outside_entity LuaEntity
 ---@param inside_entity LuaEntity
-Belt.connect = function(factory, cid, cpos, outside_entity, inside_entity)
+function BeltConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
     local conn_facing = get_conn_facing(outside_entity, inside_entity, cpos.direction_out, cpos.direction_in)
     if not (conn_facing == cpos.direction_in or conn_facing == cpos.direction_out) then return end
 
@@ -146,22 +155,22 @@ end
 
 ---@param conn BuildingConnection
 ---@return boolean
-Belt.recheck = function(conn)
+function BeltConnector.recheck(conn)
     return conn.from.valid and conn.to.valid and conn.to_link.valid and conn.from_link.valid and
         conn.facing == get_conn_facing(conn.from, conn.to, opposite[conn.facing], conn.facing)
 end
 
 ---@param conn BuildingConnection
 ---@return connection_mode, defines.direction
-Belt.direction = function(conn)
+function BeltConnector.direction(conn)
     return connection_mode.d0, conn.facing
 end
 
 ---@return string, boolean
-Belt.rotate = factorissimo.beep
+BeltConnector.rotate = factorissimo.beep
 
 ---@return string, boolean
-Belt.adjust = factorissimo.beep
+BeltConnector.adjust = factorissimo.beep
 
 local function spill_link_items(belt, link, surface, position)
     for _, i in pairs {1, 2} do
@@ -183,7 +192,7 @@ local function spill_link_items(belt, link, surface, position)
 end
 
 ---@param conn BuildingConnection
-Belt.destroy = function(conn)
+function BeltConnector.destroy(conn)
     local surface = conn._factory.inside_surface
     local position = conn.spill_location
 
@@ -197,4 +206,4 @@ Belt.destroy = function(conn)
     end
 end
 
-return Belt
+return BeltConnector

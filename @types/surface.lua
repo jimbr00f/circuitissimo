@@ -70,6 +70,8 @@
 ---@field facing defines.direction
 ---@field spill_location MapPosition
 ---@field do_tick_update boolean
+---@field outside LuaEntity
+---@field inside LuaEntity
 
 ---@class ConnectionSettings
 ---@field delay integer
@@ -79,13 +81,16 @@
 ---@class SurfaceConnector
 ---@field color Color
 ---@field entity_types string[]
+---@field indicator_settings connection_mode[]
 ---@field unlocked fun(force: LuaForce) : boolean
----@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity)
+---@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity) : BuildingConnection
+---@ todo: this should be the constructor
 ---@field recheck fun(conn: BuildingConnection) : boolean
 ---@field direction fun(conn: BuildingConnection) : connection_mode, defines.direction
 ---@field rotate fun(conn: BuildingConnection) : string, boolean
 ---@field adjust fun(conn: BuildingConnection) : string, boolean
 ---@field destroy fun(conn: BuildingConnection)
+---@field tick fun(conn: BuildingConnection) : integer?
 
 ---@class SurfaceBuilding
 ---@field force LuaForce|string|integer

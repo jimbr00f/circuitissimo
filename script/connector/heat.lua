@@ -1,10 +1,23 @@
-local Heat = {}
+require '@types.surface'
+local SurfaceConnector = require 'surface-connector'
 
-Heat.color = {r = 228 / 255, g = 236 / 255, b = 0}
-Heat.entity_types = {"heat-pipe"}
-Heat.unlocked = function(force) return force.technologies["factory-connection-type-heat"].researched end
+---@class HeatConnector : SurfaceConnector
+local HeatConnector = setmetatable({}, { __index = SurfaceConnector })
+HeatConnector.__index = HeatConnector
 
-Heat.connect = function(factory, cid, cpos, outside_entity, inside_entity)
+
+---@return HeatConnector
+function HeatConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as HeatConnector]]
+    setmetatable(instance, self)
+    return instance
+end
+
+HeatConnector.color = {r = 228 / 255, g = 236 / 255, b = 0}
+HeatConnector.entity_types = {"heat-pipe"}
+function HeatConnector.unlocked(force) return force.technologies["factory-connection-type-heat"].researched end
+
+function HeatConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
     local inside_link = inside_entity.surface.create_entity {
         name = "factory-heat-dummy-connector",
         position = {factory.inside_x + cpos.inside_x + cpos.indicator_dx, factory.inside_y + cpos.inside_y + cpos.indicator_dy},
@@ -34,18 +47,18 @@ Heat.connect = function(factory, cid, cpos, outside_entity, inside_entity)
     }
 end
 
-Heat.recheck = function(conn)
+function HeatConnector.recheck(conn)
     return conn.outside.valid and conn.inside.valid and conn.inside_link.valid and conn.outside_link.valid
 end
 
 local DELAYS = {5, 10, 30, 120}
 local DEFAULT_DELAY = 30
 
-Heat.indicator_settings = {connection_mode.d0, connection_mode.b0}
+HeatConnector.indicator_settings = {connection_mode.d0, connection_mode.b0}
 
 for _, v in pairs(DELAYS) do
     local balance_mode = connection_mode['b' .. v]
-    table.insert(Heat.indicator_settings, balance_mode)
+    table.insert(HeatConnector.indicator_settings, balance_mode)
 end
 
 local function make_valid_delay(delay)
@@ -55,13 +68,13 @@ local function make_valid_delay(delay)
     return 0 -- Catchall
 end
 
-Heat.direction = function(conn)
-    return "b" .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY), defines.direction.north
+function HeatConnector.direction(conn)
+    return connection_mode['b' .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY)], defines.direction.north
 end
 
-Heat.rotate = factorissimo.beep
+HeatConnector.rotate = factorissimo.beep
 
-Heat.adjust = function(conn, positive)
+function HeatConnector.adjust(conn, positive)
     local delay = conn._settings.delay or DEFAULT_DELAY
     if positive then
         for i = #DELAYS, 1, -1 do
@@ -84,7 +97,7 @@ Heat.adjust = function(conn, positive)
     end
 end
 
-Heat.tick = function(conn)
+function HeatConnector.tick(conn)
     local outside = conn.outside
     local inside = conn.inside
     if not outside.valid or not inside.valid then return false end
@@ -110,9 +123,9 @@ Heat.tick = function(conn)
     return conn._settings.delay or DEFAULT_DELAY
 end
 
-Heat.destroy = function(conn)
+function HeatConnector.destroy(conn)
     if conn.outside_link.valid then conn.outside_link.destroy() end
     if conn.inside_link.valid then conn.inside_link.destroy() end
 end
 
-return Heat
+return HeatConnector

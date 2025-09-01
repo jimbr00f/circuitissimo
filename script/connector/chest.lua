@@ -1,8 +1,22 @@
-local Chest = {}
+require '@types.surface'
+local SurfaceConnector = require 'surface-connector'
 
-Chest.color = {r = 200 / 255, g = 110 / 255, b = 38 / 255}
-Chest.entity_types = {"container", "logistic-container", "infinity-container", "linked-container"}
-Chest.unlocked = function(force) return force.technologies["factory-connection-type-chest"].researched end
+---@class ChestConnector : SurfaceConnector
+local ChestConnector = setmetatable({}, { __index = SurfaceConnector })
+ChestConnector.__index = ChestConnector
+
+
+---@return ChestConnector
+function ChestConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as ChestConnector]]
+    setmetatable(instance, self)
+    return instance
+end
+
+
+ChestConnector.color = {r = 200 / 255, g = 110 / 255, b = 38 / 255}
+ChestConnector.entity_types = {"container", "logistic-container", "infinity-container", "linked-container"}
+function ChestConnector.unlocked(force) return force.technologies["factory-connection-type-chest"].researched end
 
 local blacklist = {"factory-overlay-controller", "factory-requester-chest-factory-1", "factory-requester-chest-factory-2", "factory-requester-chest-factory-3"}
 local blacklisted = {}
@@ -25,7 +39,7 @@ local function get_chest_type(chest)
     end
 end
 
-Chest.connect = function(factory, cid, cpos, outside_entity, inside_entity, settings)
+function ChestConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
     if blacklisted[outside_entity.name] or blacklisted[inside_entity.name] then return nil end
 
     -- Connection mode: 0 for balance, 1 for inwards, 2 for outwards
@@ -44,19 +58,19 @@ Chest.connect = function(factory, cid, cpos, outside_entity, inside_entity, sett
     return {outside = outside_entity, inside = inside_entity, do_tick_update = true}
 end
 
-Chest.recheck = function(conn)
+function ChestConnector.recheck(conn)
     return conn.outside.valid and conn.inside.valid
 end
 
 local DELAYS = {10, 20, 60, 180, 600}
 local DEFAULT_DELAY = 60
-Chest.indicator_settings = {connection_mode.d0, connection_mode.b0}
+ChestConnector.indicator_settings = {connection_mode.d0, connection_mode.b0}
 
 for _, v in pairs(DELAYS) do
     local delay_mode = connection_mode['d' .. v]
-    table.insert(Chest.indicator_settings, delay_mode)
+    table.insert(ChestConnector.indicator_settings, delay_mode)
     local balance_mode = connection_mode['b' .. v]
-    table.insert(Chest.indicator_settings, balance_mode)
+    table.insert(ChestConnector.indicator_settings, balance_mode)
 end
 
 local function make_valid_delay(delay)
@@ -66,7 +80,7 @@ local function make_valid_delay(delay)
     return 0 -- Catchall
 end
 
-Chest.direction = function(conn)
+function ChestConnector.direction(conn)
     local mode = (conn._settings.mode or 0)
     ---@type connection_mode
     local cmode
@@ -87,7 +101,7 @@ Chest.direction = function(conn)
     return cmode, dir
 end
 
-Chest.rotate = function(conn)
+function ChestConnector.rotate(conn)
     conn._settings.mode = ((conn._settings.mode or 0) + 1) % 3
     local mode = conn._settings.mode
     if mode == 0 then
@@ -99,7 +113,7 @@ Chest.rotate = function(conn)
     end
 end
 
-Chest.adjust = function(conn, positive)
+function ChestConnector.adjust(conn, positive)
     local delay = conn._settings.delay or DEFAULT_DELAY
     if positive then
         for i = #DELAYS, 1, -1 do
@@ -235,7 +249,9 @@ local function move_items_outwards(outside_inv, inside_inv)
     end
 end
 
-Chest.tick = function(conn)
+---@param conn BuildingConnection
+---@return integer?
+function ChestConnector.tick(conn)
     local outside = conn.outside
     local inside = conn.inside
     if outside.valid and inside.valid then
@@ -251,11 +267,11 @@ Chest.tick = function(conn)
         end
         return conn._settings.delay or DEFAULT_DELAY
     else
-        return false
+        return nil
     end
 end
 
-Chest.destroy = function(conn)
+function ChestConnector.destroy(conn)
 end
 
-return Chest
+return ChestConnector

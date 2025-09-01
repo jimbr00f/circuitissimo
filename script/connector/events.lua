@@ -184,8 +184,8 @@ local function in_area(x, y, area)
 end
 
 ---@param factory Factory
----@param outside_area BoundingBox
----@param inside_area BoundingBox
+---@param outside_area? BoundingBox
+---@param inside_area? BoundingBox
 local function recheck_factory_connections(factory, outside_area, inside_area) -- Areas are optional
     if not factory.built then return end
     for cid, cpos in pairs(factory.layout.connections) do
@@ -221,8 +221,8 @@ end)
 -- During deconstruction events of an entity that is part of a connection, the entity is still valid and built, so recheck_factory_connections would not destroy the connection involved.
 -- Delaying the recheck causes these connections to be properly deconstructed immediately, instead of having to wait until the connection ticks again.
 ---@param factory Factory
----@param outside_area BoundingBox
----@param inside_area BoundingBox
+---@param outside_area? BoundingBox
+---@param inside_area? BoundingBox
 local function recheck_factory_connections_delayed(factory, outside_area, inside_area)
     storage.delayed_connection_checks[1 + #(storage.delayed_connection_checks)] = {
         factory = factory,
@@ -232,7 +232,7 @@ local function recheck_factory_connections_delayed(factory, outside_area, inside
 end
 
 function factorissimo.disconnect_factory_connections(factory)
-    for cid, conn in pairs(factory.connections) do
+    for _, conn in pairs(factory.connections) do
         destroy_connection(conn)
     end
 end

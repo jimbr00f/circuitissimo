@@ -1,9 +1,23 @@
----@class IoPointConnector
-local IoPointConnector = {}
+require '@types.surface'
+local Formation = require 'lib.formation.formation'
+local SurfaceConnector = require 'surface-connector'
+
+---@class IoPointConnector : SurfaceConnector
+local IoPointConnector = setmetatable({}, { __index = SurfaceConnector })
+IoPointConnector.__index = IoPointConnector
+
+
+---@return IoPointConnector
+function IoPointConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as IoPointConnector]]
+    setmetatable(instance, self)
+    return instance
+end
+
 
 IoPointConnector.color = {r = 255 / 255, g = 61 / 255, b = 61 / 255}
 IoPointConnector.entity_types = {"factory-circuit-connector"}
-IoPointConnector.unlocked = function(force) return force.technologies["factory-connection-type-circuit"].researched end
+function IoPointConnector.unlocked(force) return force.technologies["factory-connection-type-circuit"].researched end
 
 local function connect_two_poles_with_circuit_wires(pole_1, pole_2)
     for _, connector_type in pairs {
@@ -16,7 +30,7 @@ local function connect_two_poles_with_circuit_wires(pole_1, pole_2)
     end
 end
 
-IoPointConnector.connect = function(factory, cid, cpos, outside_entity, inside_entity)
+function IoPointConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
     if outside_entity.name ~= "factory-circuit-connector" or inside_entity.name ~= "factory-circuit-connector" then return nil end
 
     local inside_middleman = inside_entity.surface.create_entity {
@@ -49,7 +63,7 @@ IoPointConnector.connect = function(factory, cid, cpos, outside_entity, inside_e
 end
 
 -- return true if the two poles are connected to each other
-IoPointConnector.recheck = function(conn)
+function IoPointConnector.recheck(conn)
     local pole_1 = conn.inside_entity
     local pole_2 = conn.outside_entity
 
@@ -70,7 +84,7 @@ end
 
 IoPointConnector.indicator_settings = {connection_mode.b0}
 
-IoPointConnector.direction = function(conn)
+function IoPointConnector.direction(conn)
     return connection_mode.b0, defines.direction.north
 end
 
@@ -78,7 +92,7 @@ IoPointConnector.rotate = factorissimo.beep
 
 IoPointConnector.adjust = factorissimo.beep
 
-IoPointConnector.destroy = function(conn)
+function IoPointConnector.destroy(conn)
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end
     if conn.outside_middleman and conn.outside_middleman.valid then conn.outside_middleman.destroy() end
 end

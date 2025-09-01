@@ -1,15 +1,23 @@
-local Fluid = {}
+require '@types.surface'
+local Formation = require 'lib.formation.formation'
+local SurfaceConnector = require 'surface-connector'
 
-Fluid.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
-Fluid.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
-Fluid.unlocked = function(force) return force.technologies["factory-connection-type-fluid"].researched end
+---@class FluidConnector : SurfaceConnector
+local FluidConnector = setmetatable({}, { __index = SurfaceConnector })
+FluidConnector.__index = FluidConnector
 
-local function is_connected(dummy_connector, entity)
-    if blacklist[entity.name] then return false end
-    for _, e in pairs(dummy_connector.neighbours[1]) do
-        if e.unit_number == entity.unit_number then return true end
-    end
+
+---@return FluidConnector
+function FluidConnector:new()
+    local instance = SurfaceConnector.new(self) --[[@as FluidConnector]]
+    setmetatable(instance, self)
+    return instance
 end
+
+
+FluidConnector.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
+FluidConnector.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
+function FluidConnector.unlocked(force) return force.technologies["factory-connection-type-fluid"].researched end
 
 local function create_linked_connections(factory, cpos, settings)
     local inside_surface = factory.inside_surface
@@ -48,7 +56,7 @@ local function create_linked_connections(factory, cpos, settings)
     return inside_connector, outside_connector
 end
 
-Fluid.connect = function(factory, cid, cpos, outside_entity, inside_entity, settings)
+function FluidConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
     if inside_entity == outside_entity then return nil end
 
     local inside_connector, outside_connector = create_linked_connections(factory, cpos, settings)
@@ -62,13 +70,13 @@ Fluid.connect = function(factory, cid, cpos, outside_entity, inside_entity, sett
     }
 end
 
-Fluid.recheck = function(conn)
+function FluidConnector.recheck(conn)
     return conn.inside_connector.valid and conn.outside_connector.valid and conn.inside.valid and conn.outside.valid
 end
 
-Fluid.indicator_settings = {connection_mode.d0}
+FluidConnector.indicator_settings = {connection_mode.d0}
 
-Fluid.direction = function(conn)
+function FluidConnector.direction(conn)
     if conn._settings.input_mode then
         return connection_mode.d0, conn._factory.layout.connections[conn._id].direction_in
     else
@@ -76,7 +84,7 @@ Fluid.direction = function(conn)
     end
 end
 
-Fluid.rotate = function(conn)
+function FluidConnector.rotate(conn)
     conn._settings.input_mode = not conn._settings.input_mode
 
     if conn.inside_connector and conn.inside_connector.valid then
@@ -96,13 +104,13 @@ Fluid.rotate = function(conn)
     end
 end
 
-Fluid.adjust = factorissimo.beep
+FluidConnector.adjust = factorissimo.beep
 
-Fluid.destroy = function(conn)
+function FluidConnector.destroy(conn)
     if conn.outside_connector.valid then conn.outside_connector.destroy() end
     if conn.inside_connector.valid then conn.inside_connector.destroy() end
 end
 
-Fluid.tick = function() end
+function FluidConnector.tick() end
 
-return Fluid
+return FluidConnector
