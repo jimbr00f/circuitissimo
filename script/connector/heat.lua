@@ -5,19 +5,14 @@ local SurfaceConnector = require 'surface-connector'
 local HeatConnector = setmetatable({}, { __index = SurfaceConnector })
 HeatConnector.__index = HeatConnector
 
-
----@return HeatConnector
-function HeatConnector:new()
-    local instance = SurfaceConnector.new(self) --[[@as HeatConnector]]
-    setmetatable(instance, self)
-    return instance
-end
-
-HeatConnector.color = {r = 228 / 255, g = 236 / 255, b = 0}
-HeatConnector.entity_types = {"heat-pipe"}
-function HeatConnector.unlocked(force) return force.technologies["factory-connection-type-heat"].researched end
-
-function HeatConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings? ConnectionSettings
+---@return table
+local function initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
     local inside_link = inside_entity.surface.create_entity {
         name = "factory-heat-dummy-connector",
         position = {factory.inside_x + cpos.inside_x + cpos.indicator_dx, factory.inside_y + cpos.inside_y + cpos.indicator_dy},
@@ -46,6 +41,24 @@ function HeatConnector.connect(factory, cid, cpos, outside_entity, inside_entity
         do_tick_update = true
     }
 end
+
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings? ConnectionSettings
+---@return HeatConnector
+function HeatConnector:new(factory, cid, cpos, outside_entity, inside_entity, settings)
+    ---@type HeatConnector
+    local instance = initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
+    setmetatable(instance, self)
+    return instance
+end
+
+HeatConnector.color = {r = 228 / 255, g = 236 / 255, b = 0}
+HeatConnector.entity_types = {"heat-pipe"}
+function HeatConnector.unlocked(force) return force.technologies["factory-connection-type-heat"].researched end
 
 function HeatConnector.recheck(conn)
     return conn.outside.valid and conn.inside.valid and conn.inside_link.valid and conn.outside_link.valid
@@ -82,7 +95,7 @@ end
 ---@param conn BuildingConnection
 ---@return string, boolean
 function HeatConnector.adjust(conn, positive)
-    local delay = conn._settings.delay or DEFAULT_DELAY
+    local delay = (conn._settings.delay or DEFAULT_DELAY)
     if positive then
         for i = #DELAYS, 1, -1 do
             if DELAYS[i] < delay then
@@ -91,7 +104,7 @@ function HeatConnector.adjust(conn, positive)
             end
         end
         conn._settings.delay = delay
-        return {"factory-connection-text.update-faster", delay}
+        return "factory-connection-text.update-faster", (not not delay)
     else
         for i = 1, #DELAYS do
             if DELAYS[i] > delay then
@@ -100,7 +113,7 @@ function HeatConnector.adjust(conn, positive)
             end
         end
         conn._settings.delay = delay
-        return {"factory-connection-text.update-slower", delay}
+        return "factory-connection-text.update-slower", (not not delay)
     end
 end
 

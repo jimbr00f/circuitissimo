@@ -140,9 +140,10 @@ local function init_connection(factory, cid, cpos) -- Only call this when factor
             for _, inside_entity in pairs(inside_entities) do
                 local ict = type_map[inside_entity.type] or type_map[inside_entity.name]
                 if oct == ict then
-                    if CONNECTION_TYPES[oct].unlocked(factory.force) then
+                    local cls = CONNECTION_TYPES[oct]
+                    if cls.unlocked(factory.force) then
                         local settings = get_connection_settings(factory, cid, oct)
-                        local conn = CONNECTION_TYPES[oct].connect(factory, cid, cpos, outside_entity, inside_entity, settings)
+                        local conn = cls:new(factory, cid, cpos, outside_entity, inside_entity, settings)
                         if conn then
                             factory.inside_surface.play_sound {path = "entity-close/assembling-machine-3", position = inside_entity.position}
                             factory.outside_surface.play_sound {path = "entity-close/assembling-machine-3", position = outside_entity.position}

@@ -6,19 +6,6 @@ local SurfaceConnector = require 'surface-connector'
 local FluidConnector = setmetatable({}, { __index = SurfaceConnector })
 FluidConnector.__index = FluidConnector
 
-
----@return FluidConnector
-function FluidConnector:new()
-    local instance = SurfaceConnector.new(self) --[[@as FluidConnector]]
-    setmetatable(instance, self)
-    return instance
-end
-
-
-FluidConnector.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
-FluidConnector.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
-function FluidConnector.unlocked(force) return force.technologies["factory-connection-type-fluid"].researched end
-
 ---@param factory Factory
 ---@param cpos ConnectionPosition
 ---@param settings ConnectionSettings
@@ -40,6 +27,9 @@ local function create_linked_connections(factory, cpos, settings)
         direction = cpos.direction_in,
         quality = factory.quality,
     }
+    if not inside_connector then
+        error('Failed to create inside_connector for fluid connector.')
+     end
     inside_connector.destructible = false
     inside_connector.operable = false
     inside_connector.rotatable = false
@@ -50,6 +40,9 @@ local function create_linked_connections(factory, cpos, settings)
         direction = cpos.direction_out,
         quality = factory.quality,
     }
+    if not outside_connector then
+        error('Failed to create outside_connector for fluid connector.')
+    end
     outside_connector.destructible = false
     outside_connector.operable = false
     outside_connector.rotatable = false
@@ -59,8 +52,17 @@ local function create_linked_connections(factory, cpos, settings)
     return inside_connector, outside_connector
 end
 
-function FluidConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
-    if inside_entity == outside_entity then return nil end
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings ConnectionSettings
+---@return table
+local function initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
+    if inside_entity == outside_entity then 
+        error('Inside and outside entities must be distinct.')
+    end
 
     local inside_connector, outside_connector = create_linked_connections(factory, cpos, settings)
 
@@ -72,6 +74,24 @@ function FluidConnector.connect(factory, cid, cpos, outside_entity, inside_entit
         do_tick_update = false
     }
 end
+
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings ConnectionSettings
+---@return FluidConnector
+function FluidConnector:new(factory, cid, cpos, outside_entity, inside_entity, settings)
+    ---@type FluidConnector
+    local instance = initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
+    setmetatable(instance, self)
+    return instance
+end
+
+FluidConnector.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
+FluidConnector.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
+function FluidConnector.unlocked(force) return force.technologies["factory-connection-type-fluid"].researched end
 
 function FluidConnector.recheck(conn)
     return conn.inside_connector.valid and conn.outside_connector.valid and conn.inside.valid and conn.outside.valid

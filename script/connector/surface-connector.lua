@@ -2,9 +2,14 @@
 local SurfaceConnector = {}
 SurfaceConnector.__index = SurfaceConnector
 
-
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings? ConnectionSettings
 ---@return SurfaceConnector
-function SurfaceConnector:new()
+function SurfaceConnector:new(factory, cid, cpos, outside_entity, inside_entity, settings)
     local instance = {} --[[@as Processor]]
     setmetatable(instance, self)
     return instance
@@ -21,8 +26,9 @@ end
 ---@param cpos ConnectionPosition
 ---@param outside_entity LuaEntity
 ---@param inside_entity LuaEntity
+---@param settings? ConnectionSettings
 ---@return BuildingConnection
-function SurfaceConnector.connect(factory, cid, cpos, outside_entity, inside_entity)
+function SurfaceConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
     return {}
 end
 
