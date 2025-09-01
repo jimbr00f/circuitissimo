@@ -67,10 +67,10 @@ Circuit.recheck = function(conn)
     return wire_counter == 2
 end
 
-Circuit.indicator_settings = {"b0"}
+Circuit.indicator_settings = {connection_mode.b0}
 
 Circuit.direction = function(conn)
-    return "b0", defines.direction.north
+    return connection_mode.b0, defines.direction.north
 end
 
 Circuit.rotate = factorissimo.beep

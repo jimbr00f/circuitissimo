@@ -4,7 +4,7 @@ Belt.color = {r = 0, g = 183 / 255, b = 0}
 Belt.entity_types = {"transport-belt", "underground-belt", "loader", "loader-1x1", "linked-belt", "splitter", "lane-splitter", "inserter"}
 Belt.unlocked = function(force) return true end
 
-Belt.indicator_settings = {"d0"}
+Belt.indicator_settings = {connection_mode.d0}
 
 local opposite = {
     [defines.direction.north] = defines.direction.south,
@@ -66,6 +66,11 @@ local function get_conn_facing(outside_entity, inside_entity, direction_out, dir
     return (outside_dir == inside_dir) and outside_dir or nil
 end
 
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
 Belt.connect = function(factory, cid, cpos, outside_entity, inside_entity)
     local conn_facing = get_conn_facing(outside_entity, inside_entity, cpos.direction_out, cpos.direction_in)
     if not (conn_facing == cpos.direction_in or conn_facing == cpos.direction_out) then return end
@@ -139,17 +144,23 @@ Belt.connect = function(factory, cid, cpos, outside_entity, inside_entity)
     return connection
 end
 
+---@param conn BuildingConnection
+---@return boolean
 Belt.recheck = function(conn)
     return conn.from.valid and conn.to.valid and conn.to_link.valid and conn.from_link.valid and
         conn.facing == get_conn_facing(conn.from, conn.to, opposite[conn.facing], conn.facing)
 end
 
+---@param conn BuildingConnection
+---@return connection_mode, defines.direction
 Belt.direction = function(conn)
-    return "d0", conn.facing
+    return connection_mode.d0, conn.facing
 end
 
+---@return string, boolean
 Belt.rotate = factorissimo.beep
 
+---@return string, boolean
 Belt.adjust = factorissimo.beep
 
 local function spill_link_items(belt, link, surface, position)
@@ -171,6 +182,7 @@ local function spill_link_items(belt, link, surface, position)
     end
 end
 
+---@param conn BuildingConnection
 Belt.destroy = function(conn)
     local surface = conn._factory.inside_surface
     local position = conn.spill_location

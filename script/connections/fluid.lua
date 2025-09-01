@@ -66,13 +66,13 @@ Fluid.recheck = function(conn)
     return conn.inside_connector.valid and conn.outside_connector.valid and conn.inside.valid and conn.outside.valid
 end
 
-Fluid.indicator_settings = {"d0"}
+Fluid.indicator_settings = {connection_mode.d0}
 
 Fluid.direction = function(conn)
     if conn._settings.input_mode then
-        return "d0", conn._factory.layout.connections[conn._id].direction_in
+        return connection_mode.d0, conn._factory.layout.connections[conn._id].direction_in
     else
-        return "d0", conn._factory.layout.connections[conn._id].direction_out
+        return connection_mode.d0, conn._factory.layout.connections[conn._id].direction_out
     end
 end
 

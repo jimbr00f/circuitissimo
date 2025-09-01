@@ -54,7 +54,11 @@ data:extend {{
     flags = {"not-stackable", "only-in-cursor"}
 }}
 
-local function create_indicator(ctype, suffix, image)
+---@param ctype string
+---@param cmode connection_mode
+---@param image string
+local function create_indicator(ctype, cmode, image)
+    local suffix = connection_mode_names[cmode]
     data:extend {{
         type                      = "storage-tank",
         name                      = "factory-connection-indicator-" .. ctype .. "-" .. suffix,
@@ -90,31 +94,31 @@ local function create_indicator(ctype, suffix, image)
     }}
 end
 
-create_indicator("belt", "d0", "green-dir")
+create_indicator("belt", connection_mode.d0, "green-dir")
 
-create_indicator("chest", "d0", "brown-dir") -- 0 is catchall for "There isn't an entity for this exact value"
-create_indicator("chest", "d10", "brown-dir")
-create_indicator("chest", "d20", "brown-dir")
-create_indicator("chest", "d60", "brown-dir")
-create_indicator("chest", "d180", "brown-dir")
-create_indicator("chest", "d600", "brown-dir")
+create_indicator("chest", connection_mode.d0, "brown-dir") -- 0 is catchall for "There isn't an entity for this exact value"
+create_indicator("chest", connection_mode.d10, "brown-dir")
+create_indicator("chest", connection_mode.d20, "brown-dir")
+create_indicator("chest", connection_mode.d60, "brown-dir")
+create_indicator("chest", connection_mode.d180, "brown-dir")
+create_indicator("chest", connection_mode.d600, "brown-dir")
 
-create_indicator("chest", "b0", "brown-dot")
-create_indicator("chest", "b10", "brown-dot")
-create_indicator("chest", "b20", "brown-dot")
-create_indicator("chest", "b60", "brown-dot")
-create_indicator("chest", "b180", "brown-dot")
-create_indicator("chest", "b600", "brown-dot")
+create_indicator("chest", connection_mode.b0, "brown-dot")
+create_indicator("chest", connection_mode.b10, "brown-dot")
+create_indicator("chest", connection_mode.b20, "brown-dot")
+create_indicator("chest", connection_mode.b60, "brown-dot")
+create_indicator("chest", connection_mode.b180, "brown-dot")
+create_indicator("chest", connection_mode.b600, "brown-dot")
 
-create_indicator("fluid", "d0", "blue-dir")
+create_indicator("fluid", connection_mode.d0, "blue-dir")
 
-create_indicator("heat", "b0", "red-dot")
-create_indicator("heat", "b5", "red-dot")
-create_indicator("heat", "b10", "red-dot")
-create_indicator("heat", "b30", "red-dot")
-create_indicator("heat", "b120", "red-dot")
+create_indicator("heat", connection_mode.b0, "red-dot")
+create_indicator("heat", connection_mode.b5, "red-dot")
+create_indicator("heat", connection_mode.b10, "red-dot")
+create_indicator("heat", connection_mode.b30, "red-dot")
+create_indicator("heat", connection_mode.b120, "red-dot")
 
-create_indicator("circuit", "b0", "yellow-dot")
+create_indicator("circuit", connection_mode.b0, "yellow-dot")
 
 -- Other auxiliary entities
 

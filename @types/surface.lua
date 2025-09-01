@@ -57,8 +57,6 @@
 ---@alias ConnectionId string
 ---@alias ConnectionType string
 
----@class ConnectionLink
-
 ---@class BuildingConnection
 ---@field _id ConnectionId
 ---@field _type ConnectionType
@@ -67,8 +65,8 @@
 ---@field _valid boolean
 ---@field from LuaEntity
 ---@field to LuaEntity
----@field from_link ConnectionLink
----@field to_link ConnectionLink
+---@field from_link LuaEntity
+---@field to_link LuaEntity
 ---@field facing defines.direction
 ---@field spill_location MapPosition
 ---@field do_tick_update boolean
@@ -84,7 +82,10 @@
 ---@field unlocked fun(force: LuaForce) : boolean
 ---@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity)
 ---@field recheck fun(conn: BuildingConnection) : boolean
----@field direction fun(conn: )
+---@field direction fun(conn: BuildingConnection) : connection_mode, defines.direction
+---@field rotate fun(conn: BuildingConnection) : string, boolean
+---@field adjust fun(conn: BuildingConnection) : string, boolean
+---@field destroy fun(conn: BuildingConnection)
 
 ---@class SurfaceBuilding
 ---@field force LuaForce|string|integer
@@ -134,12 +135,12 @@ transfer_mode = {
 
 ---@enum balance_mode
 balance_mode = {
-    b0 = 1 --[[@as transfer_mode.b0 ]],
-    b10 = 2 --[[@as transfer_mode.b10 ]],
-    b20 = 3 --[[@as transfer_mode.b20 ]],
-    b60 = 4 --[[@as transfer_mode.b60 ]],
-    b180 = 5 --[[@as transfer_mode.b180 ]],
-    b600 = 6 --[[@as transfer_mode.b600 ]],
+    b0 = 1 --[[@as balance_mode.b0 ]],
+    b10 = 2 --[[@as balance_mode.b10 ]],
+    b20 = 3 --[[@as balance_mode.b20 ]],
+    b60 = 4 --[[@as balance_mode.b60 ]],
+    b180 = 5 --[[@as balance_mode.b180 ]],
+    b600 = 6 --[[@as balance_mode.b600 ]],
 }
 
 ---@enum connection_mode
@@ -158,3 +159,8 @@ connection_mode = {
     b180 = balance_mode.b180 --[[@as connection_mode.b180 ]],
     b600 = balance_mode.b600 --[[@as connection_mode.b600 ]],
 }
+
+connection_mode_names = {}
+for name, value in pairs(connection_mode) do
+    connection_mode_names[value] = name
+end

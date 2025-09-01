@@ -50,11 +50,13 @@ end
 
 local DELAYS = {10, 20, 60, 180, 600}
 local DEFAULT_DELAY = 60
-Chest.indicator_settings = {"d0", "b0"}
+Chest.indicator_settings = {connection_mode.d0, connection_mode.b0}
 
 for _, v in pairs(DELAYS) do
-    table.insert(Chest.indicator_settings, "d" .. v)
-    table.insert(Chest.indicator_settings, "b" .. v)
+    local delay_mode = connection_mode['d' .. v]
+    table.insert(Chest.indicator_settings, delay_mode)
+    local balance_mode = connection_mode['b' .. v]
+    table.insert(Chest.indicator_settings, balance_mode)
 end
 
 local function make_valid_delay(delay)
@@ -66,13 +68,23 @@ end
 
 Chest.direction = function(conn)
     local mode = (conn._settings.mode or 0)
+    ---@type connection_mode
+    local cmode
+    ---@type defines.direction
+    local dir
+    local delay = make_valid_delay(conn._settings.delay or DEFAULT_DELAY)
     if mode == 0 then
-        return "b" .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY), defines.direction.north
-    elseif mode == 1 then
-        return "d" .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY), conn._factory.layout.connections[conn._id].direction_in
+        cmode = connection_mode['b' .. delay]
+        dir = defines.direction.north
     else
-        return "d" .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY), conn._factory.layout.connections[conn._id].direction_out
+        cmode = connection_mode['d' .. delay]
+        if mode == 1 then
+            dir = conn._factory.layout.connections[conn._id].direction_in
+        else
+            dir = conn._factory.layout.connections[conn._id].direction_out
+        end
     end
+    return cmode, dir
 end
 
 Chest.rotate = function(conn)

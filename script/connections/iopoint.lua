@@ -68,10 +68,10 @@ IoPointConnector.recheck = function(conn)
     return wire_counter == 2
 end
 
-IoPointConnector.indicator_settings = {"b0"}
+IoPointConnector.indicator_settings = {connection_mode.b0}
 
 IoPointConnector.direction = function(conn)
-    return "b0", defines.direction.north
+    return connection_mode.b0, defines.direction.north
 end
 
 IoPointConnector.rotate = factorissimo.beep

@@ -31,7 +31,8 @@ local function register_connection_type(ctype, class)
     c_adjust[ctype] = class.adjust
     c_tick[ctype] = class.tick
     c_destroy[ctype] = class.destroy
-    for _, name in pairs(class.indicator_settings) do
+    for _, cmode in pairs(class.indicator_settings) do
+        local name = connection_mode_names[cmode]
         connection_indicator_names["factory-connection-indicator-" .. ctype .. "-" .. name] = ctype
     end
 end

@@ -41,10 +41,11 @@ end
 local DELAYS = {5, 10, 30, 120}
 local DEFAULT_DELAY = 30
 
-Heat.indicator_settings = {"d0", "b0"}
+Heat.indicator_settings = {connection_mode.d0, connection_mode.b0}
 
 for _, v in pairs(DELAYS) do
-    table.insert(Heat.indicator_settings, "b" .. v)
+    local balance_mode = connection_mode['b' .. v]
+    table.insert(Heat.indicator_settings, balance_mode)
 end
 
 local function make_valid_delay(delay)
