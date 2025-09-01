@@ -82,13 +82,13 @@
 ---@field color Color
 ---@field entity_types string[]
 ---@field indicator_settings connection_mode[]
----@field unlocked fun(force: LuaForce) : boolean
----@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity) : BuildingConnection
+---@field unlocked fun(force: LuaForce|string|integer) : boolean
+---@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity, settings?: ConnectionSettings) : BuildingConnection
 ---@ todo: this should be the constructor
 ---@field recheck fun(conn: BuildingConnection) : boolean
 ---@field direction fun(conn: BuildingConnection) : connection_mode, defines.direction
 ---@field rotate fun(conn: BuildingConnection) : string, boolean
----@field adjust fun(conn: BuildingConnection) : string, boolean
+---@field adjust fun(conn: BuildingConnection, positive: boolean) : string, boolean
 ---@field destroy fun(conn: BuildingConnection)
 ---@field tick fun(conn: BuildingConnection) : integer?
 
@@ -128,41 +128,24 @@
 ---@field surface LuaSurface
 ---@field position MapPosition?
 
----@enum transfer_mode
-transfer_mode = {
-    d0 = 1 --[[@as transfer_mode.d0 ]],
-    d10 = 2 --[[@as transfer_mode.d10 ]],
-    d20 = 3 --[[@as transfer_mode.d20 ]],
-    d60 = 4 --[[@as transfer_mode.d60 ]],
-    d180 = 5 --[[@as transfer_mode.d180 ]],
-    d600 = 6 --[[@as transfer_mode.d600 ]],
-}
-
----@enum balance_mode
-balance_mode = {
-    b0 = 1 --[[@as balance_mode.b0 ]],
-    b10 = 2 --[[@as balance_mode.b10 ]],
-    b20 = 3 --[[@as balance_mode.b20 ]],
-    b60 = 4 --[[@as balance_mode.b60 ]],
-    b180 = 5 --[[@as balance_mode.b180 ]],
-    b600 = 6 --[[@as balance_mode.b600 ]],
-}
-
 ---@enum connection_mode
 connection_mode = {
-    d0 = transfer_mode.d0 --[[@as connection_mode.d0 ]],
-    d10 = transfer_mode.d10 --[[@as connection_mode.d10 ]],
-    d20 = transfer_mode.d20 --[[@as connection_mode.d20 ]],
-    d60 = transfer_mode.d60 --[[@as connection_mode.d60 ]],
-    d180 = transfer_mode.d180 --[[@as connection_mode.d180 ]],
-    d600 = transfer_mode.d600 --[[@as connection_mode.d600 ]],
+    d0 = #{} --[[@as connection_mode.d0 ]],
+    d10 = #{} --[[@as connection_mode.d10 ]],
+    d20 = #{} --[[@as connection_mode.d20 ]],
+    d60 = #{} --[[@as connection_mode.d60 ]],
+    d180 = #{} --[[@as connection_mode.d180 ]],
+    d600 = #{} --[[@as connection_mode.d600 ]],
 
-    b0 = balance_mode.b0 --[[@as connection_mode.b0 ]],
-    b10 = balance_mode.b10 --[[@as connection_mode.b10 ]],
-    b20 = balance_mode.b20 --[[@as connection_mode.b20 ]],
-    b60 = balance_mode.b60 --[[@as connection_mode.b60 ]],
-    b180 = balance_mode.b180 --[[@as connection_mode.b180 ]],
-    b600 = balance_mode.b600 --[[@as connection_mode.b600 ]],
+    b0 = #{} --[[@as connection_mode.b0 ]],
+    b5 = #{} --[[@as connection_mode.b5 ]],
+    b10 = #{} --[[@as connection_mode.b10 ]],
+    b20 = #{} --[[@as connection_mode.b20 ]],
+    b30 = #{} --[[@as connection_mode.b30 ]],
+    b60 = #{} --[[@as connection_mode.b60 ]],
+    b120 = #{} --[[@as connection_mode.b120 ]],
+    b180 = #{} --[[@as connection_mode.b180 ]],
+    b600 = #{} --[[@as connection_mode.b600 ]],
 }
 
 connection_mode_names = {}

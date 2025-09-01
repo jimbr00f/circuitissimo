@@ -88,9 +88,13 @@ function IoPointConnector.direction(conn)
     return connection_mode.b0, defines.direction.north
 end
 
-IoPointConnector.rotate = factorissimo.beep
+function IoPointConnector.rotate()
+    return factorissimo.beep()
+end
 
-IoPointConnector.adjust = factorissimo.beep
+function IoPointConnector.adjust()
+    return factorissimo.beep()
+end
 
 function IoPointConnector.destroy(conn)
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end

@@ -19,6 +19,9 @@ FluidConnector.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
 FluidConnector.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
 function FluidConnector.unlocked(force) return force.technologies["factory-connection-type-fluid"].researched end
 
+---@param factory Factory
+---@param cpos ConnectionPosition
+---@param settings ConnectionSettings
 local function create_linked_connections(factory, cpos, settings)
     local inside_surface = factory.inside_surface
     local outside_surface = factory.outside_surface
@@ -104,7 +107,12 @@ function FluidConnector.rotate(conn)
     end
 end
 
-FluidConnector.adjust = factorissimo.beep
+---@param conn BuildingConnection
+---@return string, boolean
+function FluidConnector.adjust(conn)
+    return factorissimo.beep()
+end
+
 
 function FluidConnector.destroy(conn)
     if conn.outside_connector.valid then conn.outside_connector.destroy() end

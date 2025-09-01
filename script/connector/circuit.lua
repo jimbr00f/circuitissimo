@@ -87,9 +87,13 @@ function CircuitConnector.direction(conn)
     return connection_mode.b0, defines.direction.north
 end
 
-CircuitConnector.rotate = factorissimo.beep
+function CircuitConnector.rotate()
+    return factorissimo.beep()
+end
 
-CircuitConnector.adjust = factorissimo.beep
+function CircuitConnector.adjust()
+    return factorissimo.beep()
+end
 
 function CircuitConnector.destroy(conn)
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end

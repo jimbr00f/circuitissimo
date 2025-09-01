@@ -4,6 +4,8 @@ local find_surrounding_factory = remote_api.find_surrounding_factory
 local type_map = {}
 
 -- Not using metatables, for..... reasons
+---@type table<string,SurfaceConnector>
+local CONNECTION_TYPES = {}
 local c_unlocked = {}
 local c_color = {}
 local c_connect = {}
@@ -19,18 +21,10 @@ factorissimo.connection_indicator_names = connection_indicator_names
 ---@param ctype ConnectionType
 ---@param class SurfaceConnector
 local function register_connection_type(ctype, class)
+    CONNECTION_TYPES[ctype] = class
     for _, etype in pairs(class.entity_types) do
         type_map[etype] = ctype
     end
-    c_unlocked[ctype] = class.unlocked
-    c_color[ctype] = class.color
-    c_connect[ctype] = class.connect
-    c_recheck[ctype] = class.recheck
-    c_direction[ctype] = class.direction
-    c_rotate[ctype] = class.rotate
-    c_adjust[ctype] = class.adjust
-    c_tick[ctype] = class.tick
-    c_destroy[ctype] = class.destroy
     for _, cmode in pairs(class.indicator_settings) do
         local name = connection_mode_names[cmode]
         connection_indicator_names["factory-connection-indicator-" .. ctype .. "-" .. name] = ctype
@@ -79,14 +73,15 @@ factorissimo.get_connection_settings = get_connection_settings
 ---@param factory Factory
 ---@param cid ConnectionId
 ---@param ctype ConnectionType
----@param setting string
+---@param cmode connection_mode
 ---@param dir defines.direction
-local function set_connection_indicator(factory, cid, ctype, setting, dir)
+local function set_connection_indicator(factory, cid, ctype, cmode, dir)
     local old_indicator = factory.connection_indicators[cid]
     if old_indicator and old_indicator.valid then old_indicator.destroy() end
     local cpos = factory.layout.connections[cid]
+    local cmode_name = connection_mode_names[cmode]
     local new_indicator = factory.inside_surface.create_entity {
-        name = "factory-connection-indicator-" .. ctype .. "-" .. setting,
+        name = "factory-connection-indicator-" .. ctype .. "-" .. cmode_name,
         force = factory.force,
         position = {x = factory.inside_x + cpos.inside_x + cpos.indicator_dx, y = factory.inside_y + cpos.inside_y + cpos.indicator_dy},
         create_build_effect_smoke = false,
@@ -116,7 +111,7 @@ local function register_connection(factory, cid, ctype, conn, settings)
     conn._valid = true
     factory.connections[cid] = conn
     if conn.do_tick_update then add_connection_to_queue(conn) end
-    local setting, dir = c_direction[ctype](conn)
+    local setting, dir = CONNECTION_TYPES[ctype].direction(conn)
     set_connection_indicator(factory, cid, ctype, setting, dir)
 end
 
@@ -145,9 +140,9 @@ local function init_connection(factory, cid, cpos) -- Only call this when factor
             for _, inside_entity in pairs(inside_entities) do
                 local ict = type_map[inside_entity.type] or type_map[inside_entity.name]
                 if oct == ict then
-                    if c_unlocked[oct](factory.force) then
+                    if CONNECTION_TYPES[oct].unlocked(factory.force) then
                         local settings = get_connection_settings(factory, cid, oct)
-                        local conn = c_connect[oct](factory, cid, cpos, outside_entity, inside_entity, settings)
+                        local conn = CONNECTION_TYPES[oct].connect(factory, cid, cpos, outside_entity, inside_entity, settings)
                         if conn then
                             factory.inside_surface.play_sound {path = "entity-close/assembling-machine-3", position = inside_entity.position}
                             factory.outside_surface.play_sound {path = "entity-close/assembling-machine-3", position = outside_entity.position}
@@ -168,7 +163,7 @@ factorissimo.init_connection = init_connection
 ---@param conn BuildingConnection
 local function destroy_connection(conn)
     if conn._valid then
-        c_destroy[conn._type](conn)
+        CONNECTION_TYPES[conn._type].destroy(conn)
         conn._valid = false                       -- _valid should be true iff conn._factory.connections[conn._id] == conn
         conn._factory.connections[conn._id] = nil -- Lua can handle this
         delete_connection_indicator(conn._factory, conn._id, conn._type)
@@ -194,7 +189,7 @@ local function recheck_factory_connections(factory, outside_area, inside_area) -
 
         local conn = factory.connections[cid]
         if conn then
-            if c_recheck[conn._type](conn) then
+            if CONNECTION_TYPES[conn._type].recheck(conn) then
                 -- Everything is fine
             else
                 destroy_connection(conn)
@@ -342,7 +337,7 @@ factorissimo.on_nth_tick(CONNECTION_UPDATE_RATE, function()
     local current_slot = connections[current_pos]
     connections[current_pos] = {}
     for _, conn in pairs(current_slot) do
-        local delay = conn._valid and c_tick[conn._type](conn)
+        local delay = conn._valid and CONNECTION_TYPES[conn._type].tick(conn)
         if delay then
             -- Reinsert connection after delay
             -- Not checking for inappropriate delays, so keep your delays civil
@@ -363,10 +358,10 @@ local function rotate(factory, indicator)
         if ind2 and ind2.valid then
             if (ind2.unit_number == indicator.unit_number) then
                 local conn = factory.connections[cid]
-                local text, noop = c_rotate[conn._type](conn)
+                local text, noop = CONNECTION_TYPES[conn._type].rotate(conn)
                 factorissimo.create_flying_text {position = indicator.position, color = c_color[conn._type], text = text}
                 if noop then return end
-                local setting, dir = c_direction[conn._type](conn)
+                local setting, dir = CONNECTION_TYPES[conn._type].direction(conn)
                 set_connection_indicator(factory, cid, conn._type, setting, dir)
                 return
             end
@@ -392,10 +387,10 @@ local function adjust(factory, indicator, positive)
         if ind2 and ind2.valid then
             if (ind2.unit_number == indicator.unit_number) then
                 local conn = factory.connections[cid]
-                local text, noop = c_adjust[conn._type](conn, positive)
+                local text, noop = CONNECTION_TYPES[conn._type].adjust(conn, positive)
                 factorissimo.create_flying_text {position = indicator.position, color = c_color[conn._type], text = text}
                 if noop then return end
-                local setting, dir = c_direction[conn._type](conn)
+                local setting, dir = CONNECTION_TYPES[conn._type].direction(conn)
                 set_connection_indicator(factory, cid, conn._type, setting, dir)
                 return
             end

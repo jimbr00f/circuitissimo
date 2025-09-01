@@ -166,11 +166,17 @@ function BeltConnector.direction(conn)
     return connection_mode.d0, conn.facing
 end
 
+---@param conn BuildingConnection
 ---@return string, boolean
-BeltConnector.rotate = factorissimo.beep
+function BeltConnector.rotate(conn)
+    return factorissimo.beep()
+end
 
+---@param conn BuildingConnection
 ---@return string, boolean
-BeltConnector.adjust = factorissimo.beep
+function BeltConnector.adjust(conn)
+    return factorissimo.beep()
+end
 
 local function spill_link_items(belt, link, surface, position)
     for _, i in pairs {1, 2} do

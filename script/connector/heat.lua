@@ -72,8 +72,15 @@ function HeatConnector.direction(conn)
     return connection_mode['b' .. make_valid_delay(conn._settings.delay or DEFAULT_DELAY)], defines.direction.north
 end
 
-HeatConnector.rotate = factorissimo.beep
 
+---@param conn BuildingConnection
+---@return string, boolean
+function HeatConnector.rotate(conn)
+    return factorissimo.beep()
+end
+
+---@param conn BuildingConnection
+---@return string, boolean
 function HeatConnector.adjust(conn, positive)
     local delay = conn._settings.delay or DEFAULT_DELAY
     if positive then
