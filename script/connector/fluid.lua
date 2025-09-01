@@ -23,13 +23,13 @@ FluidConnector.color = {r = 167 / 255, g = 229 / 255, b = 255 / 255}
 FluidConnector.entity_types = {"pipe", "pipe-to-ground", "pump", "storage-tank", "infinity-pipe", "offshore-pump", "elevated-pipe"}
 function FluidConnector.unlocked(force) return force.technologies["factory-connection-type-fluid"].researched end
 
-function FluidConnector.recheck(conn)
+function FluidConnector:recheck()
     return conn.inside_connector.valid and conn.outside_connector.valid and conn.inside.valid and conn.outside.valid
 end
 
 FluidConnector.indicator_settings = {connection_mode.d0}
 
-function FluidConnector.direction(conn)
+function FluidConnector:direction()
     if conn._settings.input_mode then
         return connection_mode.d0, conn._factory.layout.connections[conn._id].direction_in
     else
@@ -37,7 +37,7 @@ function FluidConnector.direction(conn)
     end
 end
 
-function FluidConnector.rotate(conn)
+function FluidConnector:rotate()
     conn._settings.input_mode = not conn._settings.input_mode
 
     if conn.inside_connector and conn.inside_connector.valid then
@@ -57,14 +57,13 @@ function FluidConnector.rotate(conn)
     end
 end
 
----@param conn BuildingConnection
 ---@return string, boolean
-function FluidConnector.adjust(conn)
+function FluidConnector:adjust()
     return factorissimo.beep()
 end
 
 
-function FluidConnector.destroy(conn)
+function FluidConnector:destroy()
     if conn.outside_connector.valid then conn.outside_connector.destroy() end
     if conn.inside_connector.valid then conn.inside_connector.destroy() end
 end

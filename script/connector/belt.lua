@@ -49,8 +49,7 @@ function BeltConnector:adjust()
     return factorissimo.beep()
 end
 
----@param conn BuildingConnection
-function BeltConnector.destroy(conn)
+function BeltConnector:destroy()
     local surface = conn._factory.inside_surface
     local position = conn.spill_location
 

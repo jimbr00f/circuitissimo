@@ -44,7 +44,7 @@ local function get_chest_type(chest)
     end
 end
 
-function ChestConnector.recheck(conn)
+function ChestConnector:recheck()
     return conn.outside.valid and conn.inside.valid
 end
 
@@ -69,7 +69,7 @@ function ChestConnector:direction(conn)
     return cmode, dir
 end
 
-function ChestConnector.rotate(conn)
+function ChestConnector:rotate()
     conn._settings.mode = ((conn._settings.mode or 0) + 1) % 3
     local mode = conn._settings.mode
     if mode == 0 then
@@ -217,7 +217,6 @@ local function move_items_outwards(outside_inv, inside_inv)
     end
 end
 
----@param conn BuildingConnection
 ---@return integer?
 function ChestConnector:tick(conn)
     local outside = conn.outside
@@ -239,7 +238,7 @@ function ChestConnector:tick(conn)
     end
 end
 
-function ChestConnector.destroy(conn)
+function ChestConnector:destroy()
 end
 
 ---@param factory Factory

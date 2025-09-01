@@ -32,40 +32,34 @@ function SurfaceConnector.connect(factory, cid, cpos, outside_entity, inside_ent
     return {}
 end
 
----@param conn BuildingConnection
 ---@return boolean
-function SurfaceConnector.recheck(conn)
+function SurfaceConnector:recheck()
     return true
 end
 
 
----@param conn BuildingConnection
 ---@return connection_mode, defines.direction
-function SurfaceConnector.direction(conn)
+function SurfaceConnector:direction()
     return connection_mode.d0, defines.direction.north
 end
 
 
----@param conn BuildingConnection
 ---@return string, boolean
-function SurfaceConnector.rotate(conn)
+function SurfaceConnector:rotate()
     return factorissimo.beep()
 end
 
----@param conn BuildingConnection
 ---@param positive boolean
 ---@return string, boolean?
-function SurfaceConnector.adjust(conn, positive)
+function SurfaceConnector:adjust(positive)
     return factorissimo.beep()
 end
 
----@param conn BuildingConnection
-function SurfaceConnector.destroy(conn)
+function SurfaceConnector:destroy()
 end
 
----@param conn BuildingConnection
 ---@return integer?
-function SurfaceConnector.tick(conn)
+function SurfaceConnector:tick()
     return nil
 end
 

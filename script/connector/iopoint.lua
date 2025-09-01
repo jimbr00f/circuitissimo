@@ -25,7 +25,7 @@ function IoPointConnector.unlocked(force)
 end
 
 -- return true if the two poles are connected to each other
-function IoPointConnector.recheck(conn)
+function IoPointConnector:recheck()
     local pole_1 = conn.inside_entity
     local pole_2 = conn.outside_entity
 
@@ -44,7 +44,7 @@ function IoPointConnector.recheck(conn)
     return wire_counter == 2
 end
 
-function IoPointConnector.direction(conn)
+function IoPointConnector:direction()
     return connection_mode.b0, defines.direction.north
 end
 
@@ -56,7 +56,7 @@ function IoPointConnector.adjust()
     return factorissimo.beep()
 end
 
-function IoPointConnector.destroy(conn)
+function IoPointConnector:destroy()
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end
     if conn.outside_middleman and conn.outside_middleman.valid then conn.outside_middleman.destroy() end
 end

@@ -18,7 +18,7 @@ function CircuitConnector.unlocked(force)
 end
 
 -- return true if the two poles are connected to each other
-function CircuitConnector.recheck(conn)
+function CircuitConnector:recheck()
     local pole_1 = conn.inside_entity
     local pole_2 = conn.outside_entity
 
@@ -39,7 +39,7 @@ end
 
 
 
-function CircuitConnector.direction(conn)
+function CircuitConnector:direction()
     return connection_mode.b0, defines.direction.north
 end
 
@@ -51,7 +51,7 @@ function CircuitConnector.adjust()
     return factorissimo.beep()
 end
 
-function CircuitConnector.destroy(conn)
+function CircuitConnector:destroy()
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end
     if conn.outside_middleman and conn.outside_middleman.valid then conn.outside_middleman.destroy() end
 end

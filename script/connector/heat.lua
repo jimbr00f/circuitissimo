@@ -21,7 +21,7 @@ end
 
 function HeatConnector.unlocked(force) return force.technologies["factory-connection-type-heat"].researched end
 
-function HeatConnector.recheck(conn)
+function HeatConnector:recheck()
     return conn.outside.valid and conn.inside.valid and conn.inside_link.valid and conn.outside_link.valid
 end
 
@@ -30,13 +30,11 @@ function HeatConnector:direction(conn)
 end
 
 
----@param conn BuildingConnection
 ---@return string, boolean
-function HeatConnector.rotate(conn)
+function HeatConnector:rotate()
     return factorissimo.beep()
 end
 
----@param conn BuildingConnection
 ---@return string, boolean
 function HeatConnector:adjust(conn, positive)
     local delay = (conn._settings.delay or self.default_delay)
@@ -87,7 +85,7 @@ function HeatConnector:tick(conn)
     return conn._settings.delay or self.default_delay
 end
 
-function HeatConnector.destroy(conn)
+function HeatConnector:destroy()
     if conn.outside_link.valid then conn.outside_link.destroy() end
     if conn.inside_link.valid then conn.inside_link.destroy() end
 end
