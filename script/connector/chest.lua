@@ -5,18 +5,23 @@ local SurfaceConnector = require 'surface-connector'
 local ChestConnector = setmetatable({}, { __index = SurfaceConnector })
 ChestConnector.__index = ChestConnector
 
-
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings ConnectionSettings
 ---@return ChestConnector
-function ChestConnector:new()
-    local instance = SurfaceConnector.new(self) --[[@as ChestConnector]]
+function ChestConnector:new(factory, cid, cpos, outside_entity, inside_entity, settings)
+    ---@type ChestConnector
+    local instance = ChestConnector._initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
     setmetatable(instance, self)
     return instance
 end
 
-
-ChestConnector.color = {r = 200 / 255, g = 110 / 255, b = 38 / 255}
-ChestConnector.entity_types = {"container", "logistic-container", "infinity-container", "linked-container"}
-function ChestConnector.unlocked(force) return force.technologies["factory-connection-type-chest"].researched end
+function ChestConnector.unlocked(force) 
+    return force.technologies["factory-connection-type-chest"].researched
+end
 
 local blacklist = {"factory-overlay-controller", "factory-requester-chest-factory-1", "factory-requester-chest-factory-2", "factory-requester-chest-factory-3"}
 local blacklisted = {}
@@ -39,54 +44,17 @@ local function get_chest_type(chest)
     end
 end
 
-function ChestConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
-    if blacklisted[outside_entity.name] or blacklisted[inside_entity.name] then return nil end
-
-    -- Connection mode: 0 for balance, 1 for inwards, 2 for outwards
-    if not settings.mode then
-        local outside_type = get_chest_type(outside_entity)
-        local inside_type = get_chest_type(inside_entity)
-        if outside_type == inside_type then
-            settings.mode = 0
-        elseif outside_type == "input" or inside_type == "output" then
-            settings.mode = 1
-        elseif outside_type == "output" or inside_type == "input" then
-            settings.mode = 2
-        end
-    end
-
-    return {outside = outside_entity, inside = inside_entity, do_tick_update = true}
-end
-
 function ChestConnector.recheck(conn)
     return conn.outside.valid and conn.inside.valid
 end
 
-local DELAYS = {10, 20, 60, 180, 600}
-local DEFAULT_DELAY = 60
-ChestConnector.indicator_settings = {connection_mode.d0, connection_mode.b0}
-
-for _, v in pairs(DELAYS) do
-    local delay_mode = connection_mode['d' .. v]
-    table.insert(ChestConnector.indicator_settings, delay_mode)
-    local balance_mode = connection_mode['b' .. v]
-    table.insert(ChestConnector.indicator_settings, balance_mode)
-end
-
-local function make_valid_delay(delay)
-    for _, v in pairs(DELAYS) do
-        if v == delay then return v end
-    end
-    return 0 -- Catchall
-end
-
-function ChestConnector.direction(conn)
+function ChestConnector:direction(conn)
     local mode = (conn._settings.mode or 0)
     ---@type connection_mode
     local cmode
     ---@type defines.direction
     local dir
-    local delay = make_valid_delay(conn._settings.delay or DEFAULT_DELAY)
+    local delay = self:make_valid_delay(conn._settings.delay)
     if mode == 0 then
         cmode = connection_mode['b' .. delay]
         dir = defines.direction.north
@@ -113,21 +81,21 @@ function ChestConnector.rotate(conn)
     end
 end
 
-function ChestConnector.adjust(conn, positive)
-    local delay = conn._settings.delay or DEFAULT_DELAY
+function ChestConnector:adjust(conn, positive)
+    local delay = conn._settings.delay or self.default_delay
     if positive then
-        for i = #DELAYS, 1, -1 do
-            if DELAYS[i] < delay then
-                delay = DELAYS[i]
+        for i = #self.valid_delays, 1, -1 do
+            if self.valid_delays[i] < delay then
+                delay = self.valid_delays[i]
                 break
             end
         end
         conn._settings.delay = delay
         return {"factory-connection-text.update-faster", delay}
     else
-        for i = 1, #DELAYS do
-            if DELAYS[i] > delay then
-                delay = DELAYS[i]
+        for i = 1, #self.valid_delays do
+            if self.valid_delays[i] > delay then
+                delay = self.valid_delays[i]
                 break
             end
         end
@@ -251,7 +219,7 @@ end
 
 ---@param conn BuildingConnection
 ---@return integer?
-function ChestConnector.tick(conn)
+function ChestConnector:tick(conn)
     local outside = conn.outside
     local inside = conn.inside
     if outside.valid and inside.valid then
@@ -265,7 +233,7 @@ function ChestConnector.tick(conn)
         else
             move_items_outwards(outside_inv, inside_inv)
         end
-        return conn._settings.delay or DEFAULT_DELAY
+        return conn._settings.delay or self.default_delay
     else
         return nil
     end
@@ -273,5 +241,48 @@ end
 
 function ChestConnector.destroy(conn)
 end
+
+---@param factory Factory
+---@param cid ConnectionId
+---@param cpos ConnectionPosition
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param settings ConnectionSettings
+---@return ChestConnector
+function ChestConnector._initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
+    if blacklisted[outside_entity.name] or blacklisted[inside_entity.name] then return nil end
+
+    -- Connection mode: 0 for balance, 1 for inwards, 2 for outwards
+    if not settings.mode then
+        local outside_type = get_chest_type(outside_entity)
+        local inside_type = get_chest_type(inside_entity)
+        if outside_type == inside_type then
+            settings.mode = 0
+        elseif outside_type == "input" or inside_type == "output" then
+            settings.mode = 1
+        elseif outside_type == "output" or inside_type == "input" then
+            settings.mode = 2
+        end
+    end
+
+    return {outside = outside_entity, inside = inside_entity, do_tick_update = true}
+end
+
+function ChestConnector._initialize_static()
+    ChestConnector.color = {r = 200 / 255, g = 110 / 255, b = 38 / 255}
+    ChestConnector.entity_types = {"container", "logistic-container", "infinity-container", "linked-container"}
+    ChestConnector.valid_delays = {10, 20, 60, 180, 600}
+    ChestConnector.default_delay = 60
+    ChestConnector.valid_delays = {10, 20, 60, 180, 600}
+    ChestConnector.indicator_settings = {connection_mode.d0, connection_mode.b0}
+    for _, v in pairs(ChestConnector.valid_delays) do
+        local delay_mode = connection_mode['d' .. v]
+        table.insert(ChestConnector.indicator_settings, delay_mode)
+        local balance_mode = connection_mode['b' .. v]
+        table.insert(ChestConnector.indicator_settings, balance_mode)
+    end
+end
+
+ChestConnector._initialize_static()
 
 return ChestConnector

@@ -68,3 +68,12 @@ end
 function SurfaceConnector.tick(conn)
     return nil
 end
+
+---@param delay integer?
+function SurfaceConnector:make_valid_delay(delay)
+    delay = delay or self.default_delay
+    for _, v in pairs(self.valid_delays) do
+        if v == delay then return v end
+    end
+    return 0 -- Catchall
+end

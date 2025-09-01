@@ -78,19 +78,19 @@
 ---@field mode integer
 ---@field input_mode boolean
 
----@class SurfaceConnector
+---@class SurfaceConnector : BuildingConnection
 ---@field color Color
 ---@field entity_types string[]
 ---@field indicator_settings connection_mode[]
+---@field default_delay integer?
+---@field valid_delays integer[]?
 ---@field unlocked fun(force: LuaForce|string|integer) : boolean
----@field connect fun(factory: any, cid: any, cpos: MapPosition, outside_entity: LuaEntity, inside_entity: LuaEntity, settings?: ConnectionSettings) : BuildingConnection
----@ todo: this should be the constructor
----@field recheck fun(conn: BuildingConnection) : boolean
----@field direction fun(conn: BuildingConnection) : connection_mode, defines.direction
----@field rotate fun(conn: BuildingConnection) : string, boolean
----@field adjust fun(conn: BuildingConnection, positive: boolean) : string, boolean
----@field destroy fun(conn: BuildingConnection)
----@field tick fun(conn: BuildingConnection) : integer?
+---@field recheck fun() : boolean
+---@field direction fun() : connection_mode, defines.direction
+---@field rotate fun() : string, boolean
+---@field adjust fun(positive: boolean) : string, boolean
+---@field destroy fun()
+---@field tick fun() : integer?
 
 ---@class SurfaceBuilding
 ---@field force LuaForce|string|integer
