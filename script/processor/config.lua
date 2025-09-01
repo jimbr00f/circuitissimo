@@ -38,6 +38,8 @@ local ProcessorConfig = {
     iopoint_placement_error_text = prefix .. "-iopoint-placement-error",
     iopoint_exists_error_text = prefix .. "-iopoint-exists-error",
 
+    layout_name = 'processor-layout',
+
     -- search for processors within this many tiles of the cursor
     attach_radius = 1.0,
     search_radius = 10.0,

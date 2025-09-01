@@ -132,12 +132,16 @@ end)
 
 -- FACTORY GENERATION --
 
+---@param factory Factory
 local function update_destructible(factory)
     if factory.built and factory.building.valid then
         factory.building.destructible = not settings.global["Factorissimo2-indestructible-buildings"].value
     end
 end
 
+---@param layout Layout
+---@param parent_surface LuaSurface
+---@return string
 local function get_surface_name(layout, parent_surface)
     if layout.surface_override then return layout.surface_override end
 
@@ -177,6 +181,9 @@ local function find_first_unused_position(surface)
     return #used_indexes + 1
 end
 
+---@param layout Layout
+---@param building LuaEntity
+---@return Factory
 local function create_factory_position(layout, building)
     local parent_surface = building.surface
     local surface_name = get_surface_name(layout, parent_surface)
@@ -286,6 +293,8 @@ local function add_tile_mosaic(tiles, tile_name, xmin, ymin, xmax, ymax, pattern
     end
 end
 
+---@param layout Layout
+---@param building LuaEntity
 local function create_factory_interior(layout, building)
     local force = building.force
 
@@ -319,7 +328,6 @@ local function create_factory_interior(layout, building)
     }
     radar.destructible = false
     factory.radar = radar
-    factory.inside_overlay_controllers = {}
 
     factory.connections = {}
     factory.connection_settings = {}
@@ -328,6 +336,8 @@ local function create_factory_interior(layout, building)
     return factory
 end
 
+---@param factory Factory
+---@param building LuaEntity
 local function create_factory_exterior(factory, building)
     local layout = factory.layout
     local force = factory.force
@@ -625,6 +635,8 @@ end)
 
 -- FACTORY PLACEMENT AND INITALIZATION --
 
+---@param entity LuaEntity
+---@return Factory
 local function create_fresh_factory(entity)
     local layout = remote_api.create_layout(entity.name, entity.quality)
     local factory = create_factory_interior(layout, entity)

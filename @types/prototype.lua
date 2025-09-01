@@ -23,3 +23,12 @@
 ---@class EntityWireConnectionPointPrototype
 ---@field wire WireConnectionPointPrototype
 ---@field shadow WireConnectionPointPrototype
+
+---@enum quality_level
+quality_level = {
+    common = 0 --[[@as quality_level.common]],
+    uncommon = 1 --[[@as quality_level.uncommon]],
+    rare = 2 --[[@as quality_level.rare]],
+    epic = 3 --[[@as quality_level.epic]],
+    legendary = 5 --[[@as quality_level.legendary]],
+}

@@ -1,3 +1,4 @@
+local ProcessorConfig = require 'script.processor.config'
 local north = defines.direction.north
 local east = defines.direction.east
 local south = defines.direction.south
@@ -7,7 +8,14 @@ local opposite = {[north] = south, [east] = west, [south] = north, [west] = east
 local DX = {[north] = 0, [east] = 1, [south] = 0, [west] = -1}
 local DY = {[north] = -1, [east] = 0, [south] = 1, [west] = 0}
 
-local make_connection = function(id, outside_x, outside_y, inside_x, inside_y, direction_out)
+---@param id string
+---@param outside_x number
+---@param outside_y number
+---@param inside_x number
+---@param inside_y number
+---@param direction_out defines.direction
+---@return LayoutConnection
+local function make_connection(id, outside_x, outside_y, inside_x, inside_y, direction_out)
     return {
         id = id,
         outside_x = outside_x,
@@ -21,11 +29,22 @@ local make_connection = function(id, outside_x, outside_y, inside_x, inside_y, d
     }
 end
 
-local make_quality_connection = function(id, outside_x, outside_y, inside_x, inside_y, direction_out, quality)
+---@param id string
+---@param outside_x number
+---@param outside_y number
+---@param inside_x number
+---@param inside_y number
+---@param direction_out defines.direction
+---@param quality quality_level
+---@return LayoutConnection
+local function make_quality_connection(id, outside_x, outside_y, inside_x, inside_y, direction_out, quality)
     local connection = make_connection(id, outside_x, outside_y, inside_x, inside_y, direction_out)
     connection.quality = quality
     return connection
 end
+
+
+
 
 local layout_generators = {
     ["factory-1"] = {
@@ -340,6 +359,19 @@ local layout_generators = {
         },
     }
 }
+
+-- ---@param formation Formation
+-- ---@return LayoutGenerator
+-- function formation_to_layout(formation)
+--     local path = formation.paths[orientation.r0]
+--     ---@type LayoutGenerator
+--     local layout = table.deepcopy(layout_generators['factory-1'])
+--     layout.outside_size = 2
+--     layout.connections = {}
+
+--     return layout
+-- end
+
 
 factorissimo.on_event(factorissimo.events.on_init(), function()
     storage.layout_generators = storage.layout_generators or {}

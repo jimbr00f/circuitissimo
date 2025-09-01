@@ -40,8 +40,8 @@ factory = {
 ]] --
 
 remote_api.get_global = function(path)
-    if not path then return global end
-    local g = global
+    if not path then return storage end
+    local g = storage
     for _, point in ipairs(path) do
         g = g[point]
     end
@@ -49,18 +49,22 @@ remote_api.get_global = function(path)
 end
 
 remote_api.set_global = function(path, v)
-    local g = global
+    local g = storage
     for i = 1, #path - 1 do
         g = g[path[i]]
     end
     g[path[#path]] = v
 end
 
+---@param entity LuaEntity
+---@return Factory?
 remote_api.get_factory_by_entity = function(entity)
     if entity == nil then return nil end
     return storage.factories_by_entity[entity.unit_number]
 end
 
+---@param entity LuaEntity
+---@return Factory?
 remote_api.get_factory_by_building = function(entity)
     local factory = storage.factories_by_entity[entity.unit_number]
     if factory == nil then
@@ -69,6 +73,8 @@ remote_api.get_factory_by_building = function(entity)
     return factory
 end
 
+---@param params FactorySearchParams
+---@return Factory?
 remote_api.find_factory_by_area = function(params)
     local surface = params.surface
     local position = params.position
@@ -80,6 +86,8 @@ remote_api.find_factory_by_area = function(params)
     return nil
 end
 
+---@param params FactorySearchParams
+---@return Factory[]
 remote_api.find_factories_by_area = function(params)
     local surface = params.surface
     local area = params.area
@@ -94,6 +102,9 @@ remote_api.find_factories_by_area = function(params)
     return factories
 end
 
+---@param surface LuaSurface
+---@param position MapPosition
+---@return Factory?
 remote_api.find_surrounding_factory = function(surface, position)
     local factories = storage.surface_factories[surface.index]
     if factories == nil then return nil end
@@ -103,6 +114,9 @@ remote_api.find_surrounding_factory = function(surface, position)
     return factories[8 * y + x + 1]
 end
 
+---@param surface_index integer
+---@param position MapPosition
+---@return Factory?
 remote_api.find_surrounding_factory_by_surface_index = function(surface_index, position)
     local factories = storage.surface_factories[surface_index]
     if factories == nil then return nil end
@@ -112,7 +126,11 @@ remote_api.find_surrounding_factory_by_surface_index = function(surface_index, p
     return factories[8 * y + x + 1]
 end
 
+---@param name string
+---@param quality LuaQualityPrototype
+---@return Layout?
 remote_api.create_layout = function(name, quality)
+    ---@type Layout
     local layout = storage.layout_generators[name]
     if not layout then return nil end
     layout = table.deepcopy(layout)
@@ -128,17 +146,20 @@ remote_api.create_layout = function(name, quality)
     return layout
 end
 
+---@param layout Layout
 remote_api.add_layout = function(layout)
     storage.layout_generators = storage.layout_generators or {}
     storage.layout_generators[layout.name] = layout
 end
 
+---@param name string
 remote_api.has_layout = function(name)
     name = name:gsub("%-instantiated", "")
     return storage.layout_generators[name] ~= nil
 end
 _G.has_layout = remote_api.has_layout
 
+---@param surface LuaSurface
 remote_api.is_factorissimo_surface = function(surface)
     local surface_index
     local surface_type = type(surface)

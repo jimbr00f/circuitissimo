@@ -38,6 +38,11 @@ local function get_entity_direction(entity)
     return direction
 end
 
+---@param outside_entity LuaEntity
+---@param inside_entity LuaEntity
+---@param direction_out defines.direction
+---@param direction_in defines.direction
+---@return defines.direction
 local function get_conn_facing(outside_entity, inside_entity, direction_out, direction_in)
     local outside_entity_type, inside_entity_type = outside_entity.type, inside_entity.type
     local outside_dir, inside_dir = get_entity_direction(outside_entity), get_entity_direction(inside_entity)
