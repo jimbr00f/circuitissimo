@@ -1,11 +1,6 @@
 -- This file contains frankly way too much code to basically make doors work.
 -- Warning to future mainainers: do not attempt to rewrite this with landmines. Trust me.
 
-local find_surrounding_factory = remote_api.find_surrounding_factory
-local find_factory_by_area = remote_api.find_factory_by_area
-local get_factory_by_building = remote_api.get_factory_by_building
-local has_layout = has_layout
-
 factorissimo.on_event(factorissimo.events.on_init(), function()
     storage.last_player_teleport = storage.last_player_teleport or {}
 end)
@@ -47,11 +42,11 @@ local function teleport_safely(e, surface, position, player, leaving)
     if player then factorissimo.update_factory_preview(player) end
 end
 
-local function enter_factory(e, factory, player)
+local function teleport_to_factory(e, factory, player)
     teleport_safely(e, factory.inside_surface, {factory.inside_door_x, factory.inside_door_y}, player, false)
 end
 
-local function leave_factory(e, factory, player)
+local function teleport_from_factory(e, factory, player)
     teleport_safely(e, factory.outside_surface, {factory.outside_door_x, factory.outside_door_y}, player, true)
 end
 
@@ -95,7 +90,7 @@ local god_controllers = {
     [defines.controllers.remote] = true,
 }
 
-local function check_position_and_leave_factory(player, is_airborne)
+local function leave_factory(player, is_airborne)
     if god_controllers[player.controller_type] then return end
 
     local walking_state = player.walking_state
@@ -109,7 +104,7 @@ local function check_position_and_leave_factory(player, is_airborne)
 
     if not is_moving_downwards then return end
 
-    local factory = find_surrounding_factory(player.physical_surface, position)
+    local factory = remote_api.find_surrounding_factory(player.physical_surface, position)
     if not factory then return end
 
     local y = position.y + (is_airborne and 0.5 or -1)
@@ -117,13 +112,13 @@ local function check_position_and_leave_factory(player, is_airborne)
 
     if math.abs(position.x - factory.inside_door_x) >= 4 then return end
 
-    leave_factory(player, factory, player)
+    teleport_from_factory(player, factory, player)
     factorissimo.update_factory_preview(player)
     factorissimo.update_overlay(factory)
     return true
 end
 
-local function check_position_and_enter_factory(player, is_airborne)
+local function enter_factory(player, is_airborne)
     if player.controller_type == defines.controllers.remote then return end
 
     local physical_position = player.physical_position
@@ -136,7 +131,7 @@ local function check_position_and_enter_factory(player, is_airborne)
 
     if not is_moving_upwards then return end
 
-    local factory = find_factory_by_area {
+    local factory = remote_api.find_factory_by_area {
         surface = player.physical_surface,
         area = (not is_airborne) and {
             {physical_position.x - 0.2, physical_position.y - 0.3},
@@ -151,7 +146,7 @@ local function check_position_and_enter_factory(player, is_airborne)
     local is_standing_in_doorway = physical_position.y > factory.outside_y + 1 and math.abs(physical_position.x - factory.outside_x) < door_width
     if not is_standing_in_doorway then return end
 
-    enter_factory(player, factory, player)
+    teleport_to_factory(player, factory, player)
     return true
 end
 
@@ -165,8 +160,8 @@ factorissimo.on_nth_tick(6, function()
         if not player.walking_state.walking then goto continue end
 
         local is_airborne = is_airborne(jetpacks, player)
-        if not check_position_and_enter_factory(player, is_airborne) then
-            check_position_and_leave_factory(player, is_airborne)
+        if not enter_factory(player, is_airborne) then
+            leave_factory(player, is_airborne)
         end
 
         ::continue::

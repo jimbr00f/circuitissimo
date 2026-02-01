@@ -18,7 +18,8 @@ function CircuitConnector.unlocked(force)
 end
 
 -- return true if the two poles are connected to each other
-function CircuitConnector:recheck()
+---@param conn SurfaceConnection
+function CircuitConnector:recheck(conn)
     local pole_1 = conn.inside_entity
     local pole_2 = conn.outside_entity
 
@@ -51,7 +52,8 @@ function CircuitConnector.adjust()
     return factorissimo.beep()
 end
 
-function CircuitConnector:destroy()
+---@param conn SurfaceConnection
+function CircuitConnector:destroy(conn)
     if conn.inside_middleman and conn.inside_middleman.valid then conn.inside_middleman.destroy() end
     if conn.outside_middleman and conn.outside_middleman.valid then conn.outside_middleman.destroy() end
 end

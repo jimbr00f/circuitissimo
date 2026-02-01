@@ -73,6 +73,26 @@
 ---@field outside LuaEntity
 ---@field inside LuaEntity
 
+---@class SurfaceConnection
+---@field _id ConnectionId
+---@field _type ConnectionType
+---@field _factory Factory
+---@field _settings ConnectionSettings
+---@field _valid boolean
+---@field from LuaEntity
+---@field to LuaEntity
+---@field from_link LuaEntity
+---@field to_link LuaEntity
+---@field facing defines.direction
+---@field spill_location MapPosition
+---@field do_tick_update boolean
+---@field outside LuaEntity
+---@field outside_entity LuaEntity # replace these with 'outside'
+---@field outside_middleman LuaEntity
+---@field inside LuaEntity 
+---@field inside_entity LuaEntity  # replace these with 'inside'
+---@field inside_middleman LuaEntity
+
 ---@class ConnectionSettings
 ---@field delay integer
 ---@field mode integer
@@ -84,17 +104,18 @@
 ---@field indicator_settings connection_mode[]
 ---@field default_delay integer?
 ---@field valid_delays integer[]?
----@field unlocked fun(force: LuaForce|string|integer) : boolean
----@field recheck fun() : boolean
----@field direction fun() : connection_mode, defines.direction
----@field rotate fun() : string, boolean
----@field adjust fun(positive: boolean) : string, boolean
----@field destroy fun()
----@field tick fun() : integer?
+---@field unlocked fun(self: SurfaceConnector, force: LuaForce|string|integer) : boolean
+---@field recheck fun(self: SurfaceConnector, conn: SurfaceConnection) : boolean
+---@field direction fun(self: SurfaceConnector, conn: SurfaceConnection) : connection_mode, defines.direction
+---@field rotate fun(self: SurfaceConnector, conn: SurfaceConnection) : string, boolean
+---@field adjust fun(self: SurfaceConnector, conn: SurfaceConnection, positive: boolean) : string, boolean
+---@field destroy fun(self: SurfaceConnector, conn: SurfaceConnection)
+---@field tick fun(self: SurfaceConnector, conn: SurfaceConnection) : integer?
 
 ---@class SurfaceBuilding
 ---@field force LuaForce|string|integer
 ---@field quality LuaQualityPrototype
+---@field inactive boolean
 ---@
 ---@field inside_x number
 ---@field inside_y number
@@ -110,7 +131,7 @@
 ---@
 ---@field stored_pollution number
 ---@field radar LuaEntity?
----@field connections table<ConnectionId, BuildingConnection>
+---@field connections table<ConnectionId, SurfaceConnection>
 ---@field connection_settings table<ConnectionId, ConnectionSettings>
 ---@field connection_indicators table<ConnectionId, LuaEntity>
 ---@field outside_energy_receiver LuaEntity?
@@ -124,7 +145,7 @@
 
 
 ---@class FactorySearchParams
----@field area BoundingBox
+---@field area BoundingBox?
 ---@field surface LuaSurface
 ---@field position MapPosition?
 

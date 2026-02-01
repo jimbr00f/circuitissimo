@@ -1,3 +1,4 @@
+local SurfaceConnectionRegistrar = require 'script.connector.registrar'
 local get_factory_by_building = remote_api.get_factory_by_building
 local find_surrounding_factory = remote_api.find_surrounding_factory
 
@@ -374,7 +375,7 @@ local function cleanup_factory_exterior(factory, building)
     factorissimo.cleanup_outside_energy_receiver(factory)
     factorissimo.cleanup_factory_roboport_exterior_chest(factory)
 
-    factorissimo.disconnect_factory_connections(factory)
+    SurfaceConnectionRegistrar:disconnect_factory_connections(factory)
     for _, render_id in pairs(factory.outside_overlay_displays) do
         local object = rendering.get_object_by_id(render_id)
         if object then object.destroy() end

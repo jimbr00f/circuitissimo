@@ -2,19 +2,6 @@
 local SurfaceConnector = {}
 SurfaceConnector.__index = SurfaceConnector
 
----@param factory Factory
----@param cid ConnectionId
----@param cpos ConnectionPosition
----@param outside_entity LuaEntity
----@param inside_entity LuaEntity
----@param settings? ConnectionSettings
----@return SurfaceConnector
-function SurfaceConnector:new(factory, cid, cpos, outside_entity, inside_entity, settings)
-    local instance = {} --[[@as Processor]]
-    setmetatable(instance, self)
-    return instance
-end
-
 ---@param force LuaForce
 ---@return boolean
 function SurfaceConnector.unlocked(force)
@@ -27,25 +14,27 @@ end
 ---@param outside_entity LuaEntity
 ---@param inside_entity LuaEntity
 ---@param settings? ConnectionSettings
----@return BuildingConnection
+---@return SurfaceConnection
 function SurfaceConnector.connect(factory, cid, cpos, outside_entity, inside_entity, settings)
     return {}
 end
 
+---@param conn SurfaceConnection
 ---@return boolean
-function SurfaceConnector:recheck()
+function SurfaceConnector:recheck(conn)
     return true
 end
 
-
+---@param conn SurfaceConnection
 ---@return connection_mode, defines.direction
-function SurfaceConnector:direction()
+function SurfaceConnector:direction(conn)
     return connection_mode.d0, defines.direction.north
 end
 
 
+---@param conn SurfaceConnection
 ---@return string, boolean
-function SurfaceConnector:rotate()
+function SurfaceConnector:rotate(conn)
     return factorissimo.beep()
 end
 
@@ -55,11 +44,13 @@ function SurfaceConnector:adjust(positive)
     return factorissimo.beep()
 end
 
-function SurfaceConnector:destroy()
+---@param conn SurfaceConnection
+function SurfaceConnector:destroy(conn)
 end
 
+---@param conn SurfaceConnection
 ---@return integer?
-function SurfaceConnector:tick()
+function SurfaceConnector:tick(conn)
     return nil
 end
 

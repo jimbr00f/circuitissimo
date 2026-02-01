@@ -72,7 +72,7 @@ function IoPointConnector._connect_two_poles_with_circuit_wires(pole_1, pole_2)
     end
 end
 
-local expected_entity_name = "factory-circuit-connector"
+local expected_entity_name = "factory-iopoint-connector"
 
 ---@param factory Factory
 ---@param cid ConnectionId
@@ -82,11 +82,8 @@ local expected_entity_name = "factory-circuit-connector"
 ---@param settings? ConnectionSettings
 ---@return IoPointConnector
 function IoPointConnector._initialize(factory, cid, cpos, outside_entity, inside_entity, settings)
-    if outside_entity.name ~= "factory-circuit-connector" then
-        error(string.format('Could not create BeltConnector instance: bad outside entity "%s" (expected %s).', outside_entity.name, expected_entity_name))
-    end
-    if outside_entity.name ~= "factory-circuit-connector" or inside_entity.name ~= "factory-circuit-connector" then
-        error(string.format('Could not create BeltConnector instance: bad inside entity "%s" (expected %s).', inside_entity.name, expected_entity_name))
+    if outside_entity.name ~= expected_entity_name or inside_entity.name ~= expected_entity_name then
+        error(string.format('Could not create IoPointConnector instance: bad inside entity "%s" (expected %s).', inside_entity.name, expected_entity_name))
     end
 
     local inside_middleman = inside_entity.surface.create_entity {

@@ -266,8 +266,10 @@ local function open_outside_in_remote_view(player, pole)
     end
 end
 
-factorissimo.on_event("factory-open-outside-surface-to-remote-view", function(event)
+factorissimo.on_event("factory-open-outside-surface-to-remote-view", 
+function(event --[[@as EventData]])
     local player = game.get_player(event.player_index)
+    if not player or not player.valid then return end
     local entity = player.selected
     if not entity or not entity.valid then return end
 
